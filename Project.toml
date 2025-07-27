@@ -4,9 +4,13 @@ version = "1.0.0-DEV"
 authors = ["John Lapeyre"]
 
 [deps]
+CyclotomicNumbers = "c380f8b6-65b3-4789-a31b-7d6b5dc6d4c5"
+ILog2 = "2cd5bd5f-40a1-5050-9e10-fc8cdb6109f5"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [compat]
+CyclotomicNumbers = "0.1.9"
+ILog2 = "2.0.0"
 LinearAlgebra = "1.12.0"
 julia = "1.10"
 
