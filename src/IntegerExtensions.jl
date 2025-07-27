@@ -109,6 +109,8 @@ Base.convert(::Type{T}, f::DyadicFraction) where {T} = convert(T, f.a) / convert
 Base.convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
     Rational{T}(convert(T, f.a), convert(T, 2)^f.k)
 
+DyadicFraction(r::Rational) = convert(DyadicFraction, r)
+
 function Base.convert(::Type{DyadicFraction}, r::Rational)
     ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
     DyadicFraction(r.num, ilog2(r.den))
@@ -129,6 +131,12 @@ end
 
 struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
+end
+
+CyclotomicRing(coeffs::NTuple{M, CoeffT}) where {M, CoeffT} = CyclotomicRing{M, CoeffT}(coeffs)
+
+function Base.:+(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
+    CyclotomicRing{M, CoeffT}(c1.coeffs .+ c2.coeffs)
 end
 
 end # module IntegerExtensions
