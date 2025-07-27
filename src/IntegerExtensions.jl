@@ -16,9 +16,9 @@ export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing
 #
 # Quadratic integers with D equiv 0 mod 4 do not exist
 # We check for neither condition.
-struct QuadraticRing{D, IntT}
-    a::IntT
-    b::IntT
+struct QuadraticRing{D, CoeffT}
+    a::CoeffT
+    b::CoeffT
 end
 
 QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
@@ -29,25 +29,16 @@ function Base.copy(q::QuadraticRing{D}) where D
     QuadraticRing{D}(q.a, q.b)
 end
 
-function Base.convert(::Type{QuadraticRing{D, IntT}}, q::QuadraticRing{D}) where {D, IntT}
-    qa = convert(IntT, q.a)
-    qb = convert(IntT, q.b)
+function Base.convert(::Type{QuadraticRing{D, CoeffT}}, q::QuadraticRing{D}) where {D, CoeffT}
+    qa = convert(CoeffT, q.a)
+    qb = convert(CoeffT, q.b)
     QuadraticRing{D}(qa, qb)
 end
 
 # TODO: Use promote or s.t. like that
-function Base.convert(::Type{T}, q::QuadraticRing{D}) where {T, D}
-    convert(T, q.a) + sqrt(D) * convert(T, q.b)
-end
-
-function Base.float(q::QuadraticRing)
-    convert(AbstractFloat, q)
-end
-
-function Base.zero(::Type{QuadraticRing{D, IntT}}) where {D, IntT}
-    QuadraticRing{D, IntT}(0, 0)
-end
-
+Base.convert(::Type{T}, q::QuadraticRing{D}) where {T, D} = convert(T, q.a) + sqrt(D) * convert(T, q.b)
+Base.float(q::QuadraticRing) = convert(AbstractFloat, q)
+Base.zero(::Type{QuadraticRing{D, CoeffT}}) where {D, CoeffT} = QuadraticRing{D, CoeffT}(0, 0)
 Base.zero(q::QuadraticRing) = zero(typeof(q))
 
 """
@@ -60,34 +51,17 @@ function isunit(q::QuadraticRing)
     nq == 1 || nq == -1
 end
 
-function Base.big(q::QuadraticRing{D}) where D
-    convert(QuadraticRing{D, BigInt}, q)
-end
-
+Base.big(q::QuadraticRing{D}) where D = convert(QuadraticRing{D, BigInt}, q)
 LinearAlgebra.norm(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
-
 Base.conj(qi::QuadraticRing{D}) where D = QuadraticRing{D}(qi.a, -qi.b)
 
-function Base.:*(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D
+Base.:*(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D =
     QuadraticRing{D}(q1.a * q2.a + 2 * q1.b * q2.b, q1.a * q2.b + q1.b * q2. a)
-end
 
-function Base.:-(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D
-    QuadraticRing{D}(q1.a - q2.a, q1.b - q2.b)
-end
-
-function Base.:-(q::QuadraticRing{D}) where D
-    QuadraticRing{D}(-q.a, -q.b)
-end
-
-function Base.:+(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D
-    QuadraticRing{D}(q1.a + q2.a, q1.b + q2.b)
-end
-
-# Is there a better method than this?
-function Base.:^(q::QuadraticRing{D}, n::Integer) where D
-    Base.power_by_squaring(q, n)
-end
+Base.:-(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q1.a - q2.a, q1.b - q2.b)
+Base.:-(q::QuadraticRing{D}) where D = QuadraticRing{D}(-q.a, -q.b)
+Base.:+(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q1.a + q2.a, q1.b + q2.b)
+Base.:^(q::QuadraticRing{D}, n::Integer) where D = Base.power_by_squaring(q, n)
 
 """
     RootOne{N}
@@ -101,8 +75,6 @@ struct RootOne{N}
     k::Int # Could use smaller `k`.
 end
 
-RootOne(k, N) = RootOne{N}(k)
-
 # Examples:
 # convert(ComplexF64, z)
 # convert(Complex{BigFloat}, z)
@@ -111,34 +83,21 @@ function Base.convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N}
     cispi(2 * kT / N)
 end
 
+RootOne(k, N) = RootOne{N}(k)
 Base.one(::Type{RootOne{N}}) where {N} = RootOne{N}(0)
 Base.one(x::RootOne) = one(typeof(x))
-
 Base.float(r::RootOne) = complex(r)
 Base.complex(r::RootOne) = convert(ComplexF64, r)
 Base.big(r::RootOne) = convert(Complex{BigFloat}, r)
 Base.angle(r::RootOne{N}) where {N} = 2 * pi * r.k / N
 Base.abs2(r::RootOne) = 1
 Base.abs(r::RootOne) = 1
-
 Base.real(r::RootOne{N}) where {N} = cospi(2 * r.k / N)
 Base.imag(r::RootOne{N}) where {N} = sinpi(2 * r.k / N)
-
-function Base.isreal(r::RootOne{N}) where {N}
-    r.k == 0 || div(N, r.k) == 2
-end
-
-function Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N}
-    RootOne{N}(r1.k + r2.k)
-end
-
-function Base.:^(r::RootOne{N}, n::Integer) where {N}
-    RootOne{N}(r.k * n)
-end
-
-function Base.inv(r::RootOne{N}) where {N}
-    RootOne{N}(N - r.k)
-end
+Base.isreal(r::RootOne{N}) where {N} = r.k == 0 || div(N, r.k) == 2
+Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
+Base.:^(r::RootOne{N}, n::Integer) where {N} = RootOne{N}(r.k * n)
+Base.inv(r::RootOne{N}) where {N} = RootOne{N}(N - r.k)
 
 struct DyadicFraction{aT, kT}
     a::aT
@@ -147,9 +106,8 @@ end
 
 Base.convert(::Type{T}, f::DyadicFraction) where {T} = convert(T, f.a) / convert(T, 2)^f.k
 
-Base.convert(::Type{Rational{T}}, f::DyadicFraction) where {T}
+Base.convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
     Rational{T}(convert(T, f.a), convert(T, 2)^f.k)
-end
 
 function Base.convert(::Type{DyadicFraction}, r::Rational)
     ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
@@ -159,6 +117,8 @@ end
 Base.float(f::DyadicFraction) = convert(Float64, f)
 Base.big(f::DyadicFraction) = convert(BigFloat, f)
 Base.:*(f1::DyadicFraction, f2::DyadicFraction) = DyadicFraction(f1.a * f2.a, f1.k + f2.k)
+Base.:-(f::DyadicFraction) = DyadicFraction(-f.a, f.k)
+Base.:*(n::Integer, f::DyadicFraction) = DyadicFraction(n * f.a, f.k)
 
 Base.:+(f1::DyadicFraction, f2::DyadicFraction) = _plus(f1, f2, +)
 Base.:-(f1::DyadicFraction, f2::DyadicFraction) = _plus(f1, f2, -)
@@ -166,9 +126,6 @@ function _plus(f1::DyadicFraction, f2::DyadicFraction, op)
     (minex, maxex) = minmax(f1.k, f2.k)
     DyadicFraction(op(2^(f2.k - minex) * f1.a,  2^(f1.k - minex) * f2.a), maxex)
 end
-
-Base.:-(f::DyadicFraction) = DyadicFraction(-f.a, f.k)
-Base.:*(n::Integer, f::DyadicFraction) = DyadicFraction(n * f.a, f.k)
 
 struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}

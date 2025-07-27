@@ -2,11 +2,11 @@ using IntegerExtensions
 import LinearAlgebra: norm
 using Test
 
-@testset "QuadraticInteger" begin
-    q = QuadraticInteger(1, 1, 2)
-    @test q === QuadraticInteger{2}(1, 1)
+@testset "QuadraticRing" begin
+    q = QuadraticRing(1, 1, 2)
+    @test q === QuadraticRing{2}(1, 1)
     @test iszero(zero(q))
-    @test iszero(zero(QuadraticInteger{2, Int}))
+    @test iszero(zero(QuadraticRing{2, Int}))
     @test iszero(q - q)
     @test q^2 == q * q
     @test q^5 == q * q * q * q * q
