@@ -1,0 +1,5 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+CyclotomicRings = "334ec475-464a-4b64-9e12-aa12729e72f1"
+
+

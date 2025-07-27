@@ -1,0 +1,5 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+RingExtensionsCommon = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+RootOnes = "32814b26-06a8-441b-b14b-95ecdba71a3c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

@@ -1,0 +1,5 @@
+[deps]
+QuadraticRings = "c34bf170-b082-433c-beb6-b642a61601ea"
+RootOnes = "32814b26-06a8-441b-b14b-95ecdba71a3c"
+SingletonNumbers = "432dfa58-0f90-4bfc-a98e-bb512c101b26"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

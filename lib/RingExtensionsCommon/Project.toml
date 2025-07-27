@@ -1,0 +1,14 @@
+name = "RingExtensionsCommon"
+uuid = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+version = "1.0.0"
+authors = ["John Lapeyre"]
+
+[workspace]
+projects = ["test", "docs"]
+
+[deps]
+IsApprox = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
+
+[compat]
+IsApprox = "2.0.0"
+julia = "1.12"

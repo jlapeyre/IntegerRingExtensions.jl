@@ -1,0 +1,29 @@
+name = "SmallStaticMatrices"
+uuid = "86e883af-70cd-466f-b190-0f2972ced545"
+version = "1.0.0"
+authors = ["John Lapeyre"]
+
+[deps]
+Angles2 = "6e6d5e11-4077-4f2b-9d65-d01251d57388"
+RingExtensionsCommon = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+FunctionSecants = "9112c3b5-d6e8-4492-aa25-555be7829d8d"
+IsApprox = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+
+[compat]
+Angles2 = "1.0.0"
+RingExtensionsCommon = "1.0.0"
+FunctionSecants = "1.0.0"
+IsApprox = "2.0.0"
+LinearAlgebra = "1.12.0"
+Random = "1.11.0"
+RingExtensionsUtils = "1.0.0"
+julia = "1.11"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

@@ -1,0 +1,16 @@
+name = "SingletonNumbers"
+uuid = "432dfa58-0f90-4bfc-a98e-bb512c101b26"
+version = "1.0.0"
+authors = ["John Lapeyre"]
+
+[workspace]
+projects = ["test", "docs"]
+
+[deps]
+RingExtensionsCommon = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+
+[compat]
+RingExtensionsCommon = "1.0.0"
+RingExtensionsUtils = "1.0.0"
+julia = "1.11"

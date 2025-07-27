@@ -1,14 +1,7 @@
 ```@meta
-CurrentModule = IntegerExtensions
+CurrentModule = IntegerRingExtensions
 ```
 
-# IntegerExtensions
+# IntegerRingExtensions
 
-Documentation for [IntegerExtensions](https://github.com/jlapeyre/IntegerExtensions.jl).
-
-```@index
-```
-
-```@autodocs
-Modules = [IntegerExtensions]
-```
+Documentation for [IntegerRingExtensions](https://github.com/jlapeyre/IntegerRingExtensions.jl).

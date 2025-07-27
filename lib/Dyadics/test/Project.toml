@@ -1,0 +1,6 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Dyadics = "8e3fe6b3-7b7e-49b9-998b-f3cd8325e817"
+RingExtensionsCommon = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+SingletonNumbers = "432dfa58-0f90-4bfc-a98e-bb512c101b26"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

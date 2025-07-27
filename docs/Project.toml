@@ -1,3 +1,11 @@
 [deps]
+Angles2 = "6e6d5e11-4077-4f2b-9d65-d01251d57388"
+CyclotomicRings = "334ec475-464a-4b64-9e12-aa12729e72f1"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-IntegerExtensions = "96ddcad0-4f2e-400e-a19c-75507ad3a23d"
+Dyadics = "8e3fe6b3-7b7e-49b9-998b-f3cd8325e817"
+IntegerRingExtensions = "96ddcad0-4f2e-400e-a19c-75507ad3a23d"
+QuadraticRings = "c34bf170-b082-433c-beb6-b642a61601ea"
+RingExtensionsCommon = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+RootOnes = "32814b26-06a8-441b-b14b-95ecdba71a3c"
+SingletonNumbers = "432dfa58-0f90-4bfc-a98e-bb512c101b26"

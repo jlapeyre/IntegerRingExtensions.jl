@@ -1,0 +1,18 @@
+name = "RootOnes"
+uuid = "32814b26-06a8-441b-b14b-95ecdba71a3c"
+version = "1.0.0"
+authors = ["John Lapeyre"]
+
+[workspace]
+projects = ["test", "docs"]
+
+[deps]
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+RingExtensionsCommon = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+
+[compat]
+Random = "1.11.0"
+RingExtensionsCommon = "1.0.0"
+RingExtensionsUtils = "1.0.0"
+julia = "1.11"
