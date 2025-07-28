@@ -1,9 +1,16 @@
 module IntegerExtensions
 
 import LinearAlgebra
+import Base: convert
 using ILog2
 
 export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing
+
+########################
+####
+#### QuadraticRing
+####
+########################
 
 # QuadraticInteger is a good name if the type of a and by is Integer
 # But we allow DyadicFraction, as well. Not sure what a good
@@ -29,14 +36,27 @@ function Base.copy(q::QuadraticRing{D}) where D
     QuadraticRing{D}(q.a, q.b)
 end
 
-function Base.convert(::Type{QuadraticRing{D, CoeffT}}, q::QuadraticRing{D}) where {D, CoeffT}
+function convert(::Type{QuadraticRing{D, CoeffT}}, q::QuadraticRing{D}) where {D, CoeffT}
     qa = convert(CoeffT, q.a)
     qb = convert(CoeffT, q.b)
     QuadraticRing{D}(qa, qb)
 end
 
 # TODO: Use promote or s.t. like that
-Base.convert(::Type{T}, q::QuadraticRing{D}) where {T, D} = convert(T, q.a) + sqrt(D) * convert(T, q.b)
+
+convert(::Type{T}, q::QuadraticRing{D}) where {T, D} = convert(T, q.a) + sqrt(D) * convert(T, q.b)
+
+function convert(::Type{T}, q::QuadraticRing{D}) where {T<:Integer, D}
+    q.b == 0 || throw(ArgumentError(lazy"Inexact error converting $q to $T"))
+    convert(T, q.a)
+end
+
+for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
+    @eval function (::Type{Base.$Ti})(q::QuadraticRing)
+        convert($Ti, q)
+    end
+end
+
 Base.float(q::QuadraticRing) = convert(AbstractFloat, q)
 Base.zero(::Type{QuadraticRing{D, CoeffT}}) where {D, CoeffT} = QuadraticRing{D, CoeffT}(0, 0)
 Base.zero(q::QuadraticRing) = zero(typeof(q))
@@ -63,6 +83,14 @@ Base.:-(q::QuadraticRing{D}) where D = QuadraticRing{D}(-q.a, -q.b)
 Base.:+(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q1.a + q2.a, q1.b + q2.b)
 Base.:^(q::QuadraticRing{D}, n::Integer) where D = Base.power_by_squaring(q, n)
 
+########################
+####
+#### RootOne
+####
+########################
+
+# This struct implements the cyclic group of order N,
+# plus a few methods particular to the interpretation as roots of unity.
 """
     RootOne{N}
 
@@ -78,7 +106,7 @@ end
 # Examples:
 # convert(ComplexF64, z)
 # convert(Complex{BigFloat}, z)
-function Base.convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N}
+function convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N}
     kT = convert(T, r.k)
     cispi(2 * kT / N)
 end
@@ -89,6 +117,7 @@ Base.one(x::RootOne) = one(typeof(x))
 Base.float(r::RootOne) = complex(r)
 Base.complex(r::RootOne) = convert(ComplexF64, r)
 Base.big(r::RootOne) = convert(Complex{BigFloat}, r)
+# TODO: angle should agree with floating point angle: in [-pi, pi] rather than [0, 2pi]
 Base.angle(r::RootOne{N}) where {N} = 2 * pi * r.k / N
 Base.abs2(r::RootOne) = 1
 Base.abs(r::RootOne) = 1
@@ -99,19 +128,58 @@ Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
 Base.:^(r::RootOne{N}, n::Integer) where {N} = RootOne{N}(r.k * n)
 Base.inv(r::RootOne{N}) where {N} = RootOne{N}(N - r.k)
 
+function Base.:-(r::RootOne{N}) where {N}
+    iseven(N) || throw(ArgumentError(lazy"InexactError unary minus of type RootOne{$N}"))
+    RootOne{N}(r.k + div(N, 2))
+end
+
+########################
+####
+#### DyadicFraction
+####
+########################
+
 struct DyadicFraction{aT, kT}
     a::aT
     k::kT
 end
 
-Base.convert(::Type{T}, f::DyadicFraction) where {T} = convert(T, f.a) / convert(T, 2)^f.k
+function convert(::Type{T}, f::DyadicFraction) where {T}
+    if iszero(f.k)
+        return convert(T, f.a)
+    end
+    convert(T, f.a) / convert(T, 2)^f.k
+end
 
-Base.convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
+function convert(::Type{Float64}, f::DyadicFraction)
+    if iszero(f.k)
+        return convert(Float64, f.a)
+    end
+    convert(Float64, f.a) * 0.5^f.k
+end
+
+function convert(::Type{T}, f::DyadicFraction) where {T <: Integer}
+    f.k == 0 || throw(ArgumentError(lazy"Inexact error converting $f to $T"))
+    convert(T, f.a)
+end
+
+function convert(::Type{DyadicFraction}, n::Integer)
+    DyadicFraction(n, zero(n))
+end
+
+function convert(::Type{DyadicFraction{T, K}}, n::T) where {T <: Integer, K}
+    DyadicFraction{T, K}(n, 0)
+end
+
+convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
     Rational{T}(convert(T, f.a), convert(T, 2)^f.k)
 
 DyadicFraction(r::Rational) = convert(DyadicFraction, r)
+DyadicFraction(n::Integer) = DyadicFraction(n, zero(n))
 
-function Base.convert(::Type{DyadicFraction}, r::Rational)
+Base.Rational(f::DyadicFraction{aT}) where {aT} = convert(Rational{aT}, f)
+
+function convert(::Type{DyadicFraction}, r::Rational)
     ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
     DyadicFraction(r.num, ilog2(r.den))
 end
@@ -129,11 +197,15 @@ function _plus(f1::DyadicFraction, f2::DyadicFraction, op)
     DyadicFraction(op(2^(f2.k - minex) * f1.a,  2^(f1.k - minex) * f2.a), maxex)
 end
 
+########################
+####
+#### CyclotomicRing
+####
+########################
+
 struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
 end
-
-CyclotomicRing(coeffs::NTuple{M, CoeffT}) where {M, CoeffT} = CyclotomicRing{M, CoeffT}(coeffs)
 
 function Base.:+(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
     CyclotomicRing{M, CoeffT}(c1.coeffs .+ c2.coeffs)
