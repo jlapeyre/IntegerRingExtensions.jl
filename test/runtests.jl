@@ -28,3 +28,10 @@ end
     hadamard = [z z; z -z]
     @test isapprox(float(hadamard), 1/sqrt(2) * [1 1; 1 -1])
 end
+
+@testset "DyadicFraction" begin
+    @test DyadicFraction(4, 2) == DyadicFraction(1, 0)
+    @test Int(DyadicFraction(4, 1)) == 2
+    @test Int(DyadicFraction(4, 0)) == 4
+    @test Int(DyadicFraction(4, 2)) == 1
+end

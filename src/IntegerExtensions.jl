@@ -51,11 +51,6 @@ function convert(::Type{T}, q::QuadraticRing{D}) where {T<:Integer, D}
     convert(T, q.a)
 end
 
-for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
-    @eval function (::Type{Base.$Ti})(q::QuadraticRing)
-        convert($Ti, q)
-    end
-end
 
 Base.float(q::QuadraticRing) = convert(AbstractFloat, q)
 Base.zero(::Type{QuadraticRing{D, CoeffT}}) where {D, CoeffT} = QuadraticRing{D, CoeffT}(0, 0)
@@ -144,6 +139,39 @@ struct DyadicFraction{aT, kT}
     k::kT
 end
 
+"""
+    canonical(df::DyadicFraction)
+
+Return `df` in canonical form. That is, with `df.k` as small as possible.
+"""
+function canonical(df::DyadicFraction)
+    (c, m) = factortwos(df.a)
+    iszero(c) && return df
+    k = df.k
+    if c > k
+        return typeof(df)(2^(c-k)*m, 0)
+    elseif c < k
+        return typeof(df)(m, k - c)
+    else
+        return typeof(df)(m, 0)
+    end
+end
+
+"""
+    factortwos(n)
+
+Factor `n` as `m * 2^c` and return `(c, m)`.
+"""
+function factortwos(n)
+    c = 0
+    m = n
+    while true
+        isodd(m) && return (c, m)
+        m = div(m, 2)
+        c += 1
+    end
+end
+
 function convert(::Type{T}, f::DyadicFraction) where {T}
     if iszero(f.k)
         return convert(T, f.a)
@@ -159,8 +187,10 @@ function convert(::Type{Float64}, f::DyadicFraction)
 end
 
 function convert(::Type{T}, f::DyadicFraction) where {T <: Integer}
-    f.k == 0 || throw(ArgumentError(lazy"Inexact error converting $f to $T"))
-    convert(T, f.a)
+    iszero(f.k) && return convert(T, f.a)
+    cf = canonical(f)
+    cf.k == 0 || throw(ArgumentError(lazy"Inexact error converting $f to $T"))
+    convert(T, cf.a)
 end
 
 function convert(::Type{DyadicFraction}, n::Integer)
@@ -176,6 +206,16 @@ convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
 
 DyadicFraction(r::Rational) = convert(DyadicFraction, r)
 DyadicFraction(n::Integer) = DyadicFraction(n, zero(n))
+
+function Base.:(==)(df1::DyadicFraction, df2::DyadicFraction)
+    if df1.k > df2.k
+        return df1.a == 2^(df1.k - df2.k) * df2.a
+    elseif df1.k < df2.k
+        return df2.a == 2^(df2.k - df1.k) * df1.a
+    else
+        return df1.a == df2.a
+    end
+end
 
 Base.Rational(f::DyadicFraction{aT}) where {aT} = convert(Rational{aT}, f)
 
@@ -209,6 +249,15 @@ end
 
 function Base.:+(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
     CyclotomicRing{M, CoeffT}(c1.coeffs .+ c2.coeffs)
+end
+
+for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
+    @eval function (::Type{Base.$Ti})(q::QuadraticRing)
+        convert($Ti, q)
+    end
+    @eval function (::Type{Base.$Ti})(df::DyadicFraction)
+        convert($Ti, df)
+    end
 end
 
 end # module IntegerExtensions
