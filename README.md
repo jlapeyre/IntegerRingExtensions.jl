@@ -1,6 +1,6 @@
 # IntegerExtensions
 
-This package provides extensions of the ring of integers and tools for working with 2 x 2 matrices over these rings.
+This package provides some extensions of the ring of integers and tools for working with 2 x 2 matrices over these rings.
 Implementations and tools for one-qubit Clifford + T gates are included.
 
 This package exists to support research in unitary synthesis.
