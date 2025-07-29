@@ -101,42 +101,50 @@ Base.:^(q::QuadraticRing{D}, n::Integer) where D = Base.power_by_squaring(q, n)
 # This struct implements the cyclic group of order N,
 # plus a few methods particular to the interpretation as roots of unity.
 """
-    RootOne{N}
+    struct RootOne{N}
+    RootOne{N}(k::Integer)
 
 `N`th roots of unity
 
+`N` should always be a literal or a `const`. Otherwise performance
+is severely degraded.
+
+The type `const RootOne8 = RootOne{8}` is defined.
+`k` will be stored as `mod(k, N)`, which takes values in `(0,...,N-1)`.
 # Examples
 ```jldoctest
 
-julia> RootOne{8}(1)
-RootOne{8}(1)
+julia> RootOne8(1)
+RootOne8(1)
+```
 
-julia> RootOne{8}(-1)
-RootOne{8}(7)
+```jldoctest
+julia> RootOne8(-1)
+RootOne8(7)
 
-julia> -RootOne{8}(1) # Unary minus
-RootOne{8}(5)
+julia> -RootOne8(1) # Unary minus
+RootOne8(5)
 
-julia> -RootOne{8}(5)
-RootOne{8}(1)
+julia> -RootOne8(5)
+RootOne8(1)
 
 julia> -RootOne{9}(1)
 ERROR: ArgumentError: InexactError unary minus of type RootOne{9}
 
-julia> RootOne{8}(1)^8
-RootOne{8}(0)
+julia> RootOne8(1)^8
+RootOne8(0)
 
-julia> isone(RootOne{8}(1)^8)
+julia> isone(RootOne8(1)^8)
 true
 
-julia> one(RootOne{8})
-RootOne{8}(0)
+julia> one(RootOne8)
+RootOne8(0)
 
-julia> one(RootOne{8}(5))
-RootOne{8}(0)
+julia> one(RootOne8(5))
+RootOne8(0)
 
-julia> RootOne{8}(2) * RootOne{8}(3)
-RootOne{8}(5)
+julia> RootOne8(2) * RootOne8(3)
+RootOne8(5)
 ```
 """
 struct RootOne{N}
