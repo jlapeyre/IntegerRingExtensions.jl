@@ -54,13 +54,13 @@ function gate_map(::Type{T}) where T
     )
 end
 
-const GATE_MAP_BIG = gate_map(Domega{BigInt})
+const GATE_MAP_BIG_INT = gate_map(Domega{BigInt})
 const GATE_MAP_INT = gate_map(Domega{Int})
 const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
 const GATE_MAP_BIG_FLOAT = gate_map(BigFloat)
 
 """
-    compose(gates::AbstractString, gmap=GATE_MAP_BIG; reduce_fractions=true)
+    compose(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
 
 Compute composition of the gates in `gates`.
 
@@ -70,7 +70,7 @@ then reduce fractions in `DyadicFraction`s after each matrix multiplication.
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
 of longer compositions with smaller data types.
 """
-function compose(gates::AbstractString, gmap=GATE_MAP_BIG; reduce_fractions=true)
+function compose(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
     result = gmap[:I]
     if reduce_fractions
         for gate in Iterators.reverse(gates)

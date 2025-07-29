@@ -55,6 +55,6 @@ Reexport.@reexport import .Matrices: Matrix2x2, get_theta
 
 include("gates.jl")
 Reexport.@reexport import .Gates: Igate, Zgate, Sgate, Tgate, Hgate, Xgate, compose, gate_map,
-    GATE_MAP_BIG, GATE_MAP_INT, GATE_MAP_ZZ, GATE_MAP_BIG_FLOAT
+    GATE_MAP_BIG_INT, GATE_MAP_INT, GATE_MAP_ZZ, GATE_MAP_BIG_FLOAT
 
 end # module IntegerExtensions

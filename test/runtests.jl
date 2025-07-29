@@ -3,9 +3,11 @@ import LinearAlgebra: norm
 using Test
 
 @testset "QuadraticRing{2, Int}" begin
+    # Don't follow this example in real code!
+    # If D is not literal or `const`, performance degrades by orders of magnitude!
     D = 2
     q = QuadraticRing(1, 1, D)
-    @test q === QuadraticRing{D}(1, 1)
+    @test q === QuadraticRing{D}(1, 1) # different ways to instantiate.
     @test iszero(zero(q))
     @test iszero(zero(QuadraticRing{D, Int}))
     @test iszero(q - q)
@@ -14,15 +16,18 @@ using Test
     @test norm(q^5) == norm(q)
 
     u1 = QuadraticRing{D}(1, 1)
-    u2 = QuadraticRing{D}(1, 1)
-    @test isunit(u1)
+    u2 = QuadraticRing{D}(1, 0)
+    @test isunit(u1)  # Units are not unique
     @test isunit(u2)
 
     @test convert(Int, QuadraticRing{D}(3, 0)) == 3
-    @test_throws ArgumentError convert(Int, QuadraticRing{D}(3, 1))
+    @test_throws ArgumentError convert(Int, QuadraticRing{D}(3, 1)) # Can't convert 3 + sqrt(2) to Int
+    @test float(QuadraticRing{D}(3, 2)) == 3 + 2 * sqrt(2)
 end
 
 @testset "RootOne" begin
+    # Test that `angle` gives the same result obtained by converting to
+    # float, and then extracting the angle.
     for i in 0:7
         @test isapprox(angle(RootOne8(i)), angle(float(RootOne8(i))))
     end
@@ -41,4 +46,19 @@ end
     @test Int(DyadicFraction(4, 1)) == 2
     @test Int(DyadicFraction(4, 0)) == 4
     @test Int(DyadicFraction(4, 2)) == 1
+end
+
+@testset "composition" begin
+
+    # Approximation of RZ(pi/16) up to global phase, for epsilon = 1e-20
+
+    str = "HTSHTSHTHTHTHTSHTHTSHTHTSHTSHTSHTSHTSHTSHTHTHTSHTSHTSHTHTSHTSHTHTHTHTHTSHTSHTSHTHTHTSHTHTSHTSHTSHTSHTHTHTHTHTSHTHTSHTHTSHTHTSHTHTHTHTSHTSHTSHTHTSHTHTSHTSHTHTSHTHTHTHTSHTHTSHTHTHTHTHTHTSHTHTHTHTHTHTSHTHTSHTSHTSHTSHTSHTSHTSHTHTSHTSHTHTSHTHTSHTSHTSHTSHTSHTHTSHTSHTSHTSHTHTHTSHTSHTHTSHTHTSHTSHTHTSHTSHTSHTSHTHTHTHTHTHTSHTHTSHTSHTHTHTSHTHTHTSHTHTSHTSHTSHTHTSHTSHTHTSHTSHTHTHTSHTHTHTSHTSHTSHTHTSHTHTHTSHTSHTHTSHTHTHTSHTHTSHTSHTSHTHTHTSHTHTHTHTHTHTHTHTHTHTSHTSHTHTSHTHTSHTHTSHTSHTSHTSHTSHTHTSHTHTHTSHTSHTHTXS"
+
+    # Use ordinary Int64 as the base type.
+;    m = compose(str, GATE_MAP_INT)
+    m_float = big(m) # Convert from Domega{Int} to BigFloat
+    theta = get_theta(m_float) # Extract theta. There will be a global phase
+    theta_diff = abs(theta - big(pi) / 16) # Expected theta is pi/16
+    @test theta_diff < 1e-19  # Test accuracy
+    @test theta_diff > 1e-20  # Sanity check. We are testing something.
 end
