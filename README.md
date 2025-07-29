@@ -5,7 +5,7 @@ Implementations and tools for one-qubit Clifford + T gates are included.
 
 This package exists to support research in unitary synthesis.
 
-### Dependecies
+### Dependencies
 
 This package depends on `Nemo.jl`, which is slightly heavy. I only used it to try an implementation
 of arbitrary precision integers, `ZZRingElem`. This were much slower than `BigInt` in applications with `Matrix2x2`.
@@ -18,8 +18,8 @@ I should remove this or make it an optional dependency... Or find how to use it 
 * [CyclotomicNumbers.jl](https://github.com/jmichel7/CyclotomicNumbers.jl)
 
 These packages implement more general cyclotomic numbers. They are field extensions, rather than
-jus ring extensions. The implementations are much less efficient than
-those in `IntegerExtensions.jl`. In particular, the implementations in these packages require heap alloction
+just ring extensions. The implementations are much less efficient than
+those in `IntegerExtensions.jl`. In particular, the implementations in these packages require heap allocation
 for creating and using the provided types.
 
 <!-- [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jlapeyre.github.io/IntegerExtensions.jl/stable/) -->
@@ -33,5 +33,7 @@ for creating and using the provided types.
 <!-- [![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor's%20Guide-blueviolet)](https://github.com/SciML/ColPrac) -->
 
 
-<!--  LocalWords:  Nemo jl ZZRingElem BigInt Matrix2x2
+<!--  LocalWords:  Nemo jl ZZRingElem BigInt Matrix2x2 IntegerExtensions one-qubit Dev
+<!--  LocalWords:  Cyclotomics CyclotomicNumbers cyclotomic ColPrac
  -->
+
