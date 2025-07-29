@@ -375,10 +375,6 @@ function convert(::Type{DyadicFraction}, n::Integer)
     DyadicFraction(n, zero(n))
 end
 
-# function convert(::Type{DyadicFraction{T, K}}, n::T1) where {T <: Integer, T1 <: Integer, K}
-#     DyadicFraction{T, K}(convert(T, n), 0)
-# end
-
 convert(::Type{DyadicFraction{T, K}}, n::T1) where {T <: Integer, T1 <: Integer, K} = DyadicFraction{T, K}(n)
 
 function DyadicFraction{T, K}(n::T1)  where {T <: Integer, T1 <: Integer, K}
@@ -435,9 +431,6 @@ end
 ########################
 
 struct CyclotomicRing{M, CoeffT}
-    # function CyclotomicRing(coeffs::T...) where {T}
-    #     new{length(coeffs), T}(promote(coeffs))
-    # end
     coeffs::NTuple{M, CoeffT}
 end
 
