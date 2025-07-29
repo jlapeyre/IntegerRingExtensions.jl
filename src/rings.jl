@@ -246,6 +246,12 @@ function Base.angle(r::RootOne{N}) where {N}
     2 * pi * k / N
 end
 
+function Base.angle(::Type{T}, r::RootOne{N}) where {N, T}
+    k = r.k <= N/2 ? r.k : r.k - N
+    2 * T(pi) * T(k) / T(N)
+end
+
+
 Base.abs2(r::RootOne) = 1
 Base.abs(r::RootOne) = 1
 Base.real(r::RootOne{N}) where {N} = cospi(2 * r.k / N)
@@ -359,7 +365,13 @@ function convert(::Type{DyadicFraction}, n::Integer)
     DyadicFraction(n, zero(n))
 end
 
-function convert(::Type{DyadicFraction{T, K}}, n::T1) where {T <: Integer, T1 <: Integer, K}
+# function convert(::Type{DyadicFraction{T, K}}, n::T1) where {T <: Integer, T1 <: Integer, K}
+#     DyadicFraction{T, K}(convert(T, n), 0)
+# end
+
+convert(::Type{DyadicFraction{T, K}}, n::T1) where {T <: Integer, T1 <: Integer, K} = DyadicFraction{T, K}(n)
+
+function DyadicFraction{T, K}(n::T1)  where {T <: Integer, T1 <: Integer, K}
     DyadicFraction{T, K}(convert(T, n), 0)
 end
 
@@ -368,6 +380,13 @@ convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
 
 DyadicFraction(r::Rational) = convert(DyadicFraction, r)
 DyadicFraction(n::Integer) = DyadicFraction(n, zero(n))
+
+Base.Rational(f::DyadicFraction{aT}) where {aT} = convert(Rational{aT}, f)
+
+function convert(::Type{DyadicFraction}, r::Rational)
+    ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
+    DyadicFraction(r.num, ilog2(r.den))
+end
 
 function Complex{Tc}(df::DyadicFraction) where {Tc}
     T = Complex{Tc}
@@ -384,12 +403,6 @@ function Base.:(==)(df1::DyadicFraction, df2::DyadicFraction)
     end
 end
 
-Base.Rational(f::DyadicFraction{aT}) where {aT} = convert(Rational{aT}, f)
-
-function convert(::Type{DyadicFraction}, r::Rational)
-    ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
-    DyadicFraction(r.num, ilog2(r.den))
-end
 
 Base.float(f::DyadicFraction) = convert(Float64, f)
 Base.big(f::DyadicFraction) = convert(BigFloat, f)
@@ -469,7 +482,11 @@ function CyclotomicRing(c1, coeffs...)
     cs = promote(c1, coeffs...)
     CyclotomicRing(cs)
 end
-#    = CyclotomicRing{length(coeffs), T}(coeffs)
+
+function CyclotomicRing{4, T}(a, b, c, d) where T
+    cs = (T(a),T(b),T(c),T(d))
+    CyclotomicRing(cs)
+end
 
 function canonical(c::CyclotomicRing)
     CyclotomicRing(map(canonical,  c.coeffs))

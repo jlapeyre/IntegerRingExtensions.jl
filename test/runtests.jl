@@ -31,12 +31,21 @@ end
     for i in 0:7
         @test isapprox(angle(RootOne8(i)), angle(float(RootOne8(i))))
     end
+    r = RootOne8(1)
+    @test isa(angle(r), Float64)
+    @test isa(angle(BigFloat, r), BigFloat)
+
+    # Test that BigFloat angle has full precision
+    r5 = RootOne8(5)
+    z = cis(angle(BigFloat, r5))
+    @test real(z^2) < 1 / big(10)^75
 end
 
 @testset "Domega" begin
     cr = CyclotomicRing(1,2,3,4)
     @test typeof(cr) === CyclotomicRing{4, Int64}
     cromega = Domega{Int}((1,2,3,4))
+    @test cromega === Domega{Int}(1,2,3,4)
     @test typeof(cromega) === Domega{Int}
     @test cromega === Domega{Int}(cr)
 end
