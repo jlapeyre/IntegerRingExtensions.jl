@@ -392,7 +392,6 @@ const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
 The value of type `Domega{T}` that represents the imaginary unit.
 """
 function imaginary(::Type{CyclotomicRing{4, T}}) where {T}
-#function imaginary(::Type{Domega{T}}) where {T}
     z = zero(T)
     o = one(T)
     CyclotomicRing(z, o, z, z)
@@ -404,7 +403,6 @@ end
 The value of type `Domega{T}` that represents the principal square root of the imaginary unit.
     """
 function sqrt_imaginary(::Type{CyclotomicRing{4, T}}) where {T}
-#function sqrt_imaginary(::Type{Domega{T}}) where {T}
     z = zero(T)
     o = one(T)
     CyclotomicRing(z, z, o, z)

@@ -46,6 +46,6 @@ include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, power
 
 include("gates.jl")
-Reexport.@reexport import .Gates: Zgate, Sgate, Tgate, Hgate, Xgate
+Reexport.@reexport import .Gates: Zgate, Sgate, Tgate, Hgate, Xgate, compose
 
 end # module IntegerExtensions
