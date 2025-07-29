@@ -18,7 +18,7 @@ I should remove this or make it an optional dependency... Or find how to use it 
 * [CyclotomicNumbers.jl](https://github.com/jmichel7/CyclotomicNumbers.jl)
 
 These packages implement more general cyclotomic numbers. They are field extensions, rather than
-just ring extensions. The implementations are much less efficient than
+just ring extensions. The implementations are necessarily more complicated and are much less efficient than
 those in `IntegerExtensions.jl`. In particular, the implementations in these packages require heap allocation
 for creating and using the provided types.
 
