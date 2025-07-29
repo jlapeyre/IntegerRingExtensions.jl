@@ -417,6 +417,10 @@ end
 
 CyclotomicRing(coeffs::T...) where T = CyclotomicRing(coeffs)
 
+function canonical(c::CyclotomicRing)
+    CyclotomicRing(map(canonical,  c.coeffs))
+end
+
 function Base.:+(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
     CyclotomicRing{M, CoeffT}(c1.coeffs .+ c2.coeffs)
 end

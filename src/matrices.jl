@@ -22,6 +22,11 @@ end
 
 Base.one(::Matrix2x2{T}) where {T} = one(Matrix2x2{T})
 
+function Base.map(f, m::Matrix2x2)
+    (a, b, c, d) = m.data
+    Matrix2x2(f(a), f(b), f(c), f(d))
+end
+
 @inline function Base.getindex(m::Matrix2x2, i::Integer)
     @boundscheck checkbounds(m, i)
     return @inbounds m.data[i]
@@ -71,6 +76,8 @@ Base.convert(::Type{Matrix2x2{T}}, m::Matrix2x2) where {T} = Matrix2x2{T}(m)
 function Base.float(m::Matrix2x2)
     AbstractFloat(m)
 end
+
+Base.complex(m::Matrix2x2) = float(m)
 
 # This is not conventional. Change this
 function Base.AbstractFloat(m::Matrix2x2)
