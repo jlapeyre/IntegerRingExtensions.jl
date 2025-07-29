@@ -372,6 +372,15 @@ function Base.:*(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) w
     CyclotomicRing(coeffs)
 end
 
+function Base.convert(::Type{CyclotomicRing{M, CT1}}, c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
+    CyclotomicRing{M, CT1}(c)
+end
+
+function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
+    (a, b, c, d) = c.coeffs
+    CyclotomicRing(convert(CT1, a), convert(CT1, b), convert(CT1, c), convert(CT1, d))
+end
+
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
     @eval function (::Type{Base.$Ti})(q::QuadraticRing)
         convert($Ti, q)
