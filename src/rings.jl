@@ -2,6 +2,7 @@ module Rings
 
 import LinearAlgebra
 import Base: convert, zero, iszero, one, isone
+import ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two
 using ILog2
 
 export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing
@@ -148,6 +149,28 @@ end
 # This is largely for performance. If N is not constant,
 # performance suffers by factor of 100X or more.
 const RootOne8 = RootOne{8}
+
+"""
+    imaginary(::Type{RootOne8})
+
+The value of type `RootOne8` that represents the imaginary unit.
+
+This is `RootOne8(2)`.
+"""
+function imaginary(::Type{RootOne8})
+    RootOne8(2)
+end
+
+"""
+    sqrt_imaginary(::Type{RootOne8})
+
+The value of type `RootOne8` that represents the principal square root of the imaginary unit.
+
+This is `RootOne8(1)`.
+"""
+function sqrt_imaginary(::Type{RootOne8})
+    RootOne8(1)
+end
 
 # If N is not a compile-time constant in RootOne{N}, then
 # operations are very, very, inefficient.
@@ -362,6 +385,37 @@ end
 # The type of the exponent of (1/2) is hardcoded to Int.
 # We probably only need one type for this field.
 const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
+
+"""
+    imaginary(::Type{Domega{T}}) where {T}
+
+The value of type `Domega{T}` that represents the imaginary unit.
+"""
+function imaginary(::Type{CyclotomicRing{4, T}}) where {T}
+#function imaginary(::Type{Domega{T}}) where {T}
+    z = zero(T)
+    o = one(T)
+    CyclotomicRing(z, o, z, z)
+end
+
+"""
+    sqrt_imaginary(::Type{Domega{T}}) where {T}
+
+The value of type `Domega{T}` that represents the principal square root of the imaginary unit.
+    """
+function sqrt_imaginary(::Type{CyclotomicRing{4, T}}) where {T}
+#function sqrt_imaginary(::Type{Domega{T}}) where {T}
+    z = zero(T)
+    o = one(T)
+    CyclotomicRing(z, z, o, z)
+end
+
+function one_over_root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) where {T}
+    DT = DyadicFraction{T, Int}
+    z = zero(DT)
+    half = DyadicFraction(T(1), 1)
+    CyclotomicRing(-half, z, half, z)
+end
 
 CyclotomicRing(coeffs::T...) where T = CyclotomicRing(coeffs)
 
