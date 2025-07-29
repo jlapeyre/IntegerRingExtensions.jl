@@ -7,7 +7,7 @@ This package exists to support research in unitary synthesis.
 
 ### Dependecies
 
-This package depends on `Nemo.jl`, which is slightly heavy. I only used it to try an immplementation
+This package depends on `Nemo.jl`, which is slightly heavy. I only used it to try an implementation
 of arbitrary precision integers, `ZZRingElem`. This were much slower than `BigInt` in applications with `Matrix2x2`.
 I should remove this or make it an optional dependency... Or find how to use it efficiently, if possible.
 
@@ -32,3 +32,6 @@ for creating and using the provided types.
 
 <!-- [![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor's%20Guide-blueviolet)](https://github.com/SciML/ColPrac) -->
 
+
+<!--  LocalWords:  Nemo jl ZZRingElem BigInt Matrix2x2
+ -->
