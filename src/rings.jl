@@ -282,8 +282,16 @@ end
 
 function Base.show(io::IO, ::MIME"text/plain", df::DyadicFraction)
 #    print(io, df.a, " / 2^", df.k)
-#    print(io, df.a, " / 2", superscript(df.k))
-    print(io, df.a, "/2", superscript(df.k))
+    #    print(io, df.a, " / 2", superscript(df.k))
+    if iszero(df.a)
+        print(io, zero(df.a))
+    else
+        if iszero(df.k)
+            print(io, df.a)
+        else
+            print(io, df.a, "/2", superscript(df.k))
+        end
+    end
 end
 
 """
@@ -324,6 +332,8 @@ end
 function zero(::Type{DyadicFraction{aT, bT}}) where {aT, bT}
     DyadicFraction(zero(aT), zero(bT))
 end
+
+zero(::DyadicFraction{aT, bT}) where {aT, bT} = zero(DyadicFraction{aT, bT})
 
 # Careful. There is more than on way to represent zero.
 function iszero(df::DyadicFraction)
@@ -434,12 +444,21 @@ end
 function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
     c = cr.coeffs
     n = length(c)
+    showcount = 0
     for i in 1:n
-        show(io, MIME"text/plain"(), c[i])
-        print(io, " ω", superscript(n-i))
-        if i != n
+        iszero(c[i]) && continue
+        showcount += 1
+        if showcount > 1
             print(io, " + ")
         end
+        show(io, MIME"text/plain"(), c[i])
+        print(io, " ω", superscript(n-i))
+    end
+    if showcount == 0
+        print(io, 0)
+        # TODO, use zero of first(c) somehow.
+        # This will be more robust
+#        show(io, MIME"text/plain", zero(first(c)))
     end
 end
 
