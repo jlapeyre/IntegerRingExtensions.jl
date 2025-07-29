@@ -5,6 +5,13 @@ Implementations and tools for one-qubit Clifford + T gates are included.
 
 This package exists to support research in unitary synthesis.
 
+### Dependecies
+
+This package depends on `Nemo.jl`, which is slightly heavy. I only used it to try an immplementation
+of arbitrary precision integers, `ZZRingElem`. This were much slower than `BigInt` in applications with `Matrix2x2`.
+I should remove this or make it an optional dependency... Or find how to use it efficiently, if possible.
+
+
 ### Related packages
 
 * [Cyclotomics.jl](https://github.com/kalmarek/Cyclotomics.jl)
