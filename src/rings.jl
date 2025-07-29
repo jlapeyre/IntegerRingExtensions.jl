@@ -170,6 +170,10 @@ Base.:*(r1::RootOneA, r2::RootOneA) = RootOneA(r1.k + r2.k, r1.N)
 # convert(ComplexF64, z)
 # convert(Complex{BigFloat}, z)
 function convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N}
+    Complex{T}(r)
+end
+
+function Complex{T}(r::RootOne{N}) where {T, N}
     kT = convert(T, r.k)
     cispi(2 * kT / N)
 end
@@ -182,6 +186,7 @@ Construct `RootOne{N}(k)`.
 RootOne(k, N) = RootOne{N}(k)
 Base.one(::Type{RootOne{N}}) where {N} = RootOne{N}(0)
 Base.one(x::RootOne) = one(typeof(x))
+
 Base.float(r::RootOne) = complex(r)
 Base.complex(r::RootOne) = convert(ComplexF64, r)
 Base.big(r::RootOne) = convert(Complex{BigFloat}, r)
@@ -308,6 +313,11 @@ convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
 DyadicFraction(r::Rational) = convert(DyadicFraction, r)
 DyadicFraction(n::Integer) = DyadicFraction(n, zero(n))
 
+function Complex{Tc}(df::DyadicFraction) where {Tc}
+    T = Complex{Tc}
+    T(df.a) * T(1//2)^df.k
+end
+
 function Base.:(==)(df1::DyadicFraction, df2::DyadicFraction)
     if df1.k > df2.k
         return df1.a == 2^(df1.k - df2.k) * df2.a
@@ -370,10 +380,12 @@ end
 function Base.:*(c1::CyclotomicRing{4, CoeffT}, c2::CyclotomicRing{4, CoeffT}) where {CoeffT}
     (a1, b1, c1, d1) = c1.coeffs
     (a2, b2, c2, d2) = c2.coeffs
-    coeffs = (d1*d2 - b1*b2 - a1*c2 - a2*c1,
-              c2*d1 + c1*d2 - b1*a2 - a1*b2,
-              b2*d1 + c1*c2 + b1*d2 - a1*a2,
-              a2*d1 + c1*b2 + b1*c2 + a1*d2)
+    coeffs = (
+        a2*d1 + c1*b2 + b1*c2 + a1*d2,
+        b2*d1 + c1*c2 + b1*d2 - a1*a2,
+        c2*d1 + c1*d2 - b1*a2 - a1*b2,
+        d1*d2 - b1*b2 - a1*c2 - a2*c1
+    )
     CyclotomicRing(coeffs)
 end
 
@@ -382,6 +394,8 @@ function Base.one(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
     o = one(CoeffT)
     CyclotomicRing(z, z, z, o)
 end
+
+Base.one(::CyclotomicRing{4, CoeffT}) where {CoeffT} = one(CyclotomicRing{4, CoeffT})
 
 function Base.zero(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
     z = zero(CoeffT)
@@ -399,8 +413,23 @@ end
 
 function Base.AbstractFloat(c::CyclotomicRing{4})
     (a, b, c, d) = c.coeffs
-    float(d) + float(c) * float(RootOne8(1)) + float(b) * float(RootOne8(2)) + 
-        float(a) * float(RootOne8(3)) 
+    float(d) + float(c) * float(RootOne8(1)) + float(b) * float(RootOne8(2)) +
+        float(a) * float(RootOne8(3))
+end
+
+function Base.Complex{Tc}(c::CyclotomicRing{4}) where Tc
+    (a, b, c, d) = c.coeffs
+    T = Complex{Tc}
+    T(d) + T(c) * T(RootOne8(1)) + T(b) * T(RootOne8(2)) +
+        T(a) * T(RootOne8(3))
+end
+
+function Base.big(c::CyclotomicRing)
+    Complex{BigFloat}(c)
+end
+
+function Base.convert(::Type{Complex{Tc}}, c::CyclotomicRing) where Tc
+    Complex{Tc}(c)
 end
 
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)

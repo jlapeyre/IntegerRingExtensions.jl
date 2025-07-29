@@ -68,12 +68,26 @@ end
 Base.convert(::Type{Matrix2x2{T}}, m::Matrix2x2) where {T} = Matrix2x2{T}(m)
 
 function Base.float(m::Matrix2x2)
-    Matrix2x2(float(m[1]), float(m[2]), float(m[3]), float(m[4]))
+    AbstractFloat(m)
 end
 
+# This is not conventional. Change this
 function Base.AbstractFloat(m::Matrix2x2)
     Matrix2x2(float(m[1]), float(m[2]), float(m[3]), float(m[4]))
 end
+
+# # Hmm. Not quite right,
+# function Base.BigFloat(m::Matrix2x2)
+#     Matrix2x2(BigFloat(m[1]), BigFloat(m[2]), BigFloat(m[3]), BigFloat(m[4]))
+# end
+
+function Base.big(m::Matrix2x2)
+    Matrix2x2(big(m[1]), big(m[2]), big(m[3]), big(m[4]))
+end
+
+# function Base.big(m::Matrix2x2{T}) where {T <: Integer}
+#     Matrix2x2{BigInt}(m)
+# end
 
 
 end # module Matrices
