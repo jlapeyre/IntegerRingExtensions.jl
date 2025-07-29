@@ -22,10 +22,17 @@ using Test
     @test_throws ArgumentError convert(Int, QuadraticRing{D}(3, 1))
 end
 
+@testset "RootOne" begin
+    for i in 0:7
+        @test isapprox(angle(RootOne8(i)), angle(float(RootOne8(i))))
+    end
+end
+
 @testset "Matrix{QuadraticRing}" begin
+    # z = 1/sqrt(2)
     z = QuadraticRing{2}(DyadicFraction(0,0), DyadicFraction(1,1))
     @test float(z) == sqrt(2) / 2
-    hadamard = [z z; z -z]
+    hadamard = [z z; z -z] # Hadamard matrix
     @test isapprox(float(hadamard), 1/sqrt(2) * [1 1; 1 -1])
 end
 
