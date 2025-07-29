@@ -67,4 +67,13 @@ end
 
 Base.convert(::Type{Matrix2x2{T}}, m::Matrix2x2) where {T} = Matrix2x2{T}(m)
 
+function Base.float(m::Matrix2x2)
+    Matrix2x2(float(m[1]), float(m[2]), float(m[3]), float(m[4]))
+end
+
+function Base.AbstractFloat(m::Matrix2x2)
+    Matrix2x2(float(m[1]), float(m[2]), float(m[3]), float(m[4]))
+end
+
+
 end # module Matrices

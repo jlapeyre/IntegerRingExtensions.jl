@@ -6,6 +6,8 @@ using ILog2
 
 export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing
 
+export Domega
+
 ########################
 ####
 #### QuadraticRing
@@ -347,7 +349,11 @@ struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
 end
 
-CyclotomicRing(coeffs...) = CyclotomicRing(coeffs)
+# The type of the exponent of (1/2) is hardcoded to Int.
+# We probably only need one type for this field.
+const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
+
+CyclotomicRing(coeffs::T...) where T = CyclotomicRing(coeffs)
 
 function Base.:+(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
     CyclotomicRing{M, CoeffT}(c1.coeffs .+ c2.coeffs)
@@ -358,11 +364,10 @@ function Base.:-(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) w
 end
 
 function Base.:-(c::CyclotomicRing)
-    (a, b, c, d) = c.coeffs
-    CyclotomicRing(-a, -b, -c, -d)
+    CyclotomicRing(.- c.coeffs)
 end
 
-function Base.:*(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
+function Base.:*(c1::CyclotomicRing{4, CoeffT}, c2::CyclotomicRing{4, CoeffT}) where {CoeffT}
     (a1, b1, c1, d1) = c1.coeffs
     (a2, b2, c2, d2) = c2.coeffs
     coeffs = (d1*d2 - b1*b2 - a1*c2 - a2*c1,
@@ -372,13 +377,30 @@ function Base.:*(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) w
     CyclotomicRing(coeffs)
 end
 
+function Base.one(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
+    z = zero(CoeffT)
+    o = one(CoeffT)
+    CyclotomicRing(z, z, z, o)
+end
+
+function Base.zero(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
+    z = zero(CoeffT)
+    CyclotomicRing(z, z, z, z)
+end
+
 function Base.convert(::Type{CyclotomicRing{M, CT1}}, c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
     CyclotomicRing{M, CT1}(c)
 end
 
 function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
+    coeffs = convert.(CT1, c.coeffs)
+    CyclotomicRing(coeffs)
+end
+
+function Base.AbstractFloat(c::CyclotomicRing{4})
     (a, b, c, d) = c.coeffs
-    CyclotomicRing(convert(CT1, a), convert(CT1, b), convert(CT1, c), convert(CT1, d))
+    float(d) + float(c) * float(RootOne8(1)) + float(b) * float(RootOne8(2)) + 
+        float(a) * float(RootOne8(3)) 
 end
 
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
