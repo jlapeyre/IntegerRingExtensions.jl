@@ -347,8 +347,29 @@ struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
 end
 
+CyclotomicRing(coeffs...) = CyclotomicRing(coeffs)
+
 function Base.:+(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
     CyclotomicRing{M, CoeffT}(c1.coeffs .+ c2.coeffs)
+end
+
+function Base.:-(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
+    CyclotomicRing{M, CoeffT}(c1.coeffs .- c2.coeffs)
+end
+
+function Base.:-(c::CyclotomicRing)
+    (a, b, c, d) = c.coeffs
+    CyclotomicRing(-a, -b, -c, -d)
+end
+
+function Base.:*(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
+    (a1, b1, c1, d1) = c1.coeffs
+    (a2, b2, c2, d2) = c2.coeffs
+    coeffs = (d1*d2 - b1*b2 - a1*c2 - a2*c1,
+              c2*d1 + c1*d2 - b1*a2 - a1*b2,
+              b2*d1 + c1*c2 + b1*d2 - a1*a2,
+              a2*d1 + c1*b2 + b1*c2 + a1*d2)
+    CyclotomicRing(coeffs)
 end
 
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
