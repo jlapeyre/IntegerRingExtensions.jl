@@ -57,4 +57,7 @@ include("gates.jl")
 Reexport.@reexport import .Gates: Igate, Zgate, Sgate, Tgate, Hgate, Xgate, compose, gate_map,
     GATE_MAP_BIG_INT, GATE_MAP_INT, GATE_MAP_ZZ, GATE_MAP_BIG_FLOAT
 
+include("utils.jl")
+Reexport.@reexport import .Utils: subscript, superscript
+
 end # module IntegerExtensions

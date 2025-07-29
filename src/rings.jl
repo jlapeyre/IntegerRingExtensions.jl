@@ -3,6 +3,8 @@ module Rings
 import LinearAlgebra
 import Base: convert, zero, iszero, one, isone
 import ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two, canonical
+import ..IntegerExtensions.Utils: subscript, superscript
+
 using ILog2
 
 export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing
@@ -37,6 +39,14 @@ const QuadraticRing2{CoeffT} = QuadraticRing{2}
 
 QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
 QuadraticRing{D}(a::T, b::T) where {T, D} = QuadraticRing{D, T}(a, b)
+
+function Base.show(io::IO, ::MIME"text/plain", qr::QuadraticRing{D}) where {D}
+    if qr.b == 1
+        print(io, qr.a, " + √", D)
+    else
+        print(io, qr.a, " + ", qr.b, "√", D)
+    end
+end
 
 # Maybe not needed
 function Base.copy(q::QuadraticRing{D}) where D
@@ -180,6 +190,14 @@ function sqrt_imaginary(::Type{RootOne8})
     RootOne8(1)
 end
 
+function Base.show(io::IO, ::MIME"text/plain", r::RootOne{N}) where {N}
+    if r.k == 1
+        print(io, "ω" * subscript(N))
+    else
+        print(io, "ω" * subscript(N) * superscript(r.k))
+    end
+end
+
 # If N is not a compile-time constant in RootOne{N}, then
 # operations are very, very, inefficient.
 # Either make N constant, eg. `const N = 8`, or
@@ -235,6 +253,7 @@ Base.imag(r::RootOne{N}) where {N} = sinpi(2 * r.k / N)
 Base.isreal(r::RootOne{N}) where {N} = r.k == 0 || div(N, r.k) == 2
 
 Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
+Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)
 
 Base.:^(r::RootOne{N}, n::Integer) where {N} = RootOne{N}(r.k * n)
 Base.inv(r::RootOne{N}) where {N} = RootOne{N}(N - r.k)
@@ -253,6 +272,12 @@ end
 struct DyadicFraction{aT, kT}
     a::aT
     k::kT
+end
+
+function Base.show(io::IO, ::MIME"text/plain", df::DyadicFraction)
+#    print(io, df.a, " / 2^", df.k)
+#    print(io, df.a, " / 2", superscript(df.k))
+    print(io, df.a, "/2", superscript(df.k))
 end
 
 """
@@ -388,6 +413,18 @@ end
 
 struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
+end
+
+function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
+    c = cr.coeffs
+    n = length(c)
+    for i in 1:n
+        show(io, MIME"text/plain"(), c[i])
+        print(io, " ω", superscript(n-i))
+        if i != n
+            print(io, " + ")
+        end
+    end
 end
 
 # The type of the exponent of (1/2) is hardcoded to Int.
