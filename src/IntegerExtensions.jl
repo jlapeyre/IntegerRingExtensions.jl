@@ -51,7 +51,7 @@ Reexport.@reexport import .Rings: QuadraticRing, isunit, RootOne, DyadicFraction
     RootOne8, QuadraticRing2, canonical, Domega
 
 include("matrices.jl")
-Reexport.@reexport import .Matrices: Matrix2x2, power
+Reexport.@reexport import .Matrices: Matrix2x2, get_theta
 
 include("gates.jl")
 Reexport.@reexport import .Gates: Igate, Zgate, Sgate, Tgate, Hgate, Xgate, compose, gate_map,

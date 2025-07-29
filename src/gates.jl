@@ -2,8 +2,8 @@ module Gates
 
 # Better to use relative path. If I could find out how
 using ..IntegerExtensions.Matrices: Matrix2x2
-using ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two
-using ..IntegerExtensions.Rings: Domega, canonical
+using ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two, canonical
+using ..IntegerExtensions.Rings: Domega
 using Nemo: ZZ, ZZRingElem
 
 function Zgate(::Type{T}) where T
@@ -58,7 +58,6 @@ const GATE_MAP_BIG = gate_map(Domega{BigInt})
 const GATE_MAP_INT = gate_map(Domega{Int})
 const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
 const GATE_MAP_BIG_FLOAT = gate_map(BigFloat)
-
 
 """
     compose(gates::AbstractString, gmap=GATE_MAP_BIG; reduce_fractions=true)
