@@ -359,8 +359,8 @@ function convert(::Type{DyadicFraction}, n::Integer)
     DyadicFraction(n, zero(n))
 end
 
-function convert(::Type{DyadicFraction{T, K}}, n::T) where {T <: Integer, K}
-    DyadicFraction{T, K}(n, 0)
+function convert(::Type{DyadicFraction{T, K}}, n::T1) where {T <: Integer, T1 <: Integer, K}
+    DyadicFraction{T, K}(convert(T, n), 0)
 end
 
 convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
@@ -412,6 +412,9 @@ end
 ########################
 
 struct CyclotomicRing{M, CoeffT}
+    # function CyclotomicRing(coeffs::T...) where {T}
+    #     new{length(coeffs), T}(promote(coeffs))
+    # end
     coeffs::NTuple{M, CoeffT}
 end
 
@@ -460,7 +463,13 @@ function one_over_root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) wh
     CyclotomicRing(-half, z, half, z)
 end
 
-CyclotomicRing(coeffs::T...) where T = CyclotomicRing(coeffs)
+CyclotomicRing(coeffs::T...) where T = CyclotomicRing{length(coeffs), T}(coeffs)
+
+function CyclotomicRing(c1, coeffs...)
+    cs = promote(c1, coeffs...)
+    CyclotomicRing(cs)
+end
+#    = CyclotomicRing{length(coeffs), T}(coeffs)
 
 function canonical(c::CyclotomicRing)
     CyclotomicRing(map(canonical,  c.coeffs))

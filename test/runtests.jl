@@ -33,6 +33,14 @@ end
     end
 end
 
+@testset "Domega" begin
+    cr = CyclotomicRing(1,2,3,4)
+    @test typeof(cr) === CyclotomicRing{4, Int64}
+    cromega = Domega{Int}((1,2,3,4))
+    @test typeof(cromega) === Domega{Int}
+    @test cromega === Domega{Int}(cr)
+end
+
 @testset "Matrix{QuadraticRing}" begin
     # z = 1/sqrt(2)
     z = QuadraticRing{2}(DyadicFraction(0,0), DyadicFraction(1,1))
