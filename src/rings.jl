@@ -2,7 +2,7 @@ module Rings
 
 import LinearAlgebra
 import Base: convert, zero, iszero, one, isone
-import ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two
+import ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two, canonical
 using ILog2
 
 export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing
@@ -457,6 +457,8 @@ function Base.zero(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
     z = zero(CoeffT)
     CyclotomicRing(z, z, z, z)
 end
+
+Base.zero(cr::CyclotomicRing) = zero(typeof(cr))
 
 function Base.convert(::Type{CyclotomicRing{M, CT1}}, c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
     CyclotomicRing{M, CT1}(c)

@@ -36,7 +36,15 @@ function sqrt_imaginary(::Type{Complex{T}}) where {T <: Real}
     cispi(one(T)/4)
 end
 
-function one_over_root_two end
+function sqrt_imaginary(::Type{BigFloat})
+    cispi(one(BigFloat)/4)
+end
+
+function one_over_root_two(::Type{BigFloat})
+    one(BigFloat) / sqrt(big(2))
+end
+
+canonical(x) = x
 
 include("rings.jl")
 Reexport.@reexport import .Rings: QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing, RootOneA,
@@ -46,7 +54,7 @@ include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, power
 
 include("gates.jl")
-Reexport.@reexport import .Gates: Igate, Zgate, Sgate, Tgate, Hgate, Xgate, compose, compose2,
-    GATE_MAP_BIG, GATE_MAP_INT, gate_map, GATE_MAP_ZZ
+Reexport.@reexport import .Gates: Igate, Zgate, Sgate, Tgate, Hgate, Xgate, compose, gate_map,
+    GATE_MAP_BIG, GATE_MAP_INT, GATE_MAP_ZZ, GATE_MAP_BIG_FLOAT
 
 end # module IntegerExtensions

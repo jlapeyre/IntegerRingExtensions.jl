@@ -9,6 +9,7 @@ end
 # Base.copy(m::Matrix2x2) = Matrix2x2(copy(m.data))
 
 function Matrix2x2(a, b, c, d)
+    (a, b, c, d) = promote(a, b, c, d)
     Matrix2x2((a, b, c, d))
 end
 
