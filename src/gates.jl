@@ -43,15 +43,6 @@ function Igate(::Type{T}) where T
     Matrix2x2(o, z, z, o)
 end
 
-# const GATE_MAP = Dict(
-#     :H => Hgate(DT),
-#     :S => Sgate(DT),
-#     :Z => Zgate(DT),
-#     :X => Xgate(DT),
-#     :T => Tgate(DT),
-#     :I => Igate(DT)
-#     )
-
 function gate_map(::Type{T}) where T
    return Dict(
         :H => Hgate(T),
@@ -74,15 +65,5 @@ function compose(gates::AbstractString, gmap=GATE_MAP_BIG)
     end
     return result
 end
-
-function compose2(gates::AbstractString, gmap=GATE_MAP)
-    DT = Domega{BigInt}
-    result = collect(big(Igate(DT)))
-    for gate in Iterators.reverse(gates)
-        result = collect(big(gmap[Symbol(gate)])) * result
-    end
-    return result
-end
-
 
 end # module Gates
