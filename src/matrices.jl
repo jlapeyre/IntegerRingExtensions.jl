@@ -30,7 +30,8 @@ end
 @inline function _mul2(m1, m2)
     (a1, b1, c1, d1) = m1.data
     (a2, b2, c2, d2) = m2.data
-    Matrix2x2(a1*a2 + c1*b2, a1*c2+c1*d2, b1*a2+d1*b2, b1*c2 + d1*d2)
+    Matrix2x2(a1*a2 + b1*c2, a1*b2+b1*d2, a2*c1+d1*c2, c1*b2 + d1*d2)
+#    Matrix2x2(a1*a2 + c1*b2, a1*c2+c1*d2, b1*a2+d1*b2, b1*c2 + d1*d2)
 end
 
 @inline function _add2(m1, m2, op=+)
