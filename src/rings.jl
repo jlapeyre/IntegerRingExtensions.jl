@@ -114,9 +114,6 @@ end
 
 promote_rule(::Type{V}, ::Type{T2})  where {V <: QuadraticRing{<:Any, T},T2} where T =
     promote_type(float(T), T2)
-# function Base.:(==)(q::QuadraticRing, x::AbstractFloat)
-#     return iszero(q.b) && n == q.a
-# end
 
 ########################
 ####
@@ -267,6 +264,7 @@ function Base.angle(::Type{T}, r::RootOne{N}) where {N, T}
 end
 
 
+Base.conj(r::RootOne) = inv(r)
 Base.abs2(r::RootOne) = 1
 Base.abs(r::RootOne) = 1
 Base.real(r::RootOne{N}) where {N} = cospi(2 * r.k / N)
@@ -294,6 +292,28 @@ struct DyadicFraction{aT, kT}
     a::aT
     k::kT
 end
+
+# function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
+#     T = promote_type(T1, T2)
+#     V = promote_type(V1, V2)
+#     DyadicFraction{T, V}
+# end
+
+# function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{T}) where {T1<:Integer, V1<:Integer, T<:Integer}
+#     T3 = promote_type(T1, T)
+#     DyadicFraction{T3, V1}
+# end
+
+function Base.:^(df::DyadicFraction, n::Integer)
+    # Can't copy Int, but really should copy BigInt
+    # Need logic for this??
+    n == 1 && return df
+    return Base.power_by_squaring(df, n)
+end
+
+# function promote_rule(::Type{DyadicFraction{Int,Int}}, ::Type{Int})
+#     DyadicFraction{Int, Int}
+# end
 
 function Base.show(io::IO, ::MIME"text/plain", df::DyadicFraction)
 #    print(io, df.a, " / 2^", df.k)
@@ -404,6 +424,8 @@ convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
 
 DyadicFraction(r::Rational) = convert(DyadicFraction, r)
 DyadicFraction(n::Integer) = DyadicFraction(n, zero(n))
+DyadicFraction(x::DyadicFraction) = x
+DyadicFraction{T,V}(x::DyadicFraction{T,V}) where {T,V} = x
 
 Base.Rational(f::DyadicFraction{aT}) where {aT} = convert(Rational{aT}, f)
 
@@ -485,6 +507,13 @@ end
 # We probably only need one type for this field.
 const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
 
+function Base.conj(cyc::Domega{T}) where T
+    (a, b, c, d) = cyc.coeffs
+    # I think promotion not needed.
+    newcoeff = promote(-c, -b, -a, d)
+    Domega{T}(newcoeff)
+end
+
 """
     imaginary(::Type{Domega{T}}) where {T}
 
@@ -524,6 +553,15 @@ end
 function CyclotomicRing{4, T}(a, b, c, d) where T
     cs = (T(a),T(b),T(c),T(d))
     CyclotomicRing(cs)
+end
+
+# TODO: Promote
+function Domega(a, b, c, d)
+    coeffs = promote(a, b, c, d)
+    D = DyadicFraction
+    coeffs1 = map(D, coeffs)
+    T = typeof(coeffs1[1])
+    CyclotomicRing{4, T}(coeffs...)
 end
 
 function canonical(c::CyclotomicRing)

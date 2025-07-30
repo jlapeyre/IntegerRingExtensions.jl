@@ -56,6 +56,9 @@ end
     @test cromega === Domega{Int}(1,2,3,4)
     @test typeof(cromega) === Domega{Int}
     @test cromega === Domega{Int}(cr)
+    z = Domega{Int}(1,2,3,DyadicFraction(1,1))
+    @test typeof(z) === Domega{Int}
+    @test typeof(Domega(1,2,3,4)) === Domega{Int}
 end
 
 @testset "Matrix{QuadraticRing}" begin
