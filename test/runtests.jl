@@ -31,23 +31,6 @@ using Test
     @test float(QuadraticRing{D}(3, 2)) == 3 + 2 * sqrt(2)
 end
 
-@testset "RootOne" begin
-    # Test that `angle` gives the same result obtained by converting to
-    # float, and then extracting the angle.
-    for i in 0:7
-        root = RootOne8(i)
-        @test isapprox(angle(root), angle(float(root)))
-        @test isone(root * inv(root))
-    end
-    r = RootOne8(1)
-    @test isa(angle(r), Float64)
-    @test isa(angle(BigFloat, r), BigFloat)
-
-    # Test that BigFloat angle has full precision
-    r5 = RootOne8(5)
-    z = cis(angle(BigFloat, r5))
-    @test real(z^2) < 1 / big(10)^75
-end
 
 @testset "Domega" begin
     cr = CyclotomicRing(1,2,3,4)
@@ -106,3 +89,5 @@ end
     @test theta_diff < 1e-19  # Test accuracy
     @test theta_diff > 1e-20  # Sanity check. We are testing something.
 end
+
+include("rootonetests.jl")

@@ -19,8 +19,7 @@ export RootOne, RootOne8
 
 `N`th roots of unity
 
-`N` should always be a literal or a `const`. Otherwise performance
-is severely degraded.
+`N` should always be a literal or a `const`. Otherwise performance is severely degraded.
 
 The type `const RootOne8 = RootOne{8}` is defined.
 `k` will be stored as `mod(k, N)`, which takes values in `(0,...,N-1)`.
@@ -67,8 +66,21 @@ struct RootOne{N}
     k::Int # Could use smaller `k`.
 end
 
+"""
+    RootOne{N}(n=1)
+
+Return `RootOne{N}(1)`, the principal `n`th root of unity.
+"""
+RootOne{N}() where {N} = RootOne{N}(1)
+
 # This is largely for performance. If N is not constant,
 # performance suffers by factor of 100X or more.
+
+"""
+    RootOne8(n=1)
+
+Eighth roots of unity
+"""
 const RootOne8 = RootOne{8}
 
 """

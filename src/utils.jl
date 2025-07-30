@@ -36,4 +36,6 @@ function _super_digit(d::Integer)
     end
 end
 
+const PRETTY = MIME"text/plain"
+
 end # module Utils

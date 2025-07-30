@@ -49,6 +49,9 @@ canonical(x) = x
 include("utils.jl")
 Reexport.@reexport import .Utils: subscript, superscript
 
+include("singletons.jl")
+Reexport.@reexport import .Singletons: Root2, RootI, InvRoot2
+
 include("root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, RootOne8
 
