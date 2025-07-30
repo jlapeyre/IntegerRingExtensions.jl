@@ -9,7 +9,7 @@ using ILog2
 
 export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing
 
-export Domega
+export Domega, Droot2
 
 ########################
 ####
@@ -41,10 +41,15 @@ QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
 QuadraticRing{D}(a::T, b::T) where {T, D} = QuadraticRing{D, T}(a, b)
 
 function Base.show(io::IO, ::MIME"text/plain", qr::QuadraticRing{D}) where {D}
-    if qr.b == 1
-        print(io, qr.a, " + √", D)
+    if isone(qr.b)
+        show(io, MIME"text/plain"(), qr.a)
+        print(io, "+ √", D)
     else
-        print(io, qr.a, " + ", qr.b, "√", D)
+        show(io, MIME"text/plain"(), qr.a)
+        print(io, " + ")
+        show(io, MIME"text/plain"(), qr.b)
+        print(io, "√", D)
+#        print(io, qr.a, " + ", qr.b, "√", D)
     end
 end
 
@@ -90,7 +95,11 @@ function isunit(q::QuadraticRing)
     nq == 1 || nq == -1
 end
 
-Base.big(q::QuadraticRing{D}) where D = convert(QuadraticRing{D, BigInt}, q)
+function Base.big(q::QuadraticRing{D}) where D
+    QuadraticRing{2}(big(q.a), big(q.b))
+#    convert(QuadraticRing{D, BigInt}, q)
+end
+
 LinearAlgebra.norm(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
 
 root2conj(qi::QuadraticRing{D}) where D = QuadraticRing{D}(qi.a, -qi.b)
@@ -291,6 +300,14 @@ end
 struct DyadicFraction{aT, kT}
     a::aT
     k::kT
+end
+
+const Droot2{T1, T2} = QuadraticRing{2, DyadicFraction{T1, T2}}
+
+function Droot2(a, b)
+    a1 = DyadicFraction(a)
+    a2 = DyadicFraction(b)
+    QuadraticRing{2}(a1, a2)
 end
 
 function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
@@ -514,6 +531,19 @@ function Base.conj(cyc::Domega{T}) where T
     Domega{T}(newcoeff)
 end
 
+function Base.conj(cyc::CyclotomicRing{4})
+    (a, b, c, d) = cyc.coeffs
+    newcoeff = (-c, -b, -a, d)
+    typeof(cyc)(newcoeff)
+end
+
+
+function root2conj(cyc::Domega{T}) where T
+    (a, b, c, d) = cyc.coeffs
+    newcoeff = (-a, b, -c, d)
+    Domega{T}(newcoeff)
+end
+
 """
     imaginary(::Type{Domega{T}}) where {T}
 
@@ -592,6 +622,13 @@ function Base.:*(c1::CyclotomicRing{4, CoeffT}, c2::CyclotomicRing{4, CoeffT}) w
     CyclotomicRing(coeffs)
 end
 
+function Base.:^(c::CyclotomicRing, n::Integer)
+    n == 0 && return one(c)
+    n == 1 && return c
+    n == 2 && return c * c
+    return Base.power_by_squaring(c, n)
+end
+
 function Base.one(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
     z = zero(CoeffT)
     o = one(CoeffT)
@@ -645,5 +682,8 @@ for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UI
         convert($Ti, df)
     end
 end
+
+const delta = CyclotomicRing{4, Int}(0, 0, 1, 1)
+const lambda = QuadraticRing2(1, 1)
 
 end # module Rings

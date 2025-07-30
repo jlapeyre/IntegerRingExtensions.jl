@@ -59,6 +59,10 @@ end
     z = Domega{Int}(1,2,3,DyadicFraction(1,1))
     @test typeof(z) === Domega{Int}
     @test typeof(Domega(1,2,3,4)) === Domega{Int}
+
+    azf = float(z * conj(z))
+    @test isreal(azf)
+    @test real(azf) > 0
 end
 
 @testset "Matrix{QuadraticRing}" begin

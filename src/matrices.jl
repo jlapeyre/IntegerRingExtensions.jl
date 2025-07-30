@@ -1,4 +1,5 @@
 module Matrices
+import LinearAlgebra: eigvals, svdvals, opnorm
 
 """
     Matrix2x2{T} <: AbstractMatrix{T}
@@ -76,6 +77,7 @@ Base.complex(m::Matrix2x2) = float(m)
 Base.AbstractFloat(m::Matrix2x2) = map(float, m)
 Base.big(m::Matrix2x2) = map(big, m)
 
+
 """
     get_theta(m::Matrix2x2)
 
@@ -85,5 +87,36 @@ Assume `m` is diagonal, with `m[1] = cis(-theta/2 + phi)`
 and `m[4] = cis(theta/2 + phi)`. Return `theta`.
 """
 get_theta(m::Matrix2x2) = angle(m[4] / m[1])
+
+function Base.transpose(m::Matrix2x2)
+    (a, b, c, d) = m.data
+    Matrix2x2(a, c, b, d)
+end
+
+function Base.adjoint(m::Matrix2x2)
+    (a, b, c, d) = map(adjoint, m.data)
+    Matrix2x2(a, c, b, d)
+end
+
+function eigvals(m::Matrix2x2)
+    (a, b, c, d) = m.data
+    discr = sqrt(a^2 + 4*b*c - 2*a*d + d^2)
+    (
+        (a + d - discr)/2,
+        (a + d + discr)/2
+    )
+end
+
+function svdvals(m::Matrix2x2)
+    ma = m * adjoint(m)
+    (v1, v2) = eigvals(ma)
+    (sqrt(real(v1)), sqrt(real(v2)))
+end
+
+function opnorm(m::Matrix2x2)
+    (v1, v2) = svdvals(m)
+    max(v1, v2)
+end
+
 
 end # module Matrices

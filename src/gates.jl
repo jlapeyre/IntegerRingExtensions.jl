@@ -43,19 +43,27 @@ function Igate(::Type{T}) where T
     Matrix2x2(o, z, z, o)
 end
 
+function Wgate(::Type{T}) where T
+    z = zero(T)
+    sqrt_img = sqrt_imaginary(T)
+    Matrix2x2(sqrt_img, z, z, sqrt_img)
+end
+
 function gate_map(::Type{T}) where T
    return Dict(
-        :H => Hgate(T),
-        :S => Sgate(T),
-        :Z => Zgate(T),
-        :X => Xgate(T),
-        :T => Tgate(T),
-        :I => Igate(T)
+       :H => Hgate(T),
+       :S => Sgate(T),
+       :Z => Zgate(T),
+       :X => Xgate(T),
+       :T => Tgate(T),
+       :I => Igate(T),
+       :W => Wgate(T)
     )
 end
 
 const GATE_MAP_BIG_INT = gate_map(Domega{BigInt})
 const GATE_MAP_INT = gate_map(Domega{Int})
+const GATE_MAP_INT128 = gate_map(Domega{Int128})
 const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
 const GATE_MAP_BIG_FLOAT = gate_map(BigFloat)
 
@@ -82,6 +90,12 @@ function compose(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=
         end
     end
     return result
+end
+
+function RZ(theta)
+    z = zero(theta)
+    t2 = theta/2
+    Matrix2x2(cis(-t2), z, z, cis(t2))
 end
 
 end # module Gates
