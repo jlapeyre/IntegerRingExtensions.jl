@@ -7,9 +7,9 @@ import ..IntegerExtensions.Utils: subscript, superscript
 
 using ILog2
 
-export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing
+export QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing, rootDconj
 
-export Domega, Droot2
+export Domega, Droot2, ZrootD
 
 ########################
 ####
@@ -28,6 +28,27 @@ export Domega, Droot2
 #
 # Quadratic integers with D equiv 0 mod 4 do not exist
 # We check for neither condition.
+"""
+    QuadraticRing{D, CoeffT}
+
+Represents a ring formed by adjoining the square root of the integer `D` to the ring represented by `CoeffT`.
+Integer values of `D` that are equal to 0 or 1 (mod 4) will give incorrect results. Examples of good
+values of `D` are `2` and `3`.
+
+If `D` is a supported integer and `CoeffT <: Integer`, then the type represents `ℤ[√D]`, a ring of quadratic integers.
+
+If `D` is the type `DyadicFraction`, then the ring represents `𝔻[√D]`, that is, the ring if dyadic fractions with
+`√D` adjoined. For example, the alias `Droot2` is defined as
+```julia
+Droot2{T1, T2} = QuadraticRing{2, DyadicFraction{T1, T2}}
+```
+
+# Notes
+Values that could be supported, but are not, include integers such that `D < 0` and integers such that `D≡1 (mod 4)`.
+
+The Gaussian integers would be represented by `D` equal to `-1`, if this were supported. But Gaussian
+integers are already exactly represented by `Complex{<:Integer}`.
+"""
 struct QuadraticRing{D, CoeffT}
     a::CoeffT
     b::CoeffT
@@ -36,6 +57,21 @@ end
 # Avoid temptation to do D = an integer, QuadraticRing2{D, CoeffT}.
 # That kills performance
 const QuadraticRing2{CoeffT} = QuadraticRing{2}
+
+# Can't constrain `D` to be an integer :(
+"""
+    ZrootD{D, CoeffT} where {D, CoeffT<:Integer}
+
+Represents the ring `ℤ[√D]`, provided `D` is a valid integer (See `QuadraticRing`).
+
+`ZrootD` is an alias defined by
+```
+ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
+```
+
+See also `Droot2`.
+"""
+const ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
 
 QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
 QuadraticRing{D}(a::T, b::T) where {T, D} = QuadraticRing{D, T}(a, b)
@@ -105,10 +141,12 @@ end
 
 LinearAlgebra.norm(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
 
-root2conj(qi::QuadraticRing{D}) where D = QuadraticRing{D}(qi.a, -qi.b)
+root2conj(qi::QuadraticRing{2}) = QuadraticRing{2}(qi.a, -qi.b)
+
+rootDconj(qi::QuadraticRing{D}) where D = QuadraticRing{D}(qi.a, -qi.b)
 
 Base.:*(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D =
-    QuadraticRing{D}(q1.a * q2.a + 2 * q1.b * q2.b, q1.a * q2.b + q1.b * q2. a)
+    QuadraticRing{D}(q1.a * q2.a + D * q1.b * q2.b, q1.a * q2.b + q1.b * q2. a)
 
 Base.:-(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q1.a - q2.a, q1.b - q2.b)
 Base.:-(q::QuadraticRing{D}) where D = QuadraticRing{D}(-q.a, -q.b)
@@ -715,8 +753,5 @@ for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UI
         convert($Ti, df)
     end
 end
-
-const delta = CyclotomicRing{4, Int}(0, 0, 1, 1)
-const lambda = QuadraticRing2(1, 1)
 
 end # module Rings
