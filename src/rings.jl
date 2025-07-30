@@ -597,6 +597,18 @@ end
 
 # The type of the exponent of (1/2) is hardcoded to Int.
 # We probably only need one type for this field.
+"""
+    Domega{T}
+
+Represents the ring `𝔻[ω] = ℤ[1/√2, i]`.
+
+The type `T<:Integer` is the type of the numerator in the dyadic fractions.
+
+`Domega{T}` is defined as the alias
+```
+Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
+```
+"""
 const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
 
 function Base.conj(cyc::Domega{T}) where T
