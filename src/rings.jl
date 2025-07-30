@@ -267,15 +267,15 @@ end
 # Otherwise use a type like RootOneA with no type parameter.
 #
 # Same as RootOne{N}, but don't use type param for N
-struct RootOneA
-    function RootOneA(k, N)
-        new(mod(k, N), N)
-    end
-    k::Int
-    N::Int
-end
+# struct RootOneA
+#     function RootOneA(k, N)
+#         new(mod(k, N), N)
+#     end
+#     k::Int
+#     N::Int
+# end
 
-Base.:*(r1::RootOneA, r2::RootOneA) = RootOneA(r1.k + r2.k, r1.N)
+# Base.:*(r1::RootOneA, r2::RootOneA) = RootOneA(r1.k + r2.k, r1.N)
 
 # Examples:
 # convert(ComplexF64, z)
@@ -635,7 +635,7 @@ end
     sqrt_imaginary(::Type{Domega{T}}) where {T}
 
 The value of type `Domega{T}` that represents the principal square root of the imaginary unit.
-    """
+"""
 function sqrt_imaginary(::Type{CyclotomicRing{4, T}}) where {T}
     z = zero(T)
     o = one(T)
