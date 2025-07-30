@@ -73,6 +73,7 @@ end
     @test Int(DyadicFraction(4, 1)) == 2
     @test Int(DyadicFraction(4, 0)) == 4
     @test Int(DyadicFraction(4, 2)) == 1
+    @test Rational(DyadicFraction(3, 3)) === 3//8
 end
 
 @testset "composition" begin
