@@ -293,16 +293,16 @@ struct DyadicFraction{aT, kT}
     k::kT
 end
 
-# function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
-#     T = promote_type(T1, T2)
-#     V = promote_type(V1, V2)
-#     DyadicFraction{T, V}
-# end
+function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
+    T = promote_type(T1, T2)
+    V = promote_type(V1, V2)
+    DyadicFraction{T, V}
+end
 
-# function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{T}) where {T1<:Integer, V1<:Integer, T<:Integer}
-#     T3 = promote_type(T1, T)
-#     DyadicFraction{T3, V1}
-# end
+function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{T}) where {T1<:Integer, V1<:Integer, T<:Integer}
+    T3 = promote_type(T1, T)
+    DyadicFraction{T3, V1}
+end
 
 function Base.:^(df::DyadicFraction, n::Integer)
     # Can't copy Int, but really should copy BigInt
@@ -311,9 +311,9 @@ function Base.:^(df::DyadicFraction, n::Integer)
     return Base.power_by_squaring(df, n)
 end
 
-# function promote_rule(::Type{DyadicFraction{Int,Int}}, ::Type{Int})
-#     DyadicFraction{Int, Int}
-# end
+function promote_rule(::Type{DyadicFraction{Int,Int}}, ::Type{Int})
+    DyadicFraction{Int, Int}
+end
 
 function Base.show(io::IO, ::MIME"text/plain", df::DyadicFraction)
 #    print(io, df.a, " / 2^", df.k)
