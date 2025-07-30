@@ -75,8 +75,7 @@ Return `df` in canonical form. That is, with `df.k` as small as possible.
 """
 function canonical(df::DyadicFraction)
     iszero(df.a) && return DyadicFraction(df.a, zero(df.k))
-    num = df.a
-    dexp = df.k
+    (num, dexp) = (df.a, df.k)
     while true
         (isodd(num) || dexp < 1) && return DyadicFraction(num, dexp)
         num = div(num, 2)
