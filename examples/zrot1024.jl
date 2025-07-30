@@ -14,11 +14,10 @@ println()
 # This one is faster. It chunks the string, and calls compose_one
 m = compose(gate_str)
 
-@info "Show just one element, m[1,1] of resulting matrix:"
+@info "Show just one element, m[1,1], of resulting matrix:"
 
 println()
-show(stdout, MIME"text/plain"(), m[1,1])
-println()
+display(m[1,1])
 println()
 
 @info "Value of theta used in decomposition"
