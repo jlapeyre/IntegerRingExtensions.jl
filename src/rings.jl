@@ -300,6 +300,20 @@ end
 ####
 ########################
 
+"""
+    DyadicFraction{aT, kT}
+
+Represents the ring `𝔻 = ℤ[½]`.
+
+`aT` is the type of the numerator.
+`bT` is the type of the exponent on `2` in the denominator.
+
+# Examples
+```jldoctest
+julia> DyadicFraction(5, 3)
+5/2³
+```
+"""
 struct DyadicFraction{aT, kT}
     a::aT
     k::kT
@@ -308,7 +322,7 @@ end
 """
     Droot2{T1, T2}
 
-Represents the ring `𝔻[√2]`.
+Represents the ring `𝔻[√2] = ℤ[1/√2]`.
 
 `T1` is the type of the numerator in the dyadic fractions. `T2` is the type of the exponent in the denominator.
 
