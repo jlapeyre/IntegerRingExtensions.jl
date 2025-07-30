@@ -29,7 +29,6 @@ struct DyadicFraction{aT, kT}
     k::kT
 end
 
-
 function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
     T = promote_type(T1, T2)
     V = promote_type(V1, V2)
@@ -76,33 +75,46 @@ Return `df` in canonical form. That is, with `df.k` as small as possible.
 """
 function canonical(df::DyadicFraction)
     iszero(df.a) && return DyadicFraction(df.a, zero(df.k))
-    (c, m) = factortwos(df.a)
-    iszero(c) && return df
-    k = df.k
-    if c > k
-        return typeof(df)(2^(c-k)*m, 0)
-    elseif c < k
-        return typeof(df)(m, k - c)
-    else
-        return typeof(df)(m, 0)
-    end
-end
-
-"""
-    factortwos(n)
-
-Factor `n` as `m * 2^c` and return `(c, m)`.
-"""
-function factortwos(n)
-    n == 0 && return (0, 0)
-    c = 0
-    m = n
+    num = df.a
+    dexp = df.k
     while true
-        isodd(m) && return (c, m)
-        m = div(m, 2)
-        c += 1
+        (isodd(num) || dexp < 1) && return DyadicFraction(num, dexp)
+        num = div(num, 2)
+        dexp = dexp - 1
     end
 end
+
+# Routine above is faster and simpler than this one
+# function oldcanonical(df::DyadicFraction)
+#     iszero(df.a) && return DyadicFraction(df.a, zero(df.k))
+#     (c, m) = factortwos(df.a)
+#     iszero(c) && return df
+#     k = df.k
+#     if c > k
+#         return typeof(df)(2^(c-k)*m, 0)
+#     elseif c < k
+#         return typeof(df)(m, k - c)
+#     else
+#         return typeof(df)(m, 0)
+#     end
+# end
+
+# Unused now
+# """
+#     factortwos(n)
+#
+# Factor `n` as `m * 2^c` and return `(c, m)`.
+# """
+# function factortwos(n)
+#     n == 0 && return (0, 0)
+#     c = 0
+#     m = n
+#     while true
+#         isodd(m) && return (c, m)
+#         m = div(m, 2)
+#         c += 1
+#     end
+# end
 
 function zero(::Type{DyadicFraction{aT, bT}}) where {aT, bT}
     DyadicFraction(zero(aT), zero(bT))
@@ -191,7 +203,18 @@ Base.float(f::DyadicFraction) = convert(Float64, f)
 Base.big(f::DyadicFraction) = convert(BigFloat, f)
 Base.:*(f1::DyadicFraction, f2::DyadicFraction) = DyadicFraction(f1.a * f2.a, f1.k + f2.k)
 Base.:-(f::DyadicFraction) = DyadicFraction(-f.a, f.k)
-Base.:*(n::Integer, f::DyadicFraction) = DyadicFraction(n * f.a, f.k)
+
+# We can do one of
+# 1. Multiply in numerator and leave unsimplified (canonicalized)
+# 2. Mulitply in numerator, then canonicalize
+# 3. If n is even, decrement denominator and call again with div(n,2)
+# Three seems to be much faster than 2. Even with n = 2^20
+function Base.:*(n::Integer, f::DyadicFraction)
+    iseven(n) && f.k > 0 ?
+        div(n, 2) * DyadicFraction(f.a, f.k - 1) :
+        DyadicFraction(n * f.a, f.k)
+end
+
 Base.:*(f::DyadicFraction, n::Integer) = n * f
 
 Base.:+(f1::DyadicFraction, f2::DyadicFraction) = _plus(f1, f2, +)
