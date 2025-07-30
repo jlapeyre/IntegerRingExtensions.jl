@@ -305,6 +305,22 @@ struct DyadicFraction{aT, kT}
     k::kT
 end
 
+"""
+    Droot2{T1, T2}
+
+Represents the ring `𝔻[√2]`.
+
+`T1` is the type of the numerator in the dyadic fractions. `T2` is the type of the exponent in the denominator.
+
+# Examples
+```jldoctest
+julia> Droot2(DyadicFraction(1,2), DyadicFraction(3, 4))
+1/2² + 3/2⁴√2
+
+julia> Droot2(4, 5) # These integers are still stored as `DyadicFraction`s
+4 + 5√2
+```
+"""
 const Droot2{T1, T2} = QuadraticRing{2, DyadicFraction{T1, T2}}
 
 function Droot2(a, b)
