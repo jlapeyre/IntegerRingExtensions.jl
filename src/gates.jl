@@ -87,7 +87,7 @@ function compose(gates_in::AbstractString)
 #    reduce_func = reduce_fractions ? canonical : identity
     chunks = reverse(chunkstring(reverse(gates_in), chunklen))
     mats = [map(Domega{BigInt}, compose_one(chunk, GATE_MAP_INT)) for chunk in chunks]
-    prod(mats)
+    canonical(prod(mats))
 end
 
 """

@@ -11,11 +11,22 @@ gate_str = "TSHTHTHTHTSHTSHTSHTSHTSHTSHTHTSHTSHTSHTSHTHTHTHTSHTSHTSHTHTHTHTHTSHT
 # This one is faster. It chunks the string, and calls compose_one
 m = compose(gate_str)
 
-theta = big(pi)/1024
+@info "Show just one element, m[1,1] of resulting matrix:"
 
-# Error in theta
-get_theta(big(m)) - theta
+println()
+show(stdout, MIME"text/plain"(), m[1,1])
+println()
+println()
 
-# opnorm fails for Complex{BigFloat} :(
-# We can do this easily, however.
-#opnorm(big(m) - RZ(theta))
+@info "Value of theta used in decomposition"
+@show theta = big(pi)/1024
+println()
+
+@info "Difference between theta from decomposition and input theta"
+@show get_theta(big(m)) - theta
+println()
+
+@info "Stopping criterium is operator norm distance"
+@show opnorm(big(m) - RZ(theta))
+
+nothing
