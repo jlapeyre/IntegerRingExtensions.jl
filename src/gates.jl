@@ -61,11 +61,14 @@ function gate_map(::Type{T}) where T
     )
 end
 
-const GATE_MAP_BIG_INT = gate_map(Domega{BigInt})
 const GATE_MAP_INT = gate_map(Domega{Int})
+const GATE_MAP_BIG_INT = gate_map(Domega{BigInt})
 const GATE_MAP_INT128 = gate_map(Domega{Int128})
-const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
 const GATE_MAP_BIG_FLOAT = gate_map(BigFloat)
+
+# Careful this may segfault when using precompiled because it
+# calls a dynamically linked C library.
+const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
 
 """
     compose(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
@@ -78,20 +81,71 @@ then reduce fractions in `DyadicFraction`s after each matrix multiplication.
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
 of longer compositions with smaller data types.
 """
-function compose(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
+function compose(gates_in::AbstractString; reduce_fractions=true)
+    chunklen = 300
+    reduce_func = reduce_fractions ? canonical : identity
+    chunks = reverse(chunkstring(reverse(gates_in), chunklen))
+    mats = [map(Domega{BigInt}, compose_one(chunk, GATE_MAP_INT)) for chunk in chunks]
+    prod(mats)
+end
+
+"""
+    chunkstring(s, chunklen=5)
+
+Return an array of chunks of string `s`, each of length `chunklen`,
+except the last one, which may be shorter. Satisfies
+```
+join(chunkstring(s)) == s
+```
+"""
+function chunkstring(s, chunklen=5)
+    strs = String[]
+    i = 1
+    while true
+        cend = i + chunklen - 1
+        cend = cend < length(s) ? cend : length(s)
+        push!(strs, s[i:cend])
+        cend == length(s) && break
+        i = cend + 1
+    end
+    return strs
+end
+
+# Assume gates has already been reversed!
+"""
+    compose_one(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
+
+Compose gates in string `gates`. This is meant to compute the composition for a chunk
+of a longer string of gates. The chunking and recombining is done by `compose`.
+The reason we compute by chunks is that the chunks are small enough that computation
+can be done with 64-bit (i.e. fast) integers. Then the resulting matrices are converted to
+`BigInt`, and a final composition of these matrices is peformed.
+
+Compute composition of the gates in `gates`. The composition will be from
+*right to left*. In particular, you need to reverse the output string from
+`gridsynth` before calling `compose`.
+
+`gmap` is a map from `Symbol`s to matrices. If `reduce_fractions` is `true`
+then reduce fractions in `DyadicFraction`s after each matrix multiplication.
+
+`reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
+of longer compositions with smaller data types.
+"""
+function compose_one(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
     result = gmap[:I]
-    if reduce_fractions
-        for gate in Iterators.reverse(gates)
-            result = map(canonical, gmap[Symbol(gate)] * result)
-        end
-    else
-        for gate in Iterators.reverse(gates)
-            result = map(canonical, gmap[Symbol(gate)] * result)
-        end
+    reduce_func = reduce_fractions ? canonical : identity
+    for gate in gates
+        result = map(reduce_func, gmap[Symbol(gate)] * result)
     end
     return result
 end
 
+"""
+    RZ(theta)
+
+This is the Z rotation matrix that is synthesized by `gridsynth` as
+well as algorithms in other papers.
+"""
 function RZ(theta)
     z = zero(theta)
     t2 = theta/2
