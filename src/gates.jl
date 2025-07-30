@@ -81,9 +81,10 @@ then reduce fractions in `DyadicFraction`s after each matrix multiplication.
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
 of longer compositions with smaller data types.
 """
-function compose(gates_in::AbstractString; reduce_fractions=true)
+function compose(gates_in::AbstractString)
+#function compose(gates_in::AbstractString; reduce_fractions=true)
     chunklen = 300
-    reduce_func = reduce_fractions ? canonical : identity
+#    reduce_func = reduce_fractions ? canonical : identity
     chunks = reverse(chunkstring(reverse(gates_in), chunklen))
     mats = [map(Domega{BigInt}, compose_one(chunk, GATE_MAP_INT)) for chunk in chunks]
     prod(mats)
@@ -135,7 +136,7 @@ function compose_one(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fracti
     result = gmap[:I]
     reduce_func = reduce_fractions ? canonical : identity
     for gate in gates
-        result = map(reduce_func, gmap[Symbol(gate)] * result)
+        result = reduce_func(gmap[Symbol(gate)] * result)
     end
     return result
 end

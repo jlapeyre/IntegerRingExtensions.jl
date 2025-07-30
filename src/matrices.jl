@@ -1,5 +1,6 @@
 module Matrices
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det
+import ..IntegerExtensions: canonical
 
 """
     Matrix2x2{T} <: AbstractMatrix{T}
@@ -76,7 +77,7 @@ Base.complex(m::Matrix2x2) = float(m)
 # This is not conventional. Change this
 Base.AbstractFloat(m::Matrix2x2) = map(float, m)
 Base.big(m::Matrix2x2) = map(big, m)
-
+canonical(m::Matrix2x2) = map(canonical, m)
 
 """
     get_theta(m::Matrix2x2)
