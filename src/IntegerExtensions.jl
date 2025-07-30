@@ -49,9 +49,12 @@ canonical(x) = x
 include("utils.jl")
 Reexport.@reexport import .Utils: subscript, superscript
 
+include("root_one.jl")
+Reexport.@reexport import .RootOnes: RootOne, RootOne8
+
 include("rings.jl")
-Reexport.@reexport import .Rings: QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing, RootOneA,
-    RootOne8, QuadraticRing2, canonical, Domega, Droot2, root2conj, rootDconj, ZrootD
+Reexport.@reexport import .Rings: QuadraticRing, isunit, DyadicFraction, CyclotomicRing,
+    QuadraticRing2, canonical, Domega, Droot2, root2conj, rootDconj, ZrootD
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, get_theta
