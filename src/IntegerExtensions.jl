@@ -44,10 +44,11 @@ function one_over_root_two(::Type{BigFloat})
     one(BigFloat) / sqrt(big(2))
 end
 
-canonical(x) = x
-
 include("utils.jl")
 Reexport.@reexport import .Utils: subscript, superscript
+
+include("common.jl")
+Reexport.@reexport import .Common: canonical
 
 include("singletons.jl")
 Reexport.@reexport import .Singletons: Root2, RootI, InvRoot2
@@ -55,9 +56,12 @@ Reexport.@reexport import .Singletons: Root2, RootI, InvRoot2
 include("root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, RootOne8
 
+include("dyadic.jl")
+Reexport.@reexport import .DyadicFractions: DyadicFraction
+
 include("rings.jl")
-Reexport.@reexport import .Rings: QuadraticRing, isunit, DyadicFraction, CyclotomicRing,
-    QuadraticRing2, canonical, Domega, Droot2, root2conj, rootDconj, ZrootD
+Reexport.@reexport import .Rings: QuadraticRing, isunit, CyclotomicRing,
+    QuadraticRing2, Domega, Droot2, root2conj, rootDconj, ZrootD
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, get_theta
