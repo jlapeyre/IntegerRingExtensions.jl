@@ -60,6 +60,11 @@ end
     @test typeof(z) === Domega{Int}
     @test typeof(Domega(1,2,3,4)) === Domega{Int}
 
+    @test cromega == cromega
+    @test Domega{Int}(0,0,0,1) == one(cromega)
+#    @test isone(one(cr))
+    @test isone(one(cromega))
+
     azf = float(z * conj(z))
     @test isreal(azf)
     @test real(azf) > 0
@@ -94,7 +99,7 @@ end
     str = "HTSHTSHTHTHTHTSHTHTSHTHTSHTSHTSHTSHTSHTSHTHTHTSHTSHTSHTHTSHTSHTHTHTHTHTSHTSHTSHTHTHTSHTHTSHTSHTSHTSHTHTHTHTHTSHTHTSHTHTSHTHTSHTHTHTHTSHTSHTSHTHTSHTHTSHTSHTHTSHTHTHTHTSHTHTSHTHTHTHTHTHTSHTHTHTHTHTHTSHTHTSHTSHTSHTSHTSHTSHTSHTHTSHTSHTHTSHTHTSHTSHTSHTSHTSHTHTSHTSHTSHTSHTHTHTSHTSHTHTSHTHTSHTSHTHTSHTSHTSHTSHTHTHTHTHTHTSHTHTSHTSHTHTHTSHTHTHTSHTHTSHTSHTSHTHTSHTSHTHTSHTSHTHTHTSHTHTHTSHTSHTSHTHTSHTHTHTSHTSHTHTSHTHTHTSHTHTSHTSHTSHTHTHTSHTHTHTHTHTHTHTHTHTHTSHTSHTHTSHTHTSHTHTSHTSHTSHTSHTSHTHTSHTHTHTSHTSHTHTXS"
 
     # Use ordinary Int64 as the base type.
-;    m = compose(str, GATE_MAP_INT)
+    m = compose(str)
     m_float = big(m) # Convert from Domega{Int} to BigFloat
     theta = get_theta(m_float) # Extract theta. There will be a global phase
     theta_diff = abs(theta - big(pi) / 16) # Expected theta is pi/16

@@ -490,6 +490,10 @@ function convert(::Type{Float64}, f::DyadicFraction)
     convert(Float64, f.a) * 0.5^f.k
 end
 
+function convert(::Type{DyadicFraction{T,V}}, f::DyadicFraction) where {T, V}
+    DyadicFraction{T, V}(T(f.a), V(f.k))
+end
+
 function convert(::Type{T}, f::DyadicFraction) where {T <: Integer}
     iszero(f.k) && return convert(T, f.a)
     cf = canonical(f)
@@ -608,6 +612,7 @@ function Base.conj(cyc::CyclotomicRing{4})
     typeof(cyc)(newcoeff)
 end
 
+Base.adjoint(cyc::CyclotomicRing) = conj(cyc)
 
 function root2conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
@@ -692,6 +697,15 @@ function Base.:*(c1::CyclotomicRing{4, CoeffT}, c2::CyclotomicRing{4, CoeffT}) w
     )
     CyclotomicRing(coeffs)
 end
+
+function Base.:*(c::CyclotomicRing, r::Real)
+    cs = c.coeffs .* r
+    CyclotomicRing(cs)
+end
+
+Base.:*(r::Real, c::CyclotomicRing) = c * r
+
+Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs
 
 function Base.:^(c::CyclotomicRing, n::Integer)
     n == 0 && return one(c)
