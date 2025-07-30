@@ -8,6 +8,9 @@ gate_str = "TSHTHTHTHTSHTSHTSHTSHTSHTSHTHTSHTSHTSHTSHTHTHTHTSHTSHTSHTHTHTHTHTSHT
 # Choose either one of these
 #m = compose_one(reverse(gate_str))
 
+@info "Approximating rotation gate by long sequence of S, H, T, W"
+@show length(gate_str)
+println()
 # This one is faster. It chunks the string, and calls compose_one
 m = compose(gate_str)
 
