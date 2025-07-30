@@ -97,7 +97,10 @@ end
 
 function Base.big(q::QuadraticRing{D}) where D
     QuadraticRing{2}(big(q.a), big(q.b))
-#    convert(QuadraticRing{D, BigInt}, q)
+end
+
+function Base.big(q::QuadraticRing{D, T}) where {D, T <: AbstractFloat}
+    big(q.a) + sqrt(big(D)) * big(q.b)
 end
 
 LinearAlgebra.norm(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)

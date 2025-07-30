@@ -51,7 +51,7 @@ Reexport.@reexport import .Utils: subscript, superscript
 
 include("rings.jl")
 Reexport.@reexport import .Rings: QuadraticRing, isunit, RootOne, DyadicFraction, CyclotomicRing, RootOneA,
-    RootOne8, QuadraticRing2, canonical, Domega, root2conj
+    RootOne8, QuadraticRing2, canonical, Domega, Droot2, root2conj
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, get_theta

@@ -65,6 +65,13 @@ end
     @test real(azf) > 0
 end
 
+@testset "Droot2" begin
+    x = Droot2(1, DyadicFraction(3, 2))
+    @test typeof(x) === Droot2{Int64, Int64}
+    @test typeof(big(x)) === QuadraticRing{2, BigFloat}
+    @test typeof(big(big(x))) === BigFloat
+end
+
 @testset "Matrix{QuadraticRing}" begin
     # z = 1/sqrt(2)
     z = QuadraticRing{2}(DyadicFraction(0,0), DyadicFraction(1,1))
