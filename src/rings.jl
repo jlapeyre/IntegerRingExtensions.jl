@@ -1,7 +1,7 @@
 module Rings
 
 import LinearAlgebra
-import Base: convert, zero, iszero, one, isone
+import Base: convert, zero, iszero, one, isone, promote_rule
 import ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two, canonical
 import ..IntegerExtensions.Utils: subscript, superscript
 
@@ -92,7 +92,8 @@ end
 
 Base.big(q::QuadraticRing{D}) where D = convert(QuadraticRing{D, BigInt}, q)
 LinearAlgebra.norm(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
-Base.conj(qi::QuadraticRing{D}) where D = QuadraticRing{D}(qi.a, -qi.b)
+
+root2conj(qi::QuadraticRing{D}) where D = QuadraticRing{D}(qi.a, -qi.b)
 
 Base.:*(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D =
     QuadraticRing{D}(q1.a * q2.a + 2 * q1.b * q2.b, q1.a * q2.b + q1.b * q2. a)
@@ -101,6 +102,21 @@ Base.:-(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q
 Base.:-(q::QuadraticRing{D}) where D = QuadraticRing{D}(-q.a, -q.b)
 Base.:+(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q1.a + q2.a, q1.b + q2.b)
 Base.:^(q::QuadraticRing{D}, n::Integer) where D = Base.power_by_squaring(q, n)
+
+function Base.:(==)(q::QuadraticRing, n::Integer)
+    return iszero(q.b) && n == q.a
+end
+
+function Base.:(==)(q::QuadraticRing, x::AbstractFloat)
+    (q1, x1) = promote(q, x)
+    q1 == x1
+end
+
+promote_rule(::Type{V}, ::Type{T2})  where {V <: QuadraticRing{<:Any, T},T2} where T =
+    promote_type(float(T), T2)
+# function Base.:(==)(q::QuadraticRing, x::AbstractFloat)
+#     return iszero(q.b) && n == q.a
+# end
 
 ########################
 ####
