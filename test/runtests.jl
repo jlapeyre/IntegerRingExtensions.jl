@@ -29,7 +29,9 @@ end
     # Test that `angle` gives the same result obtained by converting to
     # float, and then extracting the angle.
     for i in 0:7
-        @test isapprox(angle(RootOne8(i)), angle(float(RootOne8(i))))
+        root = RootOne8(i)
+        @test isapprox(angle(root), angle(float(root)))
+        @test isone(root * inv(root))
     end
     r = RootOne8(1)
     @test isa(angle(r), Float64)

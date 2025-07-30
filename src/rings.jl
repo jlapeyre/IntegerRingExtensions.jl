@@ -191,10 +191,9 @@ function sqrt_imaginary(::Type{RootOne8})
 end
 
 function Base.show(io::IO, ::MIME"text/plain", r::RootOne{N}) where {N}
-    if r.k == 1
-        print(io, "ω" * subscript(N))
-    else
-        print(io, "ω" * subscript(N) * superscript(r.k))
+    print(io, "ω" * subscript(N))
+    if !isone(r.k)
+        print(io, superscript(r.k))
     end
 end
 
@@ -289,7 +288,10 @@ function Base.show(io::IO, ::MIME"text/plain", df::DyadicFraction)
         if iszero(df.k)
             print(io, df.a)
         else
-            print(io, df.a, "/2", superscript(df.k))
+            print(io, df.a, "/2")
+            if !isone(df.k)
+               print(io, superscript(df.k))
+            end
         end
     end
 end
@@ -444,8 +446,16 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
         if showcount > 1
             print(io, " + ")
         end
-        show(io, MIME"text/plain"(), c[i])
-        print(io, " ω", superscript(n-i))
+        if isone(-c[i])
+            print(io, "-")
+        elseif !isone(c[i])
+            show(io, MIME"text/plain"(), c[i])
+        end
+        if isone(n - i)
+            print(io, " ω")
+        else
+            print(io, " ω", superscript(n-i))
+        end
     end
     if showcount == 0
         print(io, 0)
