@@ -62,7 +62,7 @@ end
 
     @test cromega == cromega
     @test Domega{Int}(0,0,0,1) == one(cromega)
-#    @test isone(one(cr))
+    @test isone(one(cr))
     @test isone(one(cromega))
 
     azf = float(z * conj(z))
