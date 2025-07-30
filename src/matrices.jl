@@ -1,5 +1,5 @@
 module Matrices
-import LinearAlgebra: eigvals, svdvals, opnorm
+import LinearAlgebra: eigvals, svdvals, opnorm, tr, det
 
 """
     Matrix2x2{T} <: AbstractMatrix{T}
@@ -97,6 +97,10 @@ function Base.adjoint(m::Matrix2x2)
     (a, b, c, d) = map(adjoint, m.data)
     Matrix2x2(a, c, b, d)
 end
+
+tr(m::Matrix2x2) = m[1] + m[4]
+
+det(m::Matrix2x2) = m[1] * m[4] - m[3] * m[2]
 
 function eigvals(m::Matrix2x2)
     (a, b, c, d) = m.data
