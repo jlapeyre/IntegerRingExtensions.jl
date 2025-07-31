@@ -59,16 +59,18 @@ Reexport.@reexport import .RootOnes: RootOne, RootOne8
 include("dyadic.jl")
 Reexport.@reexport import .DyadicFractions: DyadicFraction
 
+include("quadratic_ring.jl")
+Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, Zroot2, Droot2, QuadraticRing2, isunit,
+    rootDconj, root2conj
+
 include("rings.jl")
-Reexport.@reexport import .Rings: QuadraticRing, isunit, CyclotomicRing,
-    QuadraticRing2, Domega, Droot2, root2conj, rootDconj, ZrootD
+Reexport.@reexport import .Rings: CyclotomicRing, Domega
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, get_theta
 
 include("gates.jl")
 Reexport.@reexport import .Gates: Igate, Zgate, Sgate, Tgate, Hgate, Xgate, Wgate, compose, compose_one, gate_map,
-    GATE_MAP_BIG_INT, GATE_MAP_INT, GATE_MAP_ZZ, GATE_MAP_BIG_FLOAT, GATE_MAP_INT128,
-    RZ
+    GATE_MAP_BIG_INT, GATE_MAP_INT, GATE_MAP_BIG_FLOAT, GATE_MAP_INT128, RZ
 
 end # module IntegerExtensions

@@ -4,7 +4,8 @@ module Gates
 using ..IntegerExtensions.Matrices: Matrix2x2
 using ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two, canonical
 using ..IntegerExtensions.Rings: Domega
-using Nemo: ZZ, ZZRingElem
+
+# using Nemo: ZZ, ZZRingElem
 
 function Zgate(::Type{T}) where T
     o = one(T)
@@ -68,7 +69,7 @@ const GATE_MAP_BIG_FLOAT = gate_map(BigFloat)
 
 # Careful this may segfault when using precompiled because it
 # calls a dynamically linked C library.
-const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
+# const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
 
 """
     compose(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)

@@ -223,4 +223,10 @@ function _plus(f1::DyadicFraction, f2::DyadicFraction, op)
     DyadicFraction(op(2^(f2.k - minex) * f1.a,  2^(f1.k - minex) * f2.a), maxex)
 end
 
+for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
+    @eval function (::Type{Base.$Ti})(df::DyadicFraction)
+        convert($Ti, df)
+    end
+end
+
 end # module DyadicFractions
