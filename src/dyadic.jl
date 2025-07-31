@@ -1,7 +1,7 @@
 module DyadicFractions
 
 import Base: zero, iszero, one, convert, promote_rule, show
-import ..Utils: superscript
+import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong
 import ..Common: canonical
 
 ########################
@@ -54,14 +54,14 @@ end
 function show(io::IO, ::MIME"text/plain", df::DyadicFraction)
 #    print(io, df.a, " / 2^", df.k)
     #    print(io, df.a, " / 2", superscript(df.k))
-    if iszero(df.a)
+    if iszero_strong(df.a)
         print(io, zero(df.a))
     else
-        if iszero(df.k)
+        if iszero_strong(df.k)
             print(io, df.a)
         else
             print(io, df.a, "/2")
-            if !isone(df.k)
+            if !isone_strong(df.k)
                print(io, superscript(df.k))
             end
         end
@@ -198,7 +198,7 @@ function Base.:(==)(df1::DyadicFraction, df2::DyadicFraction)
 end
 
 function Base.:(==)(x::Integer, df::DyadicFraction)
-    df1 = canonical(df)
+    df1 = canonical(df) 
     df1.k == 0 && df1.a == x
 end
 Base.:(==)(df::DyadicFraction, x::Integer) = x == df
@@ -214,7 +214,7 @@ Base.:-(f::DyadicFraction) = DyadicFraction(-f.a, f.k)
 # 3. If n is even, decrement denominator and call again with div(n,2)
 # Three seems to be much faster than 2. Even with n = 2^20
 function Base.:*(n::Integer, f::DyadicFraction)
-    iseven(n) && f.k > 0 ?
+    iseven(n) && greater_than_strong(f.k, 0) ?
         div(n, 2) * DyadicFraction(f.a, f.k - 1) :
         DyadicFraction(n * f.a, f.k)
 end

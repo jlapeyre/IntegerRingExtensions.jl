@@ -1,9 +1,9 @@
 module CyclotomicRings
 
 import LinearAlgebra
-import Base: convert, zero, iszero, one, isone, promote_rule
+import Base: convert, zero, one, promote_rule
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two
-import ..Utils: superscript
+import ..Utils: superscript, iszero_strong, isone_strong
 import ..RootOnes: RootOne8
 
 import ..DyadicFractions: DyadicFraction
@@ -28,14 +28,14 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
     n = length(c)
     showcount = 0
     for i in 1:n
-        iszero(c[i]) && continue
+        iszero_strong(c[i]) && continue
         showcount += 1
         if showcount > 1
             print(io, " + ")
         end
-        if isone(-c[i])
+        if isone_strong(-c[i])
             print(io, "-")
-        elseif !isone(c[i])
+        elseif !isone_strong(c[i])
             show(io, MIME"text/plain"(), c[i])
         end
         if isone(n - i)
@@ -126,6 +126,11 @@ function sqrt_imaginary(::Type{CyclotomicRing{4, T}}) where {T}
     CyclotomicRing(z, z, o, z)
 end
 
+"""
+    one_over_root_two(::Type{Domega{T}}) where {T}
+
+Return a value of `Domega{T}` representing the reciprocal of the square root of two.
+"""
 function one_over_root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) where {T}
     DT = DyadicFraction{T, Int}
     z = zero(DT)

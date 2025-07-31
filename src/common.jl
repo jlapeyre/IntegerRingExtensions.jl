@@ -13,7 +13,12 @@ Note that `Rational(0, a)` is canonicalized to `Rational(0, 1)` on construction.
 """
 canonical(x) = x
 
-function one_over_root_two(::Type{T}) where {T <: Real}
+"""
+    one_over_root_two(::Type{T}) where {T <: Number}
+
+Return a value of type `T` representing the reciprocal of the square root of two.
+"""
+function one_over_root_two(::Type{T}) where {T <: Number}
     one(T) / sqrt(T(2))
 end
 

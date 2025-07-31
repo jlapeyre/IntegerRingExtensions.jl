@@ -4,6 +4,7 @@ export subscript, superscript
 
 subscript(i::Integer) = _script(i, _sub_digit)
 superscript(i::Integer) = _script(i, _super_digit)
+superscript(x) = string("^", x)
 
 function _script(i::Integer, _script_func)
     if i < 0
@@ -48,5 +49,20 @@ function cpad(s::AbstractString, width::Integer, pad::AbstractString=" ")
     rpadlen = padlen ÷ 2
     return lpad(s, len + lpadlen, pad) |> x -> rpad(x, width, pad)
 end
+
+function iszero_strong(x)
+    iszero(x) === true
+end
+
+function isone_strong(x)
+    isone(x) === true
+end
+
+function greater_than_strong(x::Number, y::Number)
+    x > y
+end
+
+greater_than_strong(x, y) = false
+
 
 end # module Utils

@@ -202,6 +202,11 @@ function Droot2(a, b)
     QuadraticRing{2}(a1, a2)
 end
 
+"""
+    one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
+
+Return a value representing the reciprocal of the square root of two.
+"""
 function one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
     z1 = zero(T1)
     z2 = zero(T2)
