@@ -288,6 +288,17 @@ end
 
 Base.:*(c::CyclotomicRing{4}, r::RootOne8) = r * c
 
+"""
+    mul_sqrt2(cyc::CyclotomicRing{4})
+
+Multiply `cyc` by the square root of two.
+"""
+function mul_sqrt2(cyc::CyclotomicRing{4})
+    (a,b,c,d) = cyc.coeffs
+    coeffs = (b-d, c+a, b+d, c-a)
+    CyclotomicRing(coeffs)
+end
+
 @inline Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs
 
 function Base.:^(c::CyclotomicRing, n::Integer)
