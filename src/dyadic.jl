@@ -2,7 +2,7 @@ module DyadicFractions
 
 import Base: zero, iszero, one, convert, promote_rule, show
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong, PRETTY
-import ..Common: canonical
+import ..Common: canonical, mul_half
 
 ########################
 ####
@@ -27,6 +27,10 @@ julia> DyadicFraction(5, 3)
 struct DyadicFraction{aT, kT}
     a::aT
     k::kT
+end
+
+function mul_half(f::DyadicFraction{<:Any,V}) where {V}
+    DyadicFraction(f.a, f.k + one(V))
 end
 
 function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}

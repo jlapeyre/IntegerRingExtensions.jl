@@ -71,4 +71,36 @@ end
 # Get coefficients of instance of type
 function coeffs end
 
+"""
+    mul_root_two(x)
+
+Return `x` multiplied by the square root of two.
+"""
+function mul_root_two(x)
+    x * sqrt(typeof(x)(2))
+end
+
+
+"""
+    mul_one_over_root_two(x)
+
+Return `x` multiplied by the reciprocal of the square root of two.
+
+For some rings, all elements may be divided by the square root of two.
+However, we call this multiplication to emphasize that this function can be called on elements of a ring.
+"""
+function mul_one_over_root_two(x)
+    x * inv(sqrt(typeof(x)(2)))
+end
+
+
+"""
+    mul_half(x)
+
+Return `x` multiplied by the reciprocal of two, that is `x` divided by two.
+"""
+function mul_half(x)
+    x * inv(typeof(x)(2))
+end
+
 end # module Common

@@ -2,7 +2,8 @@ module CyclotomicRings
 
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
-import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs
+import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
+    mul_root_two, mul_one_over_root_two
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne8
 
@@ -391,11 +392,22 @@ Base.:*(c::CyclotomicRing{4}, r::RootOne8) = r * c
 # This expression is invariant wrt reversing
 # the order of coefficients.
 """
-    mul_sqrt2(cyc::CyclotomicRing{4})
+    mul_root_two(cyc::CyclotomicRing{4})
 
 Multiply `cyc` by the square root of two.
 """
-function mul_sqrt2(cyc::CyclotomicRing{4})
+function mul_root_two(cyc::CyclotomicRing{4})
+    (a,b,c,d) = cyc.coeffs
+    coeffs = (b-d, c+a, b+d, c-a)
+    CyclotomicRing(coeffs)
+end
+
+"""
+    mul_one_over_root_two(cyc::CyclotomicRing{4})
+
+Multiply `cyc` by the square root of two.
+"""
+function mul_one_over_root_two(cyc::CyclotomicRing{4})
     (a,b,c,d) = cyc.coeffs
     coeffs = (b-d, c+a, b+d, c-a)
     CyclotomicRing(coeffs)

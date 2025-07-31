@@ -2,6 +2,7 @@ using IntegerExtensions
 import LinearAlgebra: norm
 using Test
 
+include("dyadic_tests.jl")
 include("d_z_root2_tests.jl")
 include("cyclotomic_tests.jl")
 include("matricestests.jl")
@@ -73,14 +74,6 @@ end
     @test isapprox(float(hadamard), 1/sqrt(2) * [1 1; 1 -1])
 end
 
-@testset "DyadicFraction" begin
-    @test DyadicFraction(4, 2) == DyadicFraction(1, 0)
-    @test Int(DyadicFraction(4, 1)) == 2
-    @test Int(DyadicFraction(4, 0)) == 4
-    @test Int(DyadicFraction(4, 2)) == 1
-    @test Rational(DyadicFraction(3, 3)) === 3//8
-    @test_throws ArgumentError Int(DyadicFraction(3, 2))
-end
 
 @testset "composition" begin
 
