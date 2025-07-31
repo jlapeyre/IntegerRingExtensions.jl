@@ -2,9 +2,7 @@ module QuadraticRings
 
 import LinearAlgebra
 import Base: promote_rule, show, convert
-
-import ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two
-import ..Common: canonical
+import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two
 import ..DyadicFractions: DyadicFraction
 
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
@@ -69,7 +67,7 @@ ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
 
 See also `Zroot2`, `Droot2`.
 """
-const ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
+const ZrootD{T1, T2} = QuadraticRing{T1, T2} where {T1, T2<:Integer}
 
 """
     Zroot2{CoeffT} where {CoeffT<:Integer}
@@ -83,7 +81,7 @@ Zroot2{CoeffT} = QuadraticRing{2, CoeffT} where {2, CoeffT<:Integer}
 
 See also `Droot2`.
 """
-const Zroot2{CoeffT} = QuadraticRing{2, CoeffT} where {CoeffT<:Integer}
+const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
 
 QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
 QuadraticRing{D}(a::T, b::T) where {T, D} = QuadraticRing{D, T}(a, b)

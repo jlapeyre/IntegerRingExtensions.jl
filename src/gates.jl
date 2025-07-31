@@ -2,8 +2,9 @@ module Gates
 
 # Better to use relative path. If I could find out how
 using ..Matrices: Matrix2x2
-using ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two, canonical
+using ..Common: imaginary, sqrt_imaginary, one_over_root_two, canonical
 using ..CyclotomicRings: Domega
+using ..QuadraticRings: Droot2
 
 # using Nemo: ZZ, ZZRingElem
 
@@ -73,6 +74,15 @@ const GATE_MAP_INT = gate_map(Domega{Int})
 const GATE_MAP_BIG_INT = gate_map(Domega{BigInt})
 const GATE_MAP_INT128 = gate_map(Domega{Int128})
 const GATE_MAP_BIG_FLOAT = gate_map(BigFloat)
+
+const GATE_MAP_GOOD = Dict(
+    :H => Hgate(Droot2{Int, Int}),
+    :S => Sgate(Int),
+    :X => Xgate(Int),
+    :T => Tgate(Domega{Int}),
+    :I => Igate(Domega{Int}),
+    :W => Wgate(Domega{Int}),
+)
 
 # Careful this may segfault when using precompiled because it
 # calls a dynamically linked C library.

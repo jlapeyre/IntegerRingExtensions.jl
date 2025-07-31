@@ -2,13 +2,12 @@ module CyclotomicRings
 
 import LinearAlgebra
 import Base: convert, zero, iszero, one, isone, promote_rule
-import ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two
-import ..Common: canonical
+import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two
 import ..Utils: superscript
 import ..RootOnes: RootOne8
 
 import ..DyadicFractions: DyadicFraction
-import ..QuadraticRings: root2conj
+import ..QuadraticRings: root2conj, Droot2
 
 using ILog2
 
@@ -84,9 +83,6 @@ Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 """
 const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 
-function one_over_root_two(::Type{Zomega{T}}) where {T <: Integer}
-end
-
 function Base.conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
     # I think promotion not needed.
@@ -144,19 +140,24 @@ function CyclotomicRing(c1, coeffs...)
     CyclotomicRing(cs)
 end
 
-function CyclotomicRing{4, T}(a, b, c, d) where T
-    cs = (T(a),T(b),T(c),T(d))
-    CyclotomicRing(cs)
+# Not using this. So comment out.
+# function CyclotomicRing{4, T}(a, b, c, d) where T
+#     cs = (T(a),T(b),T(c),T(d))
+#     CyclotomicRing(cs)
+# end
+
+function _mkomega(::Type{T}, a, b, c, d) where {T}
+    coeffs = promote(a, b, c, d)
+    coeffs1 = map(T, coeffs)
+    V = typeof(coeffs1[1])
+    CyclotomicRing{4, V}(coeffs)
 end
 
-# TODO: Promote
-function Domega(a, b, c, d)
-    coeffs = promote(a, b, c, d)
-    D = DyadicFraction
-    coeffs1 = map(D, coeffs)
-    T = typeof(coeffs1[1])
-    CyclotomicRing{4, T}(coeffs...)
-end
+Domega(a, b, c, d) = Domega{Int}(a,b,c,d)
+Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(DyadicFraction{T,Int}, a,b,c,d)
+
+Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
+Zomega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
 
 function canonical(c::CyclotomicRing)
     CyclotomicRing(map(canonical,  c.coeffs))
@@ -174,7 +175,8 @@ function Base.:-(c::CyclotomicRing)
     CyclotomicRing(.- c.coeffs)
 end
 
-function Base.:*(c1::CyclotomicRing{4, CoeffT}, c2::CyclotomicRing{4, CoeffT}) where {CoeffT}
+#function Base.:*(c1::CyclotomicRing{4, T1}, c2::CyclotomicRing{4, T2}) where {T1, T2}
+function Base.:*(c1::CyclotomicRing{4}, c2::CyclotomicRing{4})
     (a1, b1, c1, d1) = c1.coeffs
     (a2, b2, c2, d2) = c2.coeffs
     coeffs = (
@@ -212,6 +214,37 @@ end
 end
 
 @inline Base.:*(z::Complex, c::CyclotomicRing) = c * z
+
+function Base.:*(x::Droot2, c::CyclotomicRing)
+    error("not implemented")
+end
+
+function Base.:*(r::RootOne8, cyc::CyclotomicRing{4})
+    k = r.k
+    (a, b, c, d) = cyc.coeffs
+    coeffs =
+        if k == 0
+            (a,b,c,d)
+        elseif k == 1
+            (b,c,d,-a)
+        elseif k == 2
+            (c,d,-a,-b)
+        elseif k == 3
+            (d,-a,-b,-c)
+        elseif k == 4
+            (-a,-b,-c,-d)
+        elseif k == 5
+            (-b,-c,-d,a)
+        elseif k == 6
+            (-c,-d,a,b)
+        elseif k == 7
+            (-d,a,b,c)
+        end
+    return typeof(cyc)(coeffs)
+end
+
+Base.:*(c::CyclotomicRing{4}, r::RootOne8) = r * c
+
 @inline Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs
 
 function Base.:^(c::CyclotomicRing, n::Integer)
@@ -263,6 +296,22 @@ function Base.Complex{Tc}(c::CyclotomicRing{4}) where Tc
     T = Complex{Tc}
     T(d) + T(c) * T(RootOne8(1)) + T(b) * T(RootOne8(2)) +
         T(a) * T(RootOne8(3))
+end
+
+function CyclotomicRing{4, T}(r::RootOne8) where {T}
+    val = r.k == 4 ? -1 : sign(4 - r.k)
+    pos = mod(r.k, 4)
+    coeffs =
+        if pos == 0
+            (0,0,0,val)
+        elseif pos == 1
+            (0,0,val,0)
+        elseif pos == 2
+            (0,val,0,0)
+        else
+            (val,0,0,0)
+        end
+    CyclotomicRing{4, T}(coeffs)
 end
 
 function Base.big(c::CyclotomicRing)

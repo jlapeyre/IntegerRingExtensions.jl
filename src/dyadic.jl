@@ -197,6 +197,11 @@ function Base.:(==)(df1::DyadicFraction, df2::DyadicFraction)
     end
 end
 
+function Base.:(==)(x::Integer, df::DyadicFraction)
+    df1 = canonical(df)
+    df1.k == 0 && df1.a == x
+end
+Base.:(==)(df::DyadicFraction, x::Integer) = x == df
 
 Base.float(f::DyadicFraction) = convert(Float64, f)
 Base.big(f::DyadicFraction) = convert(BigFloat, f)

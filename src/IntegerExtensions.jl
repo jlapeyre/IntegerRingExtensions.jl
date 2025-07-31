@@ -1,54 +1,18 @@
 module IntegerExtensions
 import Reexport
 
-export Domega, imaginary, sqrt_imaginary, one_over_root_two
+export imaginary, sqrt_imaginary, Droot2
+export Domega
+export Droot2
+export Zroot2
+export ZrootD
 
-"""
-    imaginary(::Type{T}) where {T <: Real}
-    imaginary(::Type{Complex{T}}) where T
-
-The imaginary unit as type `T`.
-
-If the imaginary unit cannot be represented as `T`, for example
-when `T` is `Real`, then `Complex{T}` is returned.
-"""
-function imaginary(::Type{T}) where {T <: Real}
-    complex(zero(T), one(T))
-end
-
-function imaginary(::Type{Complex{T}}) where T
-    imaginary(T)
-end
-
-"""
-    sqrt_imaginary(::Type{T})
-
-The principal square root of the imaginary unit as type `T`.
-
-If the imaginary unit cannot be represented as `T`, for example
-when `T` is `Real`, then `Complex{T}` is returned.
-"""
-function sqrt_imaginary(::Type{T}) where {T <: Real}
-    cispi(one(T)/4)
-end
-
-function sqrt_imaginary(::Type{Complex{T}}) where {T <: Real}
-    cispi(one(T)/4)
-end
-
-function sqrt_imaginary(::Type{BigFloat})
-    cispi(one(BigFloat)/4)
-end
-
-function one_over_root_two(::Type{T}) where {T <: Real}
-    one(T) / sqrt(T(2))
-end
 
 include("utils.jl")
 Reexport.@reexport import .Utils: subscript, superscript
 
 include("common.jl")
-Reexport.@reexport import .Common: canonical
+Reexport.@reexport import .Common: canonical, one_over_root_two, imaginary, sqrt_imaginary
 
 include("singletons.jl")
 Reexport.@reexport import .Singletons: Root2, RootI, InvRoot2

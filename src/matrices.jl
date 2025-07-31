@@ -1,6 +1,6 @@
 module Matrices
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det
-import ..IntegerExtensions: canonical
+import ..Common: canonical
 import ..Utils: PRETTY, cpad
 
 """

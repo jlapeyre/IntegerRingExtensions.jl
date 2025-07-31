@@ -2,6 +2,7 @@ using IntegerExtensions
 import LinearAlgebra: norm
 using Test
 
+include("cyclotomic_tests.jl")
 include("matricestests.jl")
 
 @testset "QuadraticRing{2, Int}" begin
