@@ -3,7 +3,7 @@ module CyclotomicRings
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two
-import ..Utils: superscript, iszero_strong, isone_strong
+import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne8
 
 import ..DyadicFractions: DyadicFraction
@@ -45,7 +45,7 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
         end
     end
     if showcount == 0
-        print(io, 0)
+        show(io, PRETTY(), zero(first(c)))
         # TODO, use zero of first(c) somehow.
         # This will be more robust
 #        show(io, MIME"text/plain", zero(first(c)))
