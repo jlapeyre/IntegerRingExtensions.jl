@@ -47,7 +47,8 @@ end
     @test typeof(Domega(1,2,3,4)) === Domega{Int}
 
     @test cromega == cromega
-    @test Domega{Int}(0,0,0,1) == one(cromega)
+#    @test Domega{Int}(0,0,0,1) == one(cromega)
+    @test Domega{Int}(1,0,0,0) == one(cromega)
     @test isone(one(cr))
     @test isone(one(cromega))
 

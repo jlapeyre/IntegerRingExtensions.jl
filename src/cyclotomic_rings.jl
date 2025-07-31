@@ -27,7 +27,7 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
     c = cr.coeffs
     n = length(c)
     showcount = 0
-    for i in 1:n
+    for i in n:-1:1
         iszero_strong(c[i]) && continue
         showcount += 1
         if showcount > 1
@@ -52,6 +52,7 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
     end
 end
 
+# FIX THIS! We want to agree with the rest of the world.
 """
     Base.getindex(cyc::CyclotomicRing, n::Integer)
 
@@ -114,13 +115,15 @@ const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 function Base.conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
     # I think promotion not needed.
-    newcoeff = promote(-c, -b, -a, d)
+#   newcoeff = promote(-c, -b, -a, d)
+    newcoeff = promote(a, -d, -c, -b)
     Domega{T}(newcoeff)
 end
 
 function Base.conj(cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
-    newcoeff = (-c, -b, -a, d)
+#    newcoeff = (-c, -b, -a, d)
+    newcoeff = (a, -d, -c, -b)
     typeof(cyc)(newcoeff)
 end
 
@@ -128,6 +131,7 @@ Base.adjoint(cyc::CyclotomicRing) = conj(cyc)
 
 function root2conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
+#    newcoeff = (-a, b, -c, d)
     newcoeff = (-a, b, -c, d)
     Domega{T}(newcoeff)
 end
@@ -140,7 +144,8 @@ The value of type `Domega{T}` that represents the imaginary unit.
 function imaginary(::Type{CyclotomicRing{4, T}}) where {T}
     z = zero(T)
     o = one(T)
-    CyclotomicRing(z, o, z, z)
+#    CyclotomicRing(z, o, z, z)
+    CyclotomicRing(z, z, o, z)
 end
 
 """
@@ -151,7 +156,8 @@ The value of type `Domega{T}` that represents the principal square root of the i
 function sqrt_imaginary(::Type{CyclotomicRing{4, T}}) where {T}
     z = zero(T)
     o = one(T)
-    CyclotomicRing(z, z, o, z)
+#    CyclotomicRing(z, z, o, z)
+    CyclotomicRing(z, o, z, z)
 end
 
 """
@@ -163,7 +169,8 @@ function one_over_root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) wh
     DT = DyadicFraction{T, Int}
     z = zero(DT)
     half = DyadicFraction(T(1), 1)
-    CyclotomicRing(-half, z, half, z)
+#    CyclotomicRing(-half, z, half, z)
+    CyclotomicRing(z, half, z, -half)
 end
 
 CyclotomicRing(coeffs::T...) where T = CyclotomicRing{length(coeffs), T}(coeffs)
@@ -223,10 +230,18 @@ function Base.:*(c1::CyclotomicRing{4}, c2::CyclotomicRing{4})
     (a1, b1, c1, d1) = c1.coeffs
     (a2, b2, c2, d2) = c2.coeffs
     coeffs = (
-        a2*d1 + c1*b2 + b1*c2 + a1*d2,
-        b2*d1 + c1*c2 + b1*d2 - a1*a2,
-        c2*d1 + c1*d2 - b1*a2 - a1*b2,
-        d1*d2 - b1*b2 - a1*c2 - a2*c1
+        a1*a2 - c1*c2 - d1*b2 - d2*b1,
+
+        b2*a1 + b1*a2 - c1*d2 - d1*c2,
+
+        c2*a1 + b1*b2 + c1*a2 - d1*d2,
+
+        d2*a1 + b1*c2 + c1*b2 + d1*a2,
+        # a2*d1 + c1*b2 + b1*c2 + a1*d2,
+        # b2*d1 + c1*c2 + b1*d2 - a1*a2,
+        # c2*d1 + c1*d2 - b1*a2 - a1*b2,
+        # d1*d2 - b1*b2 - a1*c2 - a2*c1
+
     )
     CyclotomicRing(coeffs)
 end
@@ -249,7 +264,8 @@ end
     (a1, b1, c1, d1) = (iz * a, iz * b, iz * c, iz * d)
 
     # i permutes and also changes some signs. Not quite automorphism
-    (ai, bi, ci, di) = (c1, d1, -a1, -b1)
+#    (ai, bi, ci, di) = (c1, d1, -a1, -b1)
+    (ai, bi, ci, di) = (-c1, -d1, a1, b1)
 
     # Add the two contributions
     cs = (a2 + ai, b2 + bi, c2 + ci, d2 + di)
@@ -269,25 +285,44 @@ function Base.:*(r::RootOne8, cyc::CyclotomicRing{4})
         if k == 0
             (a,b,c,d)
         elseif k == 1
-            (b,c,d,-a)
+            (-d,a,b,c)
         elseif k == 2
-            (c,d,-a,-b)
+            (-c,-d,a,b)
         elseif k == 3
-            (d,-a,-b,-c)
+            (-b,-c,-d,a)
         elseif k == 4
             (-a,-b,-c,-d)
         elseif k == 5
-            (-b,-c,-d,a)
+            (d,-a,-b,-c)
         elseif k == 6
-            (-c,-d,a,b)
+            (c,d,-a,-b)
         elseif k == 7
-            (-d,a,b,c)
+            (b,c,d,-a)
         end
+        # if k == 0
+        #     (a,b,c,d)
+        # elseif k == 1
+        #     (b,c,d,-a)
+        # elseif k == 2
+        #     (c,d,-a,-b)
+        # elseif k == 3
+        #     (d,-a,-b,-c)
+        # elseif k == 4
+        #     (-a,-b,-c,-d)
+        # elseif k == 5
+        #     (-b,-c,-d,a)
+        # elseif k == 6
+        #     (-c,-d,a,b)
+        # elseif k == 7
+        #     (-d,a,b,c)
+        # end
     return typeof(cyc)(coeffs)
 end
 
 Base.:*(c::CyclotomicRing{4}, r::RootOne8) = r * c
 
+# This expression is invariant wrt reversing
+# the order of coefficients.
 """
     mul_sqrt2(cyc::CyclotomicRing{4})
 
@@ -311,14 +346,16 @@ end
 function Base.one(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
     z = zero(CoeffT)
     o = one(CoeffT)
-    CyclotomicRing(z, z, z, o)
+#    CyclotomicRing(z, z, z, o)
+    CyclotomicRing(o, z, z, z)
 end
 
 function Base.isone(c::CyclotomicRing{4, CoeffT}) where {CoeffT}
     z = zero(CoeffT)
     o = one(CoeffT)
     (a, b, c, d) = c.coeffs
-    return a == z && b == z && c == z && d == o
+#    return a == z && b == z && c == z && d == o
+    return a == o && b == z && c == z && d == z
 end
 
 Base.one(::CyclotomicRing{4, CoeffT}) where {CoeffT} = one(CyclotomicRing{4, CoeffT})
@@ -341,15 +378,21 @@ end
 
 function Base.AbstractFloat(c::CyclotomicRing{4})
     (a, b, c, d) = c.coeffs
-    float(d) + float(c) * float(RootOne8(1)) + float(b) * float(RootOne8(2)) +
-        float(a) * float(RootOne8(3))
+    # float(d) + float(c) * float(RootOne8(1)) + float(b) * float(RootOne8(2)) +
+    #     float(a) * float(RootOne8(3))
+
+    float(a) + float(b) * float(RootOne8(1)) + float(c) * float(RootOne8(2)) +
+        float(d) * float(RootOne8(3))
+
 end
 
 function Base.Complex{Tc}(c::CyclotomicRing{4}) where Tc
     (a, b, c, d) = c.coeffs
     T = Complex{Tc}
-    T(d) + T(c) * T(RootOne8(1)) + T(b) * T(RootOne8(2)) +
-        T(a) * T(RootOne8(3))
+    # T(d) + T(c) * T(RootOne8(1)) + T(b) * T(RootOne8(2)) +
+    #     T(a) * T(RootOne8(3))
+    T(a) + T(b) * T(RootOne8(1)) + T(c) * T(RootOne8(2)) +
+        T(d) * T(RootOne8(3))
 end
 
 function CyclotomicRing{4, T}(r::RootOne8) where {T}
@@ -357,14 +400,23 @@ function CyclotomicRing{4, T}(r::RootOne8) where {T}
     pos = mod(r.k, 4)
     coeffs =
         if pos == 0
-            (0,0,0,val)
-        elseif pos == 1
-            (0,0,val,0)
-        elseif pos == 2
-            (0,val,0,0)
-        else
             (val,0,0,0)
+        elseif pos == 1
+            (0,val,0,0)
+        elseif pos == 2
+            (0,0,val,0)
+        else
+            (0,0,0,val)
         end
+        # if pos == 0
+        #     (0,0,0,val)
+        # elseif pos == 1
+        #     (0,0,val,0)
+        # elseif pos == 2
+        #     (0,val,0,0)
+        # else
+        #     (val,0,0,0)
+        # end
     CyclotomicRing{4, T}(coeffs)
 end
 
