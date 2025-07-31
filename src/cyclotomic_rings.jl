@@ -173,19 +173,28 @@ function Base.:*(c::CyclotomicRing, r::Real)
     CyclotomicRing(cs)
 end
 
-Base.:*(r::Real, c::CyclotomicRing) = c * r
+@inline Base.:*(r::Real, c::CyclotomicRing) = c * r
 
-function Base.:*(c::CyclotomicRing, z::Complex)
-    rs = real(z) .* c.coeffs
-    (a, b, c, d) = imag(z) .* c.coeffs
-    cs = rs .+ (c, d, -a, -b)
+# Wrote this all out explicitly in case there was a broadcasting inefficiency or s.t
+# But no!
+@inline function Base.:*(c::CyclotomicRing{4}, z::Complex)
+    (rz, iz) = (real(z), imag(z))
+    (a, b, c, d) = c.coeffs
+    # Contribution from real part
+    (a2, b2, c2, d2) = (rz * a, rz * b, rz * c, rz * d)
+    # Contribution from imag part
+    (a1, b1, c1, d1) = (iz * a, iz * b, iz * c, iz * d)
+
+    # i permutes and also changes some signs. Not quite automorphism
+    (ai, bi, ci, di) = (c1, d1, -a1, -b1)
+
+    # Add the two contributions
+    cs = (a2 + ai, b2 + bi, c2 + ci, d2 + di)
     CyclotomicRing(cs)
 end
 
-Base.:*(z::Complex, c::CyclotomicRing) = c * z
-
-
-Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs
+@inline Base.:*(z::Complex, c::CyclotomicRing) = c * z
+@inline Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs
 
 function Base.:^(c::CyclotomicRing, n::Integer)
     n == 0 && return one(c)

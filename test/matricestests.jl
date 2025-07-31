@@ -25,4 +25,11 @@ end
     @test yd * xd == -im * zd
     @test yd * zd == im * xd
     @test zd * yd == -im * xd
+
+    m = x + y + z
+    md = xd + yd + zd
+
+    n = 31 + 17im
+
+    @test n * m == float(n * md)
 end
