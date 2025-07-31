@@ -2,7 +2,7 @@ module DyadicFractions
 
 import Base: zero, iszero, one, convert, promote_rule, show
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong, PRETTY
-import ..Common: canonical, mul_half
+import ..Common: canonical, mul_half, params
 
 ########################
 ####
@@ -29,7 +29,26 @@ struct DyadicFraction{aT, kT}
     k::kT
 end
 
-function mul_half(f::DyadicFraction{<:Any,V}) where {V}
+"""
+    params(d::DyadicFraction)
+
+Return a `Tuple` of the two paramters of `d`: `a` and `k`.
+
+# Example
+```jldoctest
+julia> x = DyadicFraction(5, 2)
+5/2²
+
+julia> params(x)
+(5, 2)
+```
+"""
+params(d::DyadicFraction) = (d.a, d.k)
+
+function mul_half(f::DyadicFraction{T,V}) where {T,V}
+    if iseven(f.a)
+        return DyadicFraction(div(f.a, T(2)), f.k)
+    end
     DyadicFraction(f.a, f.k + one(V))
 end
 

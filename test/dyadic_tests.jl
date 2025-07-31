@@ -12,4 +12,11 @@
     zh = mul_half(z)
     @test zh === DyadicFraction(3, 2)
     @test float(zh) == 3/4
+
+    z = DyadicFraction(4, 1)
+    zh = mul_half(z)
+    @test float(zh) == float(z) / 2
+    cs = params(zh)
+    @test cs == (2, 1)
+    @test params(canonical(zh)) == (1, 0)
 end

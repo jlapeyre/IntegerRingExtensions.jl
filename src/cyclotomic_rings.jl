@@ -3,7 +3,7 @@ module CyclotomicRings
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_root_two, mul_one_over_root_two
+    mul_root_two, mul_one_over_root_two, mul_half
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne8
 
@@ -403,14 +403,21 @@ function mul_root_two(cyc::CyclotomicRing{4})
 end
 
 """
+    mul_half(cyc::CyclotomicRing{4})
+
+Multiply `cyc` by the reciprocal of two.
+"""
+function mul_half(cyc::CyclotomicRing{4})
+    CyclotomicRing(map(mul_half, cyc.coeffs))
+end
+
+"""
     mul_one_over_root_two(cyc::CyclotomicRing{4})
 
-Multiply `cyc` by the square root of two.
+Multiply `cyc` by the reciprocal of the square root of two.
 """
 function mul_one_over_root_two(cyc::CyclotomicRing{4})
-    (a,b,c,d) = cyc.coeffs
-    coeffs = (b-d, c+a, b+d, c-a)
-    CyclotomicRing(coeffs)
+    mul_root_two(mul_half(cyc))
 end
 
 @inline Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs

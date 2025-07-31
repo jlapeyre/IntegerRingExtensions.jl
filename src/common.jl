@@ -71,6 +71,9 @@ end
 # Get coefficients of instance of type
 function coeffs end
 
+# Get parameters of instance of type
+function params end
+
 """
     mul_root_two(x)
 
