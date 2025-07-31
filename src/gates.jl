@@ -1,9 +1,9 @@
 module Gates
 
 # Better to use relative path. If I could find out how
-using ..IntegerExtensions.Matrices: Matrix2x2
+using ..Matrices: Matrix2x2
 using ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two, canonical
-using ..IntegerExtensions.Rings: Domega
+using ..CyclotomicRings: Domega
 
 # using Nemo: ZZ, ZZRingElem
 

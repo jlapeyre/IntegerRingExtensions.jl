@@ -1,10 +1,10 @@
-module Rings
+module CyclotomicRings
 
 import LinearAlgebra
 import Base: convert, zero, iszero, one, isone, promote_rule
 import ..IntegerExtensions: imaginary, sqrt_imaginary, one_over_root_two
 import ..Common: canonical
-import ..Utils: subscript, superscript
+import ..Utils: superscript
 import ..RootOnes: RootOne8
 
 import ..DyadicFractions: DyadicFraction
@@ -12,9 +12,7 @@ import ..QuadraticRings: root2conj
 
 using ILog2
 
-export isunit, DyadicFraction, CyclotomicRing, rootDconj
-
-export Domega, Droot2, ZrootD
+export Domega, CyclotomicRing
 
 ########################
 ####
@@ -231,10 +229,4 @@ function Base.convert(::Type{Complex{Tc}}, c::CyclotomicRing) where Tc
     Complex{Tc}(c)
 end
 
-# for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
-#     @eval function (::Type{Base.$Ti})(df::DyadicFraction)
-#         convert($Ti, df)
-#     end
-# end
-
-end # module Rings
+end # module CyclotomicRings

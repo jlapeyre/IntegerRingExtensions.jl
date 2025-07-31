@@ -63,8 +63,8 @@ include("quadratic_ring.jl")
 Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, Zroot2, Droot2, QuadraticRing2, isunit,
     rootDconj, root2conj
 
-include("rings.jl")
-Reexport.@reexport import .Rings: CyclotomicRing, Domega
+include("cyclotomic_rings.jl")
+Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, get_theta
