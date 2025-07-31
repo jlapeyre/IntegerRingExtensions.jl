@@ -27,7 +27,7 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
     c = cr.coeffs
     n = length(c)
     showcount = 0
-    for i in n:-1:1
+    for i in 1:n
         iszero_strong(c[i]) && continue
         showcount += 1
         if showcount > 1
@@ -38,10 +38,10 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
         elseif !isone_strong(c[i])
             show(io, MIME"text/plain"(), c[i])
         end
-        if isone_strong(n - i)
+        if isone_strong(i-1)
             print(io, " ω")
         else
-            print(io, " ω", superscript(n-i))
+            print(io, " ω", superscript(i-1))
         end
     end
     if showcount == 0
@@ -144,7 +144,7 @@ Base.adjoint(cyc::CyclotomicRing) = conj(cyc)
 function root2conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
 #    newcoeff = (-a, b, -c, d)
-    newcoeff = (-a, b, -c, d)
+    newcoeff = (a, -b, c, -d)
     Domega{T}(newcoeff)
 end
 
