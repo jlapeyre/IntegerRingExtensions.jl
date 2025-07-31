@@ -192,6 +192,16 @@ function CyclotomicRing(c1, coeffs...)
     CyclotomicRing(cs)
 end
 
+function CyclotomicRing{M}(c1, coeffs...) where M
+    cs = promote(c1, coeffs...)
+    CyclotomicRing(cs)
+end
+
+function Domega(c1, coeffs...)
+    cs = promote(DyadicFraction(c1), coeffs...)
+    CyclotomicRing(cs)
+end
+
 # Not using this. So comment out.
 # function CyclotomicRing{4, T}(a, b, c, d) where T
 #     cs = (T(a),T(b),T(c),T(d))
@@ -205,7 +215,7 @@ function _mkomega(::Type{T}, a, b, c, d) where {T}
     CyclotomicRing{4, V}(coeffs)
 end
 
-Domega(a, b, c, d) = Domega{Int}(a,b,c,d)
+#Domega(a, b, c, d) = Domega{Int}(a,b,c,d)
 
 Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(DyadicFraction{T,Int}, a,b,c,d)
 

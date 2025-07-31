@@ -12,3 +12,19 @@ import IntegerExtensions.CyclotomicRings: mul_sqrt2
     @test isapprox(float(mul_sqrt2(d)) / float(d), sqrt(2))
     @test isapprox(float(mul_sqrt2(z)) / float(z), sqrt(2))
 end
+
+
+@testset "cyclotomic storage" begin
+    z = Domega(1,2,3,DyadicFraction(5,2))
+    @test isbits(z)
+    @test isa(z, Domega{Int})
+    zb = CyclotomicRing{4}(1,2,3,DyadicFraction(big(5),2))
+    @test !isbits(zb)
+    @test isa(zb, Domega{BigInt})
+
+    # Ugh. Not really coerced to a Domega.
+    # Second Int type is also Int128 upon promotion
+    z2 = Domega(Int128(1),2,3,DyadicFraction(5,2))
+    @test isbits(z2)
+    @test isa(z2, CyclotomicRing{4, DyadicFraction{Int128,Int128}})
+end
