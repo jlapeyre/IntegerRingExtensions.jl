@@ -12,7 +12,7 @@ include("utils.jl")
 Reexport.@reexport import .Utils: subscript, superscript
 
 include("common.jl")
-Reexport.@reexport import .Common: canonical, one_over_root_two, imaginary, sqrt_imaginary
+Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs
 
 include("singletons.jl")
 Reexport.@reexport import .Singletons: Root2, RootI, InvRoot2

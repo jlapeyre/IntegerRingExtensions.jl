@@ -2,7 +2,7 @@ module CyclotomicRings
 
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
-import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two
+import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne8
 
@@ -22,6 +22,25 @@ export CyclotomicRing, Zomega, Domega
 struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
 end
+
+"""
+    coeffs(cyc::CyclotomicRing)
+
+Return a `Tuple` of the coeffients of `cyc`
+
+# Examples
+```jldoctest
+julia> coeffs(Zroot2(1,2))
+(1, 2)
+
+julia> coeffs(Droot2(3,4))
+(3, 4)
+
+julia> coeffs(Droot2(1,DyadicFraction(3,2)))
+(1, 3/2²)
+```
+"""
+coeffs(cyc::CyclotomicRing) = cyc.coeffs
 
 function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
     c = cr.coeffs
@@ -184,6 +203,20 @@ function one_over_root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) wh
 #    CyclotomicRing(-half, z, half, z)
     CyclotomicRing(z, half, z, -half)
 end
+
+"""
+    root_two(::Type{Domega{T}}) where {T}
+
+Return a value of `Domega{T}` representing the square root of two.
+"""
+function root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) where {T}
+    DT = DyadicFraction{T, Int}
+    z = zero(DT)
+    o = one(DT)
+#    CyclotomicRing(-half, z, half, z)
+    CyclotomicRing(z, o, z, -o)
+end
+
 
 CyclotomicRing(coeffs::T...) where T = CyclotomicRing{length(coeffs), T}(coeffs)
 

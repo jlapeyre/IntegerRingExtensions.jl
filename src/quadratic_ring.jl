@@ -2,7 +2,7 @@ module QuadraticRings
 
 import LinearAlgebra
 import Base: promote_rule, show, convert
-import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two
+import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs
 import ..DyadicFractions: DyadicFraction
 
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
@@ -54,6 +54,27 @@ end
 # That kills performance
 const QuadraticRing2{CoeffT} = QuadraticRing{2}
 
+"""
+    coeffs(q::QuadraticRing)
+    coeffs(q::Zroot2)
+    coeffs(q::Droot2)
+
+Return a `Tuple` of the two coeffients of `q`.
+
+# Examples
+```jldoctest
+julia> coeffs(Zroot2(1,2))
+(1, 2)
+
+julia> coeffs(Droot2(1,2))
+(DyadicFraction{Int64, Int64}(1, 0), DyadicFraction{Int64, Int64}(2, 0))
+
+julia> coeffs(Droot2(1,DyadicFraction(3,2)))
+(DyadicFraction{Int64, Int64}(1, 0), DyadicFraction{Int64, Int64}(3, 2))
+```
+"""
+coeffs(q::QuadraticRing) = (q.a, q.b)
+
 # Can't constrain `D` to be an integer :(
 """
     ZrootD{D, CoeffT} where {D, CoeffT<:Integer}
@@ -82,6 +103,13 @@ Zroot2{CoeffT} = QuadraticRing{2, CoeffT} where {2, CoeffT<:Integer}
 See also `Droot2`.
 """
 const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
+
+function Zroot2(a, b=zero(a))
+    (a, b) = promote(a, b)
+    Zroot2{typeof(a)}(a, b)
+end
+
+root_two(::Type{Zroot2{T}}) where T = Zroot2(zero(T), one(T))
 
 QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
 QuadraticRing{D}(a::T, b::T) where {T, D} = QuadraticRing{D, T}(a, b)
@@ -200,6 +228,13 @@ function Droot2(a, b)
     a1 = DyadicFraction(a)
     a2 = DyadicFraction(b)
     QuadraticRing{2}(a1, a2)
+end
+
+function root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
+    z1 = zero(T1)
+    z2 = zero(T2)
+    o1 = one(T1)
+    Droot2(DyadicFraction(z1,z2), DyadicFraction(o1,z2))
 end
 
 """

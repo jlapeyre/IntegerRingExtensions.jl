@@ -23,6 +23,15 @@ function one_over_root_two(::Type{T}) where {T <: Number}
 end
 
 """
+    root_two(::Type{T}) where {T <: Number}
+
+Return a value of type `T` representing the square root of two.
+"""
+function root_two(::Type{T}) where {T <: Number}
+    sqrt(T(2))
+end
+
+"""
     imaginary(::Type{T}) where {T <: Real}
     imaginary(::Type{Complex{T}}) where T
 
@@ -58,5 +67,8 @@ end
 function sqrt_imaginary(::Type{BigFloat})
     cispi(one(BigFloat)/4)
 end
+
+# Get coefficients of instance of type
+function coeffs end
 
 end # module Common

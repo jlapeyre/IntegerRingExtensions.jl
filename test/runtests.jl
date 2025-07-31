@@ -2,6 +2,7 @@ using IntegerExtensions
 import LinearAlgebra: norm
 using Test
 
+include("d_z_root2_tests.jl")
 include("cyclotomic_tests.jl")
 include("matricestests.jl")
 

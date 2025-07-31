@@ -1,7 +1,7 @@
 module DyadicFractions
 
 import Base: zero, iszero, one, convert, promote_rule, show
-import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong
+import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong, PRETTY
 import ..Common: canonical
 
 ########################
@@ -49,6 +49,18 @@ end
 
 function promote_rule(::Type{DyadicFraction{Int,Int}}, ::Type{Int})
     DyadicFraction{Int, Int}
+end
+
+
+function Base.show(io::IO, ::PRETTY, tup::NTuple{N, <:DyadicFraction}) where {N}
+    print(io, "(")
+    for (i, d) in enumerate(tup)
+        show(io, PRETTY(), d)
+        if i < length(tup)
+            print(io, ", ")
+        end
+    end
+    print(io, ")")
 end
 
 function show(io::IO, ::MIME"text/plain", df::DyadicFraction)
