@@ -109,6 +109,17 @@ function Zroot2(a, b=zero(a))
     Zroot2{typeof(a)}(a, b)
 end
 
+"""
+    root_two(::Type{Zroot2{T}}) where T
+
+Return a value of `Zroot2{T}` representing the square root of two.
+
+# Example
+```jldoctest
+julia> root_two(Zroot2{Int})
+0+ √2
+```
+"""
 root_two(::Type{Zroot2{T}}) where T = Zroot2(zero(T), one(T))
 
 QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
@@ -230,6 +241,17 @@ function Droot2(a, b)
     QuadraticRing{2}(a1, a2)
 end
 
+"""
+    root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
+
+Return a value of `Droot2{T1,T2}` representing the square root of two.
+
+# Example
+```jldoctest
+julia> root_two(Droot2{Int,Int})
+0+ √2
+```
+"""
 function root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
     z1 = zero(T1)
     z2 = zero(T2)
@@ -241,6 +263,18 @@ end
     one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
 
 Return a value representing the reciprocal of the square root of two.
+
+# Example
+```jldoctest
+julia> one_over_root_two(Droot2{Int,Int})
+0 + 1/2√2
+
+julia> big(one_over_root_two(Droot2{Int,Int}))
+0.0 + 0.5√2
+
+julia> big(big(one_over_root_two(Droot2{Int,Int})))
+0.707106781186547524400844362104849039284835937688474036588339868995366239231051
+```
 """
 function one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
     z1 = zero(T1)

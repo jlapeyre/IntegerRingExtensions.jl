@@ -42,7 +42,7 @@ julia> coeffs(Droot2(1,DyadicFraction(3,2)))
 """
 coeffs(cyc::CyclotomicRing) = cyc.coeffs
 
-function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
+function Base.show(io::IO, ::PRETTY, cr::CyclotomicRing)
     c = cr.coeffs
     n = length(c)
     showcount = 0
@@ -55,7 +55,7 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
         if isone_strong(-c[i])
             print(io, "-")
         elseif !isone_strong(c[i])
-            show(io, MIME"text/plain"(), c[i])
+            show(io, PRETTY(), c[i])
         end
         if isone_strong(i-1)
             print(io, " ω")
@@ -195,6 +195,12 @@ end
     one_over_root_two(::Type{Domega{T}}) where {T}
 
 Return a value of `Domega{T}` representing the reciprocal of the square root of two.
+
+# Example
+```jldoctest
+julia> one_over_root_two(Domega{Int})
+1/2 ω + -1/2 ω³
+```
 """
 function one_over_root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) where {T}
     DT = DyadicFraction{T, Int}
@@ -208,6 +214,12 @@ end
     root_two(::Type{Domega{T}}) where {T}
 
 Return a value of `Domega{T}` representing the square root of two.
+
+# Example
+```jldoctest
+julia> root_two(Domega{Int})
+ ω + - ω³
+```
 """
 function root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) where {T}
     DT = DyadicFraction{T, Int}
