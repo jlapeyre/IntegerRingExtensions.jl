@@ -11,17 +11,28 @@ import ..Common: canonical, mul_half, params
 ########################
 
 """
-    DyadicFraction{aT, kT}
+    struct DyadicFraction{aT, kT}
+        a::aT
+        k::kT
+    end
 
 Represents the ring `𝔻 = ℤ[½]`.
 
-`aT` is the type of the numerator.
-`kT` is the type of the exponent on `2` in the denominator.
+An instance represents the element `a / 2^k`.
 
 # Examples
 ```jldoctest
 julia> DyadicFraction(5, 3)
 5/2³
+
+julia> params(DyadicFraction(5, 3))
+(5, 3)
+
+julia> DyadicFraction(5)
+5
+
+julia> params(DyadicFraction(5))
+(5, 0)
 ```
 """
 struct DyadicFraction{aT, kT}
