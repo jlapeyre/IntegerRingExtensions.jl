@@ -75,17 +75,26 @@ const GATE_MAP_BIG_INT = gate_map(Domega{BigInt})
 const GATE_MAP_INT128 = gate_map(Domega{Int128})
 const GATE_MAP_BIG_FLOAT = gate_map(BigFloat)
 
-const GATE_MAP_GOOD = Dict(
-    :H => Hgate(Droot2{Int, Int}),
-    :S => Sgate(Int),
-    :X => Xgate(Int),
-    :T => Tgate(Domega{Int}),
-    :I => Igate(Domega{Int}),
-    :W => Wgate(Domega{Int}),
-)
+# In principle, we gain efficiency by using a minimal representation of each gate,
+# and defining multiplication of the simpler numeric types with Domega{Int}, which
+# is the most complex.
+# However, doing it like this causes dynamic dispatch, because gates are pulled from
+# an untyped container (they must be). This wipes out any performance gain.
+# If we want to use simpler types for efficiency, branching needs to happen by
+# with if-else, and not the type-dispatch system.
+# const GATE_MAP_GOOD_NOT_REALLY = Dict(
+# #    :H => Hgate(Droot2{Int, Int}),  # Need to support multiplication for this
+#     :H => Hgate(Domega{Int}),
+#     :S => Sgate(Int),
+#     :X => Xgate(Int),
+#     :T => Tgate(Domega{Int}),
+#     :I => Igate(Domega{Int}), # Because this is output type
+#     :W => Wgate(Domega{Int}),
+# )
 
 # Careful this may segfault when using precompiled because it
 # calls a dynamically linked C library.
+# In any case, it is commented out because we are not using it at the moment.
 # const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
 
 """
