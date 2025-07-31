@@ -38,7 +38,7 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
         elseif !isone_strong(c[i])
             show(io, MIME"text/plain"(), c[i])
         end
-        if isone(n - i)
+        if isone_strong(n - i)
             print(io, " ω")
         else
             print(io, " ω", superscript(n-i))
@@ -51,6 +51,34 @@ function Base.show(io::IO, ::MIME"text/plain", cr::CyclotomicRing)
 #        show(io, MIME"text/plain", zero(first(c)))
     end
 end
+
+"""
+    Base.getindex(cyc::CyclotomicRing, n::Integer)
+
+Return the coefficient of the `n`th-order term in the polynomial `cyc`.
+
+The first term is the highest order term. The last term is of order zero.
+So, `cyc[0]` returns the term of order zero. We are assuming that the primitive
+root is an `N`th root of unity, with `N` even. A polynomial in such a primitive
+root has only `N ÷ 2` coefficients.
+"""
+function Base.getindex(cyc::CyclotomicRing, n::Integer)
+    ind = length(cyc.coeffs) - n
+    cyc.coeffs[ind]
+end
+
+# Iterate over coefficients in reverse order.
+# Might be better to store them in the usual order (insted of reverse)
+# and to display them in reverse order to agree with the literature.
+function Base.iterate(cyc::CyclotomicRing, i::Integer=1)
+    n = length(cyc.coeffs)
+    i > n && return nothing
+    return (cyc.coeffs[n-i+1], i + 1)
+end
+
+Base.length(cyc::CyclotomicRing) = length(cyc.coeffs)
+
+Base.lastindex(::CyclotomicRing{M}) where M = M - 1
 
 # The type of the exponent of (1/2) is hardcoded to Int.
 # We probably only need one type for this field.
@@ -159,6 +187,7 @@ function _mkomega(::Type{T}, a, b, c, d) where {T}
 end
 
 Domega(a, b, c, d) = Domega{Int}(a,b,c,d)
+
 Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(DyadicFraction{T,Int}, a,b,c,d)
 
 Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
@@ -172,9 +201,18 @@ function Base.:+(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) w
     CyclotomicRing{M, CoeffT}(c1.coeffs .+ c2.coeffs)
 end
 
-function Base.:-(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
-    CyclotomicRing{M, CoeffT}(c1.coeffs .- c2.coeffs)
+function Base.:-(c1::CyclotomicRing{M}, c2::CyclotomicRing{M}) where {M}
+    coeffs = promote((c1.coeffs .- c2.coeffs)...)
+    T = typeof(first(coeffs))
+    CyclotomicRing{M, T}(coeffs)
 end
+
+# function Base.:-(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
+#     coeffs = promote((c1.coeffs .- c2.coeffs)...)
+#     T = typeof(first(coeffs))
+#     CyclotomicRing{M, T}(coeffs)
+# end
+
 
 function Base.:-(c::CyclotomicRing)
     CyclotomicRing(.- c.coeffs)

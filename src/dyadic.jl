@@ -16,7 +16,7 @@ import ..Common: canonical
 Represents the ring `𝔻 = ℤ[½]`.
 
 `aT` is the type of the numerator.
-`bT` is the type of the exponent on `2` in the denominator.
+`kT` is the type of the exponent on `2` in the denominator.
 
 # Examples
 ```jldoctest
@@ -115,25 +115,30 @@ end
 #     end
 # end
 
-function zero(::Type{DyadicFraction{aT, bT}}) where {aT, bT}
-    DyadicFraction(zero(aT), zero(bT))
+function zero(::Type{DyadicFraction{aT, kT}}) where {aT, kT}
+    DyadicFraction(zero(aT), zero(kT))
 end
 
-zero(::DyadicFraction{aT, bT}) where {aT, bT} = zero(DyadicFraction{aT, bT})
+zero(::DyadicFraction{aT, kT}) where {aT, kT} = zero(DyadicFraction{aT, kT})
 
 # Careful. There is more than on way to represent zero.
 function iszero(df::DyadicFraction)
     iszero(df.a)
 end
 
-function one(::Type{DyadicFraction{aT, bT}}) where {aT, bT}
-    DyadicFraction(one(aT), zero(bT))
+function one(::Type{DyadicFraction{aT, kT}}) where {aT, kT}
+    DyadicFraction(one(aT), zero(kT))
 end
 
-one(::DyadicFraction{aT, bT}) where {aT, bT} = one(DyadicFraction{aT, bT})
+one(::DyadicFraction{aT, kT}) where {aT, kT} = one(DyadicFraction{aT, kT})
+
+# Hmmm, assume it is reduced (canonical) for the moment
+function Base.isone(df::DyadicFraction{aT, kT}) where {aT, kT}
+    isone_strong(df.a) && iszero_strong(df.k)
+end
 
 function convert(::Type{T}, f::DyadicFraction) where {T}
-    if iszero(f.k)
+    if iszero_strong(f.k)
         return convert(T, f.a)
     end
     convert(T, f.a) / convert(T, 2)^f.k
