@@ -12,7 +12,7 @@ import ..QuadraticRings: root2conj
 
 using ILog2
 
-export Domega, CyclotomicRing
+export CyclotomicRing, Zomega, Domega
 
 ########################
 ####
@@ -68,6 +68,24 @@ Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
 ```
 """
 const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
+
+
+"""
+    Zomega{T <: Integer}
+
+Represents the ring `ℤ[ω]`.
+
+The type `T<:Integer` is the type of coefficients of powers of ω.
+
+`Zomega{T}` is defined as the alias
+```
+Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
+```
+"""
+const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
+
+function one_over_root_two(::Type{Zomega{T}}) where {T <: Integer}
+end
 
 function Base.conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
@@ -207,6 +225,13 @@ function Base.one(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
     z = zero(CoeffT)
     o = one(CoeffT)
     CyclotomicRing(z, z, z, o)
+end
+
+function Base.isone(c::CyclotomicRing{4, CoeffT}) where {CoeffT}
+    z = zero(CoeffT)
+    o = one(CoeffT)
+    (a, b, c, d) = c.coeffs
+    return a == z && b == z && c == z && d == o
 end
 
 Base.one(::CyclotomicRing{4, CoeffT}) where {CoeffT} = one(CyclotomicRing{4, CoeffT})

@@ -204,6 +204,14 @@ function Droot2(a, b)
     QuadraticRing{2}(a1, a2)
 end
 
+function one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
+    z1 = zero(T1)
+    z2 = zero(T2)
+    o1 = one(T1)
+    o2 = one(T2)
+    Droot2(DyadicFraction(z1,z2), DyadicFraction(o1,o2))
+end
+
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
     @eval function (::Type{Base.$Ti})(q::QuadraticRing)
         convert($Ti, q)

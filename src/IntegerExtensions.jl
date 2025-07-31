@@ -40,8 +40,8 @@ function sqrt_imaginary(::Type{BigFloat})
     cispi(one(BigFloat)/4)
 end
 
-function one_over_root_two(::Type{BigFloat})
-    one(BigFloat) / sqrt(big(2))
+function one_over_root_two(::Type{T}) where {T <: Real}
+    one(T) / sqrt(T(2))
 end
 
 include("utils.jl")
@@ -64,7 +64,7 @@ Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, Zroot2, Droot2
     rootDconj, root2conj
 
 include("cyclotomic_rings.jl")
-Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega
+Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, get_theta
