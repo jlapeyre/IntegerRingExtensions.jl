@@ -175,6 +175,16 @@ end
 
 Base.:*(r::Real, c::CyclotomicRing) = c * r
 
+function Base.:*(c::CyclotomicRing, z::Complex)
+    rs = real(z) .* c.coeffs
+    (a, b, c, d) = imag(z) .* c.coeffs
+    cs = rs .+ (c, d, -a, -b)
+    CyclotomicRing(cs)
+end
+
+Base.:*(z::Complex, c::CyclotomicRing) = c * z
+
+
 Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs
 
 function Base.:^(c::CyclotomicRing, n::Integer)

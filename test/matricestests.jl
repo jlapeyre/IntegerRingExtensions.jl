@@ -21,8 +21,8 @@ end
     @test y * z == im * x
     @test z * y == -im * x
 
-    # @test xd * yd == im * zd
-    # @test yd * xd == -im * zd
-    # @test yd * zd == im * xd
-    # @test zd * yd == -im * xd
+    @test xd * yd == im * zd
+    @test yd * xd == -im * zd
+    @test yd * zd == im * xd
+    @test zd * yd == -im * xd
 end
