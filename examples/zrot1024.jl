@@ -28,6 +28,8 @@ println()
 @show get_theta(big(m)) - theta
 println()
 
+rot_mat_diff = big(m) - RZ(theta)
+
 @info "Stopping criterium is operator norm distance"
 @show opnorm(big(m) - RZ(theta))
 

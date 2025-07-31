@@ -107,6 +107,14 @@ then reduce fractions in `DyadicFraction`s after each matrix multiplication.
 
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
 of longer compositions with smaller data types.
+
+# Examples
+```jldoctest
+julia> compose("TSHTHTHTHT")
+2×2 Matrix2x2{Domega{BigInt}}:
+1/2² ω³ + -1/2² ω² + 3/2² ω + 1/2² ω⁰   -1/2² ω³ + 1/2² ω² + 1/2² ω + 1/2² ω⁰
+1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
+```
 """
 function compose(gates_in::AbstractString)
 #function compose(gates_in::AbstractString; reduce_fractions=true)
@@ -178,6 +186,31 @@ function RZ(theta)
     z = zero(theta)
     t2 = theta/2
     Matrix2x2(cis(-t2), z, z, cis(t2))
+end
+
+"""
+    count_gates(gates::AbstractString)::Dict{Char,Int}
+
+Return a count `Dict` counting the number of each distinct gate in `gates`.
+
+More precisely, this returns counts for each distinct character in `gates`.
+
+# Example
+```jldoctest
+julia> count_gates("TSHTHTHTHT")
+Dict{Char, Int64} with 3 entries:
+  'H' => 4
+  'T' => 5
+  'S' => 1
+```
+"""
+function count_gates(gates::AbstractString)
+    counts = Dict{Char, Int}()
+    for g in gates
+        c = get(counts, g, 0)
+        counts[g] = c + 1
+    end
+    return counts
 end
 
 end # module Gates
