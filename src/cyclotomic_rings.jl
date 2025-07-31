@@ -64,18 +64,30 @@ root is an `N`th root of unity, with `N` even. A polynomial in such a primitive
 root has only `N ÷ 2` coefficients.
 """
 function Base.getindex(cyc::CyclotomicRing, n::Integer)
-    ind = length(cyc.coeffs) - n
-    cyc.coeffs[ind]
+    # ind = length(cyc.coeffs) - n
+    # cyc.coeffs[ind]
+    cyc.coeffs[n+1]
+    # eh checkbounds does not work for tuple
+    # checkbounds(cyc.coeffs, n + 1)
+    # @inbounds cyc.coeffs[n+1]
 end
 
 # Iterate over coefficients in reverse order.
 # Might be better to store them in the usual order (insted of reverse)
 # and to display them in reverse order to agree with the literature.
+# function Base.iterate(cyc::CyclotomicRing, i::Integer=1)
+#     n = length(cyc.coeffs)
+#     i > n && return nothing
+#     return (cyc.coeffs[n-i+1], i + 1)
+# end
+
 function Base.iterate(cyc::CyclotomicRing, i::Integer=1)
-    n = length(cyc.coeffs)
-    i > n && return nothing
-    return (cyc.coeffs[n-i+1], i + 1)
+    iterate(cyc.coeffs, i)
+    # n = length(cyc.coeffs)
+    # i > n && return nothing
+    # return (cyc.coeffs[n-i+1], i + 1)
 end
+
 
 Base.length(cyc::CyclotomicRing) = length(cyc.coeffs)
 
