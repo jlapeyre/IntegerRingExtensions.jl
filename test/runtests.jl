@@ -2,6 +2,8 @@ using IntegerExtensions
 import LinearAlgebra: norm
 using Test
 
+include("matricestests.jl")
+
 @testset "QuadraticRing{2, Int}" begin
     # Don't follow this example in real code!
     # If D is not literal or `const`, performance degrades by orders of magnitude!

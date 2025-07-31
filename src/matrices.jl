@@ -1,6 +1,7 @@
 module Matrices
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det
 import ..IntegerExtensions: canonical
+import ..Utils: PRETTY, cpad
 
 """
     Matrix2x2{T} <: AbstractMatrix{T}
@@ -29,6 +30,26 @@ Base.IndexStyle(::Type{<:Matrix2x2}) = IndexLinear()
 Base.one(::Type{Matrix2x2{T}}) where T = Matrix2x2(one(T), zero(T), zero(T), one(T))
 Base.one(::Matrix2x2{T}) where {T} = one(Matrix2x2{T})
 
+function _showstr(obj)
+    b = IOBuffer()
+    show(IOContext(b, :compact=>true), PRETTY(), obj)
+    return String(take!(b))
+end
+
+function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
+    summary(io, m)
+    println(io, ":")
+    spc = "  "
+    (as, bs, cs, ds)  = map(_showstr, m.data)
+    (al, bl, cl, dl) = map(length, (as, bs, cs, ds))
+    w1 = max(al, bl)
+    w2 = max(cl, dl)
+    print(io, cpad(as, w1), spc)
+    println(io, cpad(cs, w2))
+    print(io, cpad(bs, w1), spc)
+    print(io, cpad(ds, w2))
+end
+
 function Base.map(f, m::Matrix2x2)
     (a, b, c, d) = m.data
     Matrix2x2(f(a), f(b), f(c), f(d))
@@ -42,7 +63,9 @@ end
 @inline function _mul2(m1, m2)
     (a1, b1, c1, d1) = m1.data
     (a2, b2, c2, d2) = m2.data
-    Matrix2x2(a1*a2 + b1*c2, a1*b2+b1*d2, a2*c1+d1*c2, c1*b2 + d1*d2)
+    Matrix2x2(a1*a2 + c1*b2, a2*b1 + d1*b2, a1*c2 + c1*d2, b1*c2 + d1*d2)
+#    Matrix2x2(a1*a2 + c1*b2, a1*c2+c1*d2, a2*b1+d1*b2, b1*c2 + d1*d2)
+#    Matrix2x2(a1*a2 + b1*c2, a1*b2+b1*d2, a2*c1+d1*c2, c1*b2 + d1*d2)
 end
 
 @inline function _pair_op(op, m1, m2)

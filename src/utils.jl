@@ -38,4 +38,15 @@ end
 
 const PRETTY = MIME"text/plain"
 
+function cpad(s::AbstractString, width::Integer, pad::AbstractString=" ")
+    len = length(s)
+    padlen = width - len
+    if padlen <= 0
+        return s
+    end
+    lpadlen = padlen ÷ 2 + padlen % 2
+    rpadlen = padlen ÷ 2
+    return lpad(s, len + lpadlen, pad) |> x -> rpad(x, width, pad)
+end
+
 end # module Utils

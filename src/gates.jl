@@ -7,6 +7,24 @@ using ..CyclotomicRings: Domega
 
 # using Nemo: ZZ, ZZRingElem
 
+function Igate(::Type{T}) where T
+    o = one(T)
+    z = zero(T)
+    Matrix2x2(o, z, z, o)
+end
+
+function Xgate(::Type{T}) where T
+    o = one(T)
+    z = zero(T)
+    Matrix2x2(z, o, o, z)
+end
+
+function Ygate(::Type{T}) where T
+    z = zero(T)
+    img = imaginary(T)
+    Matrix2x2(z, img, -img, z)
+end
+
 function Zgate(::Type{T}) where T
     o = one(T)
     z = zero(T)
@@ -32,17 +50,6 @@ function Hgate(::Type{T}) where T
     Matrix2x2(inv_half, inv_half, inv_half, -inv_half)
 end
 
-function Xgate(::Type{T}) where T
-    o = one(T)
-    z = zero(T)
-    Matrix2x2(z, o, o, z)
-end
-
-function Igate(::Type{T}) where T
-    o = one(T)
-    z = zero(T)
-    Matrix2x2(o, z, z, o)
-end
 
 function Wgate(::Type{T}) where T
     z = zero(T)
