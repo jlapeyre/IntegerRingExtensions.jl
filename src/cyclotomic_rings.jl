@@ -8,7 +8,7 @@ import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne8
 
 import ..DyadicFractions: DyadicFraction
-import ..QuadraticRings: root2conj, Droot2
+import ..QuadraticRings: conj_root_two, Droot2
 
 using ILog2
 
@@ -167,9 +167,15 @@ end
 
 Base.adjoint(cyc::CyclotomicRing) = conj(cyc)
 
-function root2conj(cyc::Domega{T}) where T
+"""
+    conj_root_two(cyc::Domega)
+
+Maps `a + b√2` to `a - b√2` in all coefficients in `cyc`.
+
+This implements √2-conjugation.
+"""
+function conj_root_two(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
-#    newcoeff = (-a, b, -c, d)
     newcoeff = (a, -b, c, -d)
     Domega{T}(newcoeff)
 end

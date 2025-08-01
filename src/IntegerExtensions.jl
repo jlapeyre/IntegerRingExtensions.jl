@@ -26,7 +26,7 @@ Reexport.@reexport import .DyadicFractions: DyadicFraction
 
 include("quadratic_ring.jl")
 Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, Zroot2, Droot2, QuadraticRing2, isunit,
-    rootDconj, root2conj
+    rootDconj, conj_root_two
 
 include("cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega

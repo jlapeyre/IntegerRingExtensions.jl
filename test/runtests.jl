@@ -19,12 +19,12 @@ include("matricestests.jl")
     @test q^2 == q * q
     @test q^5 == q * q * q * q * q
     @test norm(q^5) == norm(q)
-    @test root2conj(q) * q == norm(q)
+    @test conj_root_two(q) * q == norm(q)
 
     q2 = QuadraticRing2(1, 2)
     @test norm(q2) == -7
-    @test root2conj(q2) * q2 == norm(q2)
-    @test root2conj(q2) * q2 == -7.0
+    @test conj_root_two(q2) * q2 == norm(q2)
+    @test conj_root_two(q2) * q2 == -7.0
 
     u1 = QuadraticRing{D}(1, 1)
     u2 = QuadraticRing{D}(1, 0)

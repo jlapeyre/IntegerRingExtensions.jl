@@ -50,6 +50,15 @@ const ZrootD{T1, T2} = QuadraticRing{T1, T2} where {T1, T2<:Integer}
 const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
 ```
 
+# Examples
+```jldoctest
+julia> QuadraticRing{2, DyadicFraction{Int,Int}}(1, 2)
+1 + 2√2
+
+julia> repr(QuadraticRing{2, DyadicFraction{Int,Int}}(1, 2))
+"QuadraticRing{2, DyadicFraction{Int64, Int64}}(DyadicFraction{Int64, Int64}(1, 0), DyadicFraction{Int64, Int64}(2, 0))"
+```
+
 # Notes
 Values that could be supported, but are not, include integers such that `D < 0` and integers such that `D≡1 (mod 4)`.
 
@@ -70,9 +79,23 @@ function QuadraticRing{D, CT}(a, b) where {D, CT}
     return QuadraticRing{D}(a, b)
 end
 
-#QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
-
 QuadraticRing{D}(a::T, b::T) where {T, D} = QuadraticRing{D, T}(a, b)
+
+"""
+    QuadraticRing{D, CT}(x::QuadraticRing) where {D, CT}
+
+Attempt to map an element `x` of one quadratic ring to another.
+
+As pointed out by Ross and Selinger, there is a unique ring homomorphism from `ℤ[√2]` to any ring containing
+`√2`. It exists because `ℤ[√2]` is the free such ring. This fact is expressed exactly in their Haskell
+implementation. Idiomatic Julia probably does not support this. Or at least it would be an unnecessary complication.
+This method for `QuadraticRing` is less restrictive in input and more restrictive in output. Because this is Julia, there is
+no guarantee that this construction will succeed for every call that dispatches to this method.
+"""
+function QuadraticRing{D, CT}(x::QuadraticRing) where {D, CT}
+    (a, b) = map(CT, coeffs(x))
+    return QuadraticRing{D, CT}(a, b)
+end
 
 # Avoid temptation to do D = an integer, QuadraticRing2{D, CoeffT}.
 # That kills performance
@@ -144,6 +167,15 @@ julia> Zroot2(2, 3)
 
 julia> repr(Zroot2(2, 3))
 "QuadraticRing{2, Int64}(2, 3)"
+
+julia> Zroot2{BigInt}(1, 2)
+1 + 2√2
+
+julia> typeof(coeffs(Zroot2{BigInt}(1, 2)))
+Tuple{BigInt, BigInt}
+
+julia> Zroot2{DyadicFraction{Int, Int}}(1, 2)  # Enforces ℤ as base ring.
+ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{DyadicFraction{Int64, Int64}}
 ```
 """
 const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
@@ -231,7 +263,20 @@ end
 
 LinearAlgebra.norm(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
 
-root2conj(qi::QuadraticRing{2}) = QuadraticRing{2}(qi.a, -qi.b)
+
+"""
+    conj_root_two(x)
+
+Represents the automorphism mapping `√2` to `-√2` for rings containing `√2`.
+"""
+function conj_root_two end
+
+"""
+    conj_root_two(qi::QuadraticRing{2})
+
+Maps `a + b√2` to `a - b√2`.
+"""
+conj_root_two(qi::QuadraticRing{2}) = QuadraticRing{2}(qi.a, -qi.b)
 
 rootDconj(qi::QuadraticRing{D}) where D = QuadraticRing{D}(qi.a, -qi.b)
 
@@ -347,3 +392,5 @@ end
 
 
 end # module QuadraticRings
+
+#  LocalWords:  Selinger homomorphism
