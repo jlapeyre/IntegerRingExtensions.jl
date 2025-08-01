@@ -25,7 +25,24 @@ export CyclotomicRing, Zomega, Domega
         coeffs::NTuple{M, CoeffT}
     end
 
-Represents a cyclotomic ring of order `2M`.
+A super-ring of the ring of cyclotomic integers of degree `2M`.
+
+If `CoeffT <: Integer`, then this is represents the ring of cyclotomic integers `ℤ[ω]`.
+
+The symbol `ω` is used when displaying values. It is understood to be the prinicpal `2M`th root of unity.
+(See `RootOne{D}`.)
+
+Aliases for particular rings are:
+
+The ring of cyclotomic integers `ℤ[ω]`:
+```
+const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
+```
+
+The ring `𝔻[ω] = ℤ[1/√2, i]`:
+```
+const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
+```
 """
 struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
@@ -114,7 +131,6 @@ function Base.iterate(cyc::CyclotomicRing, i::Integer=1)
     # i > n && return nothing
     # return (cyc.coeffs[n-i+1], i + 1)
 end
-
 
 Base.length(cyc::CyclotomicRing) = length(cyc.coeffs)
 
@@ -445,6 +461,11 @@ end
 
 @inline Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs
 
+# @inline function Base.:(==)(c1::CyclotomicRing{N}, r::RootOne{M}) where {N, M}
+#     isone(c1) && isone(r) && return true
+#     return false
+# end
+
 function Base.:^(c::CyclotomicRing, n::Integer)
     n == 0 && return one(c)
     n == 1 && return c
@@ -452,27 +473,14 @@ function Base.:^(c::CyclotomicRing, n::Integer)
     return Base.power_by_squaring(c, n)
 end
 
-function Base.one(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
+function Base.one(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT}
     z = zero(CoeffT)
-    o = one(CoeffT)
-#    CyclotomicRing(z, z, z, o)
-    CyclotomicRing(o, z, z, z)
+    CyclotomicRing{D}(one(CoeffT), ntuple(x -> z, D-1)...,)
 end
 
-function Base.isone(c::CyclotomicRing{4, CoeffT}) where {CoeffT}
-    z = zero(CoeffT)
-    o = one(CoeffT)
-    (a, b, c, d) = c.coeffs
-    return a == o && b == z && c == z && d == z
-end
+Base.one(c::CyclotomicRing) = one(typeof(c))
 
-Base.one(::CyclotomicRing{4, CoeffT}) where {CoeffT} = one(CyclotomicRing{4, CoeffT})
-
-function Base.zero(::Type{CyclotomicRing{4, CoeffT}}) where {CoeffT}
-    z = zero(CoeffT)
-    CyclotomicRing(z, z, z, z)
-end
-
+Base.zero(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT} = CyclotomicRing(ntuple(x -> zero(CoeffT), D)...,)
 Base.zero(cr::CyclotomicRing) = zero(typeof(cr))
 
 function Base.convert(::Type{CyclotomicRing{M, CT1}}, c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}

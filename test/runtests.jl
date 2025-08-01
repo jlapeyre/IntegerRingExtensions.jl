@@ -2,10 +2,10 @@ using IntegerExtensions
 import LinearAlgebra: norm
 using Test
 
+include("matricestests.jl")
 include("dyadic_tests.jl")
 include("d_z_root2_tests.jl")
 include("cyclotomic_tests.jl")
-include("matricestests.jl")
 
 @testset "QuadraticRing{2, Int}" begin
     # Don't follow this example in real code!
