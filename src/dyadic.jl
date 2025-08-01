@@ -218,10 +218,11 @@ function Complex{Tc}(df::DyadicFraction) where {Tc}
 end
 
 function Base.:(==)(df1::DyadicFraction, df2::DyadicFraction)
-    if df1.k > df2.k
-        return df1.a == (1 << (df1.k - df2.k)) * df2.a
-    elseif df1.k < df2.k
-        return df2.a == (1 << (df2.k - df1.k)) * df1.a
+    dk = df1.k - df2.k
+    if dk > 0
+        return df1.a == (1 << dk) * df2.a
+    elseif dk < 0
+        return df2.a == (1 << -dk) * df1.a
     else
         return df1.a == df2.a
     end
