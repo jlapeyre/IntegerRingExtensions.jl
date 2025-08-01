@@ -217,14 +217,20 @@ function Complex{Tc}(df::DyadicFraction) where {Tc}
     T(df.a) * T(1//2)^df.k
 end
 
-function Base.:(==)(df1::DyadicFraction, df2::DyadicFraction)
+Base.:(==)(df1::DyadicFraction, df2::DyadicFraction) = _cmp_dyadic(df1, df2, ==)
+Base.:(<)(df1::DyadicFraction, df2::DyadicFraction) = _cmp_dyadic(df1, df2, <)
+Base.:(<=)(df1::DyadicFraction, df2::DyadicFraction) = _cmp_dyadic(df1, df2, <=)
+Base.:(>)(df1::DyadicFraction, df2::DyadicFraction) = _cmp_dyadic(df1, df2, >)
+Base.:(>=)(df1::DyadicFraction, df2::DyadicFraction) = _cmp_dyadic(df1, df2, >=)
+
+function _cmp_dyadic(df1::DyadicFraction, df2::DyadicFraction, cmp_func)
     dk = df1.k - df2.k
     if dk > 0
-        return df1.a == (1 << dk) * df2.a
+        return cmp_func(df1.a, (1 << dk) * df2.a)
     elseif dk < 0
-        return df2.a == (1 << -dk) * df1.a
+        return cmp_func((1 << -dk) * df1.a, df2.a)
     else
-        return df1.a == df2.a
+        return cmp_func(df1.a, df2.a)
     end
 end
 
