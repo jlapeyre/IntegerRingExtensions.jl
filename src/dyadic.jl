@@ -3,7 +3,7 @@ module DyadicFractions
 import Base: zero, iszero, one, convert, promote_rule, show
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong, PRETTY,
     lobit
-import ..Common: canonical, mul_half, params
+import ..Common: canonical, mul_half, params, conj_root_two
 
 ########################
 ####
@@ -57,13 +57,17 @@ julia> params(x)
 """
 params(d::DyadicFraction) = (d.a, d.k)
 
+Base.conj(d::DyadicFraction) = d
+Base.adjoint(d::DyadicFraction) = d
+conj_root_two(d::DyadicFraction) = d
+
 function mul_half(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
     n == 0 && return f
     n < 0 && error("Negative `n` not yet implemented")
     m = n
     T2 = T(2)
     fa = f.a
-    if iseven(f.a)
+    if iseven(f.a) # TODO: use bit shifts here
         while true
             fa = div(fa, T2)
             m = m - 1
@@ -94,7 +98,6 @@ end
 function promote_rule(::Type{DyadicFraction{Int,Int}}, ::Type{Int})
     DyadicFraction{Int, Int}
 end
-
 
 function Base.show(io::IO, ::PRETTY, tup::NTuple{N, <:DyadicFraction}) where {N}
     print(io, "(")
@@ -158,6 +161,10 @@ one(::DyadicFraction{aT, kT}) where {aT, kT} = one(DyadicFraction{aT, kT})
 function Base.isone(df::DyadicFraction{aT, kT}) where {aT, kT}
     isone_strong(df.a) && iszero_strong(df.k)
 end
+
+Base.abs(df::DyadicFraction) = DyadicFraction(abs(df.a), df.k)
+Base.abs2(df::DyadicFraction) = df * df
+Base.sign(df::DyadicFraction) = sign(df.a)
 
 function convert(::Type{T}, f::DyadicFraction) where {T}
     if iszero_strong(f.k)

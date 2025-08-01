@@ -3,12 +3,12 @@ module CyclotomicRings
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_root_two, mul_one_over_root_two, mul_half
+    mul_root_two, mul_one_over_root_two, mul_half, conj_root_two
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne8, RootOne
 
 import ..DyadicFractions: DyadicFraction
-import ..QuadraticRings: conj_root_two, Droot2
+import ..QuadraticRings: Droot2
 
 using ILog2
 

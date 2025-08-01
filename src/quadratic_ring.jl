@@ -3,7 +3,7 @@ module QuadraticRings
 import LinearAlgebra
 import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_half
+    mul_half, conj_root_two
 import ..DyadicFractions: DyadicFraction
 
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
@@ -262,14 +262,6 @@ function Base.big(q::QuadraticRing{D, T}) where {D, T <: AbstractFloat}
 end
 
 LinearAlgebra.norm(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
-
-
-"""
-    conj_root_two(x)
-
-Represents the automorphism mapping `√2` to `-√2` for rings containing `√2`.
-"""
-function conj_root_two end
 
 """
     conj_root_two(qi::QuadraticRing{2})

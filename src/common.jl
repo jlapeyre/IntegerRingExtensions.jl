@@ -106,4 +106,13 @@ function mul_half(x, n::Integer=1)
     x * (inv(typeof(x)(2))^n)
 end
 
+"""
+    conj_root_two(x::Number)
+
+Represents the automorphism mapping `√2` to `-√2` for rings containing `√2`.
+
+For elements of other rings, `conj_root_two` is the identity.
+"""
+conj_root_two(x::Number) = x
+
 end # module Common

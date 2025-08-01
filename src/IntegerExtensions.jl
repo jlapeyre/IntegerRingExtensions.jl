@@ -12,7 +12,7 @@ Reexport.@reexport import .Utils: subscript, superscript, lobit
 
 include("common.jl")
 Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
-    mul_root_two, mul_one_over_root_two, mul_half
+    mul_root_two, mul_one_over_root_two, mul_half, conj_root_two
 
 include("singletons.jl")
 Reexport.@reexport import .Singletons: Root2, RootI, InvRoot2
@@ -25,7 +25,7 @@ Reexport.@reexport import .DyadicFractions: DyadicFraction
 
 include("quadratic_ring.jl")
 Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, Zroot2, Droot2, QuadraticRing2, isunit,
-    rootDconj, conj_root_two
+    rootDconj
 
 include("cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega
