@@ -1,43 +1,176 @@
 module Singletons
 
-import Base: show, inv
+import Base: show, inv, sqrt
 import ..Utils: PRETTY
 
-struct Root2T end
+export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹
+
+###
+### Two
+###
+
+struct TwoT end
+const Two = TwoT()
+const 𝟚 = Two
+show(io::IO, ::PRETTY, ::TwoT) = print(io, "𝟚")
 
 """
-    Root2
+    Two
+    𝟚
 
-Represents the square root of two.
+Represents the integer two: 𝟚
 """
-const Root2 = Root2T()
+Two
 
-show(io::IO, ::PRETTY, ::Root2T) = print(io, "√2")
+@doc (@doc Two) 𝟚
 
-struct InvRoot2T end
+###
+### InvTwo
+###
 
-"""
-    InvRoot2
-
-Represents the reciprocoal of the square root of two.
-"""
-const InvRoot2 = InvRoot2T()
-
-show(io::IO, ::PRETTY, ::InvRoot2T) = print(io, "√2⁻¹")
-
-inv(::InvRoot2T) = Root2
-inv(::Root2T) = InvRoot2
-
-struct RootIT end
+struct InvTwoT end
+const InvTwo = InvTwoT()
+const 𝟚⁻¹ = InvTwo
+show(io::IO, ::PRETTY, ::InvTwoT) = print(io, "𝟚⁻¹")
+inv(::TwoT) = InvTwo
+inv(::InvTwoT) = Two
 
 """
-    RootI
+    InvTwo
+    𝟚⁻¹
 
-Represents the principal square root of the imaginary unit.
+Represents the multiplicative inverse of the integer two: 𝟚⁻¹
+"""
+InvTwo
+
+@doc (@doc InvTwo) 𝟚⁻¹
+
+###
+### RootTwo
+###
+
+struct RootTwoT end
+const RootTwo = RootTwoT()
+
+show(io::IO, ::PRETTY, ::RootTwoT) = print(io, "√𝟚")
+sqrt(Two) = RootTwo
+
+"""
+    RootTwo
+    √𝟚
+
+Represents the square root of two: √𝟚
+"""
+RootTwo
+
+###
+### InvRootTwo
+###
+
+struct InvRootTwoT end
+const InvRootTwo = InvRootTwoT()
+show(io::IO, ::PRETTY, ::InvRootTwoT) = print(io, "√𝟚⁻¹")
+sqrt(::InvTwoT) = InvRoot2
+inv(::InvRootTwoT) = RootTwo
+inv(::RootTwoT) = InvRootTwo
+
+"""
+    InvRootTwo
+
+Represents the reciprocoal of the square root of two: √𝟚⁻¹
+"""
+InvRootTwo
+
+###
+### Imag
+###
+
+struct ImagT end
+const Imag = ImagT()
+const 𝕚 = Imag
+show(io::IO, ::PRETTY, ::ImagT) = print(io, "𝕚")
+
+"""
+    Imag
+    𝕚
+
+Represents the imaginary unit: 𝕚
+"""
+Imag
+
+@doc (@doc Imag) 𝕚
+
+###
+### RootImag
+###
+
+struct RootImagT end
+const RootImag = RootImagT()
+show(io::IO, ::PRETTY, ::RootImagT) = print(io, "√𝕚")
+sqrt(::ImagT) = RootImag
+
+"""
+    RootImag
+
+Represents the principal square root of the imaginary unit: √𝕚
 This is also the principal eight root of one.
 """
-const RootI = RootIT()
+RootImag
 
-show(io::IO, ::PRETTY, ::RootIT) = print(io, "√𝕚")
+## These are DANGEROUS. Someone may be tempted to use them.
+## Used dynamically, they will give terrible performance
+## Maybe better to use a more generic function and if-else to distinguish
+## elements.
+
+Base.:*(::RootImagT, ::RootImagT) = Imag
+Base.:*(::RootTwoT, ::RootTwoT) = Two
+Base.:*(::InvRootTwoT, ::InvRootTwoT) = InvTwo
+
+Base.:*(::InvTwoT, ::TwoT) = 1
+Base.:*(::TwoT, ::InvTwoT) = 1
+
+Base.:*(::InvRootTwoT, ::RootTwoT) = 1 # May want to use a different type
+Base.:*(::RootTwoT, ::InvRootTwoT) = 1 # May want to use a different type
+
+Base.:*(::ImagT, ::ImagT) = -1
+
+function _make_type_pairs()
+    _pairs = []
+    for s in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
+        push!(_pairs, (s, s))
+        rs = :(Rational{$s})
+        push!(_pairs, (rs, rs))
+        rs = :(Complex{$s})
+        push!(_pairs, (rs, rs))
+    end
+    for s in (:Float64, :Float32, :Float16)
+        push!(_pairs, (s, s))
+        rs = :(Complex{$s})
+        push!(_pairs, (rs, rs))
+    end
+    for ps in ((:Integer, :Int64), (:Rational, :(Rational{Int})), (:AbstractFloat, :Float64),)
+        push!(_pairs, ps)
+    end
+    _pairs
+end
+
+for (Ta, Tb) in _make_type_pairs()
+    for (V, val) = ((:TwoT, 2), (:InvTwoT, 1//2), (:ImagT, im))
+
+        tT = @eval $Ta
+        if V in (:InvTwoT,) && (tT <: Integer || tT <: Complex{<:Integer})
+            continue
+        end
+        if V in (:ImagT,) && !(tT <: Complex)
+            continue
+        end
+        @eval function Base.convert(::Type{$Ta}, ::$V)
+            $Tb($val)
+        end
+        @eval function (::Type{$Ta})(::$V)
+            $Tb($val)
+        end
+    end
+end
 
 end # module Singleons

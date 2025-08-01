@@ -125,7 +125,7 @@ Represents the ring `𝔻[ω] = ℤ[1/√2, i]`.
 
 The type `T<:Integer` is the type of the numerator in the dyadic fractions.
 
-Here, `𝔻 = ℤ[½]` the dyadic fractions, implemented by `DyadicFraction`.
+Here, `𝔻 = ℤ[½]` is the ring of dyadic fractions, implemented by `DyadicFraction`.
 
 `Domega{T}` is defined as the alias
 ```

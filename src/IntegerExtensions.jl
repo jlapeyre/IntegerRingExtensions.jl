@@ -15,7 +15,8 @@ Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imagi
     mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, norm_root_two
 
 include("singletons.jl")
-Reexport.@reexport import .Singletons: Root2, RootI, InvRoot2
+Reexport.@reexport import .Singletons: RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
+    InvTwo, 𝟚⁻¹
 
 include("root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, RootOne8
