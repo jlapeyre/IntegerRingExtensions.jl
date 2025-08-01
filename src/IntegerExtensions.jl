@@ -7,9 +7,8 @@ export Droot2
 export Zroot2
 export ZrootD
 
-
 include("utils.jl")
-Reexport.@reexport import .Utils: subscript, superscript
+Reexport.@reexport import .Utils: subscript, superscript, lobit
 
 include("common.jl")
 Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,

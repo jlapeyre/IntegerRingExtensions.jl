@@ -1,7 +1,8 @@
 module DyadicFractions
 
 import Base: zero, iszero, one, convert, promote_rule, show
-import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong, PRETTY
+import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong, PRETTY,
+    lobit
 import ..Common: canonical, mul_half, params
 
 ########################
@@ -129,46 +130,12 @@ end
 Return `df` in canonical form. That is, with `df.k` as small as possible.
 """
 function canonical(df::DyadicFraction)
-    iszero(df.a) && return DyadicFraction(df.a, zero(df.k))
     (num, dexp) = (df.a, df.k)
-    while true
-        (isodd(num) || dexp < 1) && return DyadicFraction(num, dexp)
-        num = div(num, 2)
-        dexp = dexp - 1
-    end
+    iszero(num) && return DyadicFraction(zero(num), zero(dexp))
+    n = lobit(num)
+    dexp >= n && return DyadicFraction(num >> n, dexp - n)
+    DyadicFraction(num >> dexp, zero(dexp))
 end
-
-# Routine above is faster and simpler than this one
-# function oldcanonical(df::DyadicFraction)
-#     iszero(df.a) && return DyadicFraction(df.a, zero(df.k))
-#     (c, m) = factortwos(df.a)
-#     iszero(c) && return df
-#     k = df.k
-#     if c > k
-#         return typeof(df)(2^(c-k)*m, 0)
-#     elseif c < k
-#         return typeof(df)(m, k - c)
-#     else
-#         return typeof(df)(m, 0)
-#     end
-# end
-
-# Unused now
-# """
-#     factortwos(n)
-#
-# Factor `n` as `m * 2^c` and return `(c, m)`.
-# """
-# function factortwos(n)
-#     n == 0 && return (0, 0)
-#     c = 0
-#     m = n
-#     while true
-#         isodd(m) && return (c, m)
-#         m = div(m, 2)
-#         c += 1
-#     end
-# end
 
 function zero(::Type{DyadicFraction{aT, kT}}) where {aT, kT}
     DyadicFraction(zero(aT), zero(kT))

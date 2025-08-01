@@ -1,5 +1,7 @@
 module Utils
 
+import ILog2: ilog2
+
 export subscript, superscript
 
 subscript(i::Integer) = _script(i, _sub_digit)
@@ -64,5 +66,15 @@ end
 
 greater_than_strong(x, y) = false
 
+"""
+    lobit(z)
+
+Return the position of the lowest set bit in `z`.
+
+The rightmost bit (lsb) has position zero.
+"""
+function lobit(z)
+    ilog2(z & -z)
+end
 
 end # module Utils
