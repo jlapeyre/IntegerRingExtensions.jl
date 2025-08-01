@@ -439,12 +439,21 @@ function mul_one_over_root_two(cyc::CyclotomicRing{4})
     mul_root_two(mul_half(cyc))
 end
 
-@inline Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing) = c1.coeffs == c2.coeffs
+@inline Base.:(==)(c1::CyclotomicRing{N}, c2::CyclotomicRing{N}) where {N} = c1.coeffs == c2.coeffs
 
-# @inline function Base.:(==)(c1::CyclotomicRing{N}, r::RootOne{M}) where {N, M}
-#     isone(c1) && isone(r) && return true
-#     return false
-# end
+function Base.:(==)(c1::CyclotomicRing, c2::CyclotomicRing)
+    throw(ArgumentError(lazy"Unsupported comparison"))
+end
+
+@inline function Base.:(==)(cyc::CyclotomicRing{N}, r::RootOne{M}) where {N, M}
+#    @show abs(float(cyc) - float(r))
+    2*N == M || return throw(ArgumentError(lazy"Unsupported arguments"))
+    r.k > N && return -cyc == -r
+    isone(sum(isone, cyc)) || return false # Exactly one coeff is one
+    n = findfirst(isone, coeffs(cyc)) # Which coeff is one?
+    n == r.k + 1
+end
+
 
 function Base.:^(c::CyclotomicRing, n::Integer)
     n == 0 && return one(c)

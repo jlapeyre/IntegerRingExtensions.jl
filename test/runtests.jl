@@ -2,6 +2,7 @@ using IntegerExtensions
 import LinearAlgebra: norm
 using Test
 
+include("rootonetests.jl")
 include("matricestests.jl")
 include("dyadic_tests.jl")
 include("d_z_root2_tests.jl")
@@ -90,4 +91,3 @@ end
     @test theta_diff > 1e-20  # Sanity check. We are testing something.
 end
 
-include("rootonetests.jl")

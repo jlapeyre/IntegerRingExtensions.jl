@@ -33,4 +33,10 @@
     @test sqrt_imaginary(RootOne{8}) == RootOne{8}(1)
     @test sqrt_imaginary(RootOne{16}) == RootOne{16}(2)
     @test_throws ArgumentError sqrt_imaginary(RootOne{12})
+
+    @test CyclotomicRing{4}(0,1,0,0) == RootOne{8}(1)
+    @test CyclotomicRing{4}(1,0,0,0) == RootOne{8}(0)
+    @test CyclotomicRing{4}(0,0,1,0) == RootOne{8}(2)
+    @test CyclotomicRing{4}(0,0,-1,0) == RootOne{8}(6)
+    @test CyclotomicRing{3}(0,0,1) == RootOne{6}(2)
 end
