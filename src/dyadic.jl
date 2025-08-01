@@ -194,8 +194,11 @@ function DyadicFraction{T, K}(n::T1)  where {T <: Integer, T1 <: Integer, K}
     DyadicFraction{T, K}(convert(T, n), 0)
 end
 
-convert(::Type{Rational{T}}, f::DyadicFraction) where {T} =
-    Rational{T}(convert(T, f.a), convert(T, 2)^f.k)
+function convert(::Type{Rational{T}}, f::DyadicFraction) where {T}
+    #  Rational{T}(convert(T, f.a), convert(T, 2)^f.k)
+    # shifting is a bit faster than power of two (even though 2 is literal)
+    Rational{T}(convert(T, f.a), convert(T, 1) << f.k)
+end
 
 DyadicFraction(r::Rational) = convert(DyadicFraction, r)
 DyadicFraction(n::Integer) = DyadicFraction(n, zero(n))
