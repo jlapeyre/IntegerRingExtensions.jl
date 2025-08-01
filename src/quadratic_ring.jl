@@ -251,7 +251,7 @@ promote_rule(::Type{V}, ::Type{T2})  where {V <: QuadraticRing{<:Any, T},T2} whe
 """
     Droot2{T1, T2}
 
-Represents the ring `𝔻[√2] = ℤ[1/√2]`.
+Represents the ring `𝔻[√2] = ℤ[√½]`.
 
 `T1` is the type of the numerator in the dyadic fractions. `T2` is the type of the exponent in the denominator.
 
