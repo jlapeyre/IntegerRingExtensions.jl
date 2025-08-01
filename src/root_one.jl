@@ -126,6 +126,10 @@ RootOne(k, N) = RootOne{N}(k)
 Base.one(::Type{RootOne{N}}) where {N} = RootOne{N}(0)
 Base.one(x::RootOne) = one(typeof(x))
 
+function Base.:(==)(r1::RootOne{N1}, r2::RootOne{N2}) where {N1,N2}
+    r1.k // N1 == r2.k // N2
+end
+
 Base.float(r::RootOne) = complex(r)
 Base.complex(r::RootOne) = convert(ComplexF64, r)
 Base.big(r::RootOne) = convert(Complex{BigFloat}, r)
@@ -141,6 +145,7 @@ function Base.angle(::Type{T}, r::RootOne{N}) where {N, T}
     2 * T(pi) * T(k) / T(N)
 end
 
+Base.adjoint(r::RootOne) = conj(r)
 Base.conj(r::RootOne) = inv(r)
 Base.abs2(r::RootOne) = 1
 Base.abs(r::RootOne) = 1
