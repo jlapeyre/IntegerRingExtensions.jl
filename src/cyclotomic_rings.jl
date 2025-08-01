@@ -474,8 +474,7 @@ function Base.:^(c::CyclotomicRing, n::Integer)
 end
 
 function Base.one(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT}
-    z = zero(CoeffT)
-    CyclotomicRing{D}(one(CoeffT), ntuple(x -> z, D-1)...,)
+    CyclotomicRing{D}(one(CoeffT), ntuple(x -> zero(CoeffT), D-1)...,)
 end
 
 Base.one(c::CyclotomicRing) = one(typeof(c))
@@ -505,7 +504,6 @@ end
 @inline function Base.complex(c::CyclotomicRing{D}) where {D}
     _convert_cyc(c, D, complex)
 end
-
 
 function Base.Complex{Tc}(c::CyclotomicRing{D}) where {D, Tc}
     _convert_cyc(c, D, Complex{Tc})
