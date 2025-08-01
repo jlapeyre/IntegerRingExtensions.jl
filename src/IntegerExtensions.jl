@@ -16,7 +16,7 @@ Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imagi
 
 include("singletons.jl")
 Reexport.@reexport import .Singletons: RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
-    InvTwo, 𝟚⁻¹
+    InvTwo, 𝟚⁻¹, 𝟙, One, Zero, 𝟘
 
 include("root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, RootOne8

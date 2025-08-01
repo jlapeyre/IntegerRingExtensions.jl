@@ -3,7 +3,46 @@ module Singletons
 import Base: show, inv, sqrt
 import ..Utils: PRETTY
 
-export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹
+export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹,
+    𝟙, One, Zero, 𝟘
+
+###
+### Zero
+###
+
+struct ZeroT end
+const Zero = ZeroT()
+const 𝟘 = Zero
+show(io::IO, ::PRETTY, ::ZeroT) = print(io, "𝟘")
+
+"""
+    Zero
+    𝟘
+
+Represents the additive identity: 𝟘
+"""
+Zero
+
+@doc (@doc Zero) 𝟘
+
+###
+### One
+###
+
+struct OneT end
+const One = OneT()
+const 𝟙 = One
+show(io::IO, ::PRETTY, ::OneT) = print(io, "𝟙")
+
+"""
+    One
+    𝟙
+
+Represents the multiplicative identity: 𝟙
+"""
+One
+
+@doc (@doc One) 𝟙
 
 ###
 ### Two
@@ -116,6 +155,10 @@ Represents the principal square root of the imaginary unit: √𝕚
 This is also the principal eight root of one.
 """
 RootImag
+
+###
+### Maybe most of the stuff below is not necessary.
+###
 
 ## These are DANGEROUS. Someone may be tempted to use them.
 ## Used dynamically, they will give terrible performance
