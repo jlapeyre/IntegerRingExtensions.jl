@@ -407,8 +407,8 @@ end
 
 Multiply `cyc` by the reciprocal of two.
 """
-function mul_half(cyc::CyclotomicRing{4})
-    CyclotomicRing(map(mul_half, cyc.coeffs))
+function mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
+    CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
 end
 
 """

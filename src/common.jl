@@ -98,12 +98,12 @@ end
 
 
 """
-    mul_half(x)
+    mul_half(x, n::Integer=1)
 
-Return `x` multiplied by the reciprocal of two, that is `x` divided by two.
+Return `x` multiplied by the reciprocal of two to the `n`th power.
 """
-function mul_half(x)
-    x * inv(typeof(x)(2))
+function mul_half(x, n::Integer=1)
+    x * (inv(typeof(x)(2))^n)
 end
 
 end # module Common

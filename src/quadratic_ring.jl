@@ -2,7 +2,8 @@ module QuadraticRings
 
 import LinearAlgebra
 import Base: promote_rule, show, convert
-import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs
+import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
+    mul_half
 import ..DyadicFractions: DyadicFraction
 
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
@@ -34,9 +35,19 @@ values of `D` are `2` and `3`.
 If `D` is a supported integer and `CoeffT <: Integer`, then the type represents `ℤ[√D]`, a ring of quadratic integers.
 
 If `D` is the type `DyadicFraction`, then the ring represents `𝔻[√D]`, that is, the ring if dyadic fractions with
-`√D` adjoined. For example, the alias `Droot2` is defined as
+`√D` adjoined.
+
+The following aliases are defined:
 ```julia
-Droot2{T1, T2} = QuadraticRing{2, DyadicFraction{T1, T2}}
+const Droot2{T1, T2} = QuadraticRing{2, DyadicFraction{T1, T2}}
+```
+
+```julia
+const ZrootD{T1, T2} = QuadraticRing{T1, T2} where {T1, T2<:Integer}
+```
+
+```julia
+const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
 ```
 
 # Notes
@@ -87,8 +98,19 @@ ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
 ```
 
 See also `Zroot2`, `Droot2`.
+
+# Examples
+```jldoctest
+julia> ZrootD{3}(2, 3)
+2 + 3√3
+```
 """
-const ZrootD{T1, T2} = QuadraticRing{T1, T2} where {T1, T2<:Integer}
+const ZrootD{D, T2} = QuadraticRing{D, T2} where {D, T2<:Integer}
+
+function ZrootD{D}(a, b=zero(a)) where D
+    (a, b) = promote(a, b)
+    ZrootD{D}{typeof(a)}(a, b)
+end
 
 """
     Zroot2{CoeffT} where {CoeffT<:Integer}
@@ -101,6 +123,15 @@ Zroot2{CoeffT} = QuadraticRing{2, CoeffT} where {2, CoeffT<:Integer}
 ```
 
 See also `Droot2`.
+
+# Examples
+```jldoctest
+julia> Zroot2(2, 3)
+2 + 3√2
+
+julia> repr(Zroot2(2, 3))
+"QuadraticRing{2, Int64}(2, 3)"
+```
 """
 const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
 
@@ -229,8 +260,15 @@ Represents the ring `𝔻[√2] = ℤ[1/√2]`.
 julia> Droot2(DyadicFraction(1,2), DyadicFraction(3, 4))
 1/2² + 3/2⁴√2
 
-julia> Droot2(4, 5) # These integers are still stored as `DyadicFraction`s
+julia> repr(Droot2(DyadicFraction(1,2), DyadicFraction(3, 4)))
+"QuadraticRing{2, DyadicFraction{Int64, Int64}}(DyadicFraction{Int64, Int64}(1, 2), DyadicFraction{Int64, Int64}(3, 4))"
+
+
+julia> Droot2(4, 5)
 4 + 5√2
+
+julia> repr(Droot2(4, 5))
+"QuadraticRing{2, DyadicFraction{Int64, Int64}}(DyadicFraction{Int64, Int64}(4, 0), DyadicFraction{Int64, Int64}(5, 0))"
 ```
 """
 const Droot2{T1, T2} = QuadraticRing{2, DyadicFraction{T1, T2}}
@@ -282,6 +320,12 @@ function one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
     o1 = one(T1)
     o2 = one(T2)
     Droot2(DyadicFraction(z1,z2), DyadicFraction(o1,o2))
+end
+
+function mul_half(q::QuadraticRing{D, <:DyadicFraction}, n::Integer=1) where {D}
+    @show coeffs(q)
+    new_coeffs = map(x -> mul_half(x, n), coeffs(q))
+    typeof(q)(new_coeffs...)
 end
 
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)

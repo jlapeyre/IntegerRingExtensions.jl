@@ -56,11 +56,20 @@ julia> params(x)
 """
 params(d::DyadicFraction) = (d.a, d.k)
 
-function mul_half(f::DyadicFraction{T,V}) where {T,V}
+function mul_half(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
+    n == 0 && return f
+    n < 0 && error("Negative `n` not yet implemented")
+    m = n
+    T2 = T(2)
+    fa = f.a
     if iseven(f.a)
-        return DyadicFraction(div(f.a, T(2)), f.k)
+        while true
+            fa = div(fa, T2)
+            m = m - 1
+            (m == 0 || isodd(fa)) && break
+        end
     end
-    DyadicFraction(f.a, f.k + one(V))
+    DyadicFraction(fa, f.k + V(m))
 end
 
 function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
