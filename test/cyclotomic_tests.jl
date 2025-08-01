@@ -16,6 +16,19 @@ import IntegerExtensions.CyclotomicRings: mul_root_two
     @test_throws MethodError Zomega(1,2,3)
 end
 
+@testset "cyclotomic other" begin
+    z5 = CyclotomicRing{5}(0,1,0,0,0)
+    @test float(z5) == float(RootOne{10}(1))
+
+    z5 = CyclotomicRing{5}(0,0,1,0,0)
+    @test float(z5) == float(RootOne{10}(2))
+
+    z5 = CyclotomicRing{5}(0,0,0,1,0)
+    @test float(z5) == float(RootOne{10}(3))
+
+    z5 = CyclotomicRing{5}(0,0,0,0,1)
+    @test float(z5) == float(RootOne{10}(4))
+end
 
 @testset "cyclotomic storage" begin
     z = Domega(1,2,3,DyadicFraction(5,2))

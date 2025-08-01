@@ -5,7 +5,7 @@ import Base: convert, zero, one, promote_rule
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_root_two, mul_one_over_root_two, mul_half
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
-import ..RootOnes: RootOne8
+import ..RootOnes: RootOne8, RootOne
 
 import ..DyadicFractions: DyadicFraction
 import ..QuadraticRings: conj_root_two, Droot2
@@ -25,7 +25,7 @@ export CyclotomicRing, Zomega, Domega
         coeffs::NTuple{M, CoeffT}
     end
 
-Represents a
+Represents a cyclotomic ring of order `2M`.
 """
 struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
@@ -48,7 +48,7 @@ julia> coeffs(Droot2(1,DyadicFraction(3,2)))
 (1, 3/2²)
 ```
 """
-coeffs(cyc::CyclotomicRing) = cyc.coeffs
+@inline coeffs(cyc::CyclotomicRing) = cyc.coeffs
 
 function Base.show(io::IO, ::PRETTY, cr::CyclotomicRing)
     c = cr.coeffs
@@ -463,7 +463,6 @@ function Base.isone(c::CyclotomicRing{4, CoeffT}) where {CoeffT}
     z = zero(CoeffT)
     o = one(CoeffT)
     (a, b, c, d) = c.coeffs
-#    return a == z && b == z && c == z && d == o
     return a == o && b == z && c == z && d == z
 end
 
@@ -487,19 +486,42 @@ end
 
 function Base.AbstractFloat(c::CyclotomicRing{4})
     (a, b, c, d) = c.coeffs
-    # float(d) + float(c) * float(RootOne8(1)) + float(b) * float(RootOne8(2)) +
-    #     float(a) * float(RootOne8(3))
-
     float(a) + float(b) * float(RootOne8(1)) + float(c) * float(RootOne8(2)) +
         float(d) * float(RootOne8(3))
-
 end
 
+@inline function Base.AbstractFloat(c::CyclotomicRing{D}) where {D}
+    _convert_cyc(c, D, float)
+end
+
+@inline function Base.complex(c::CyclotomicRing{D}) where {D}
+    _convert_cyc(c, D, complex)
+end
+
+
+function Base.Complex{Tc}(c::CyclotomicRing{D}) where {D, Tc}
+    _convert_cyc(c, D, Complex{Tc})
+end
+
+# Faster than using any kind of iterative or reduce scheme
+# This is only slightly slower 2.7 vs 3.5 ns than the explicit
+# expression above for D = 4
+@inline function _convert_cyc(c, D, func)
+    _add_term(func, 0, D, coeffs(c)...)
+end
+
+@inline function _add_term(func, i, D, c)
+    func(RootOne{2*D}(i)) * func(c)
+end
+
+@inline function _add_term(func, i, D, c, _coeffs...)
+    func(RootOne{2*D}(i)) * func(c) + _add_term(func, i+1, D, _coeffs...)
+end
+
+# Slightly faster than the general method: 3.6ns vs 2.6ns
 function Base.Complex{Tc}(c::CyclotomicRing{4}) where Tc
     (a, b, c, d) = c.coeffs
     T = Complex{Tc}
-    # T(d) + T(c) * T(RootOne8(1)) + T(b) * T(RootOne8(2)) +
-    #     T(a) * T(RootOne8(3))
     T(a) + T(b) * T(RootOne8(1)) + T(c) * T(RootOne8(2)) +
         T(d) * T(RootOne8(3))
 end
