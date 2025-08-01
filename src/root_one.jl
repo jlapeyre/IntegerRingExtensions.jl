@@ -1,6 +1,7 @@
 module RootOnes
 
-import ..IntegerExtensions.Utils: subscript, superscript
+import ..Utils: subscript, superscript
+import ..Common: sqrt_imaginary, imaginary
 import Base: convert, show
 
 export RootOne, RootOne8
@@ -95,6 +96,19 @@ function imaginary(::Type{RootOne8})
 end
 
 """
+    imaginary(::Type{RootOne{D}}) where {D}
+
+The value of type `RootOne{D}` that represents the imaginary unit.
+
+An error is thrown if no such value exists.
+"""
+function imaginary(::Type{RootOne{D}}) where {D}
+    (n, resid) = divrem(D, 4)
+    resid == 0 || throw(ArgumentError(lazy"Type RootOne{$D} cannot represent √𝕚"))
+    RootOne{D}(n)
+end
+
+"""
     sqrt_imaginary(::Type{RootOne8})
 
 The value of type `RootOne8` that represents the principal square root of the imaginary unit.
@@ -103,6 +117,19 @@ This is `RootOne8(1)`.
 """
 function sqrt_imaginary(::Type{RootOne8})
     RootOne8(1)
+end
+
+"""
+    sqrt_imaginary(::Type{RootOne{D}}) where {D}
+
+The value of type `RootOne{D}` that represents the principal square root of the imaginary unit.
+
+An error is thrown if no such value exists.
+"""
+function sqrt_imaginary(::Type{RootOne{D}}) where {D}
+    (n, resid) = divrem(D, 8)
+    resid == 0 || throw(ArgumentError(lazy"Type RootOne{$D} cannot represent √𝕚"))
+    RootOne{D}(n)
 end
 
 function show(io::IO, ::MIME"text/plain", r::RootOne{N}) where {N}
@@ -149,10 +176,13 @@ Base.adjoint(r::RootOne) = conj(r)
 Base.conj(r::RootOne) = inv(r)
 Base.abs2(r::RootOne) = 1
 Base.abs(r::RootOne) = 1
-Base.real(r::RootOne{N}) where {N} = cospi(2 * r.k / N)
-Base.imag(r::RootOne{N}) where {N} = sinpi(2 * r.k / N)
-Base.isreal(r::RootOne{N}) where {N} = r.k == 0 || div(N, r.k) == 2
 
+Base.real(r::RootOne{N}) where {N} = real(Int, r)
+Base.real(::Type{T}, r::RootOne{N}) where {T, N} = cospi(T(2 * r.k) / N)
+Base.imag(r::RootOne{N}) where {N} = imag(Int, r)
+Base.imag(::Type{T}, r::RootOne{N}) where {T, N} = sinpi(T(2 * r.k) / N)
+
+Base.isreal(r::RootOne{N}) where {N} = r.k == 0 || div(N, r.k) == 2
 Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
 Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)
 

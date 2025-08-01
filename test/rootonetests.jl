@@ -24,4 +24,13 @@
 
     @test RootOne{8}(2) == RootOne{4}(1)
     @test RootOne{5}(0) == RootOne{17}(0)
+
+    @test imaginary(RootOne{4}) == RootOne{4}(1)
+    @test imaginary(RootOne{8}) == RootOne{8}(2)
+    @test imaginary(RootOne{12}) == RootOne{12}(3)
+    @test_throws ArgumentError imaginary(RootOne{6})
+
+    @test sqrt_imaginary(RootOne{8}) == RootOne{8}(1)
+    @test sqrt_imaginary(RootOne{16}) == RootOne{16}(2)
+    @test_throws ArgumentError sqrt_imaginary(RootOne{12})
 end
