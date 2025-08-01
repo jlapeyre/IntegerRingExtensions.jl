@@ -3,7 +3,7 @@ module QuadraticRings
 import LinearAlgebra
 import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_half, conj_root_two
+    mul_half, conj_root_two, norm_root_two
 import ..DyadicFractions: DyadicFraction
 
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
@@ -246,10 +246,10 @@ Base.one(q::QuadraticRing) = one(typeof(q))
 """
     isunit(q::QuadraticRing)
 
-Return `true` if `norm(q)` is either `1` or `-1`.
+Return `true` if `norm_root_two(q)` is either `1` or `-1`.
 """
 function isunit(q::QuadraticRing)
-    nq = LinearAlgebra.norm(q)
+    nq = norm_root_two(q)
     nq == 1 || nq == -1
 end
 
@@ -261,7 +261,7 @@ function Base.big(q::QuadraticRing{D, T}) where {D, T <: AbstractFloat}
     big(q.a) + sqrt(big(D)) * big(q.b)
 end
 
-LinearAlgebra.norm(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
+norm_root_two(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
 
 """
     conj_root_two(qi::QuadraticRing{2})

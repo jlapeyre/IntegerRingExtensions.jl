@@ -115,4 +115,6 @@ For elements of other rings, `conj_root_two` is the identity.
 """
 conj_root_two(x::Number) = x
 
+function norm_root_two end
+
 end # module Common

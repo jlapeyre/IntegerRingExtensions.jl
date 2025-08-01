@@ -1,5 +1,4 @@
 using IntegerExtensions
-import LinearAlgebra: norm
 using Test
 
 include("rootonetests.jl")
@@ -19,12 +18,12 @@ include("cyclotomic_tests.jl")
     @test iszero(q - q)
     @test q^2 == q * q
     @test q^5 == q * q * q * q * q
-    @test norm(q^5) == norm(q)
-    @test conj_root_two(q) * q == norm(q)
+    @test norm_root_two(q^5) == norm_root_two(q)
+    @test conj_root_two(q) * q == norm_root_two(q)
 
     q2 = QuadraticRing2(1, 2)
-    @test norm(q2) == -7
-    @test conj_root_two(q2) * q2 == norm(q2)
+    @test norm_root_two(q2) == -7
+    @test conj_root_two(q2) * q2 == norm_root_two(q2)
     @test conj_root_two(q2) * q2 == -7.0
 
     u1 = QuadraticRing{D}(1, 1)
