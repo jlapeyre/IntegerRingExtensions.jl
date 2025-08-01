@@ -158,6 +158,11 @@ function Base.conj(cyc::Domega{T}) where T
     Domega{T}(newcoeff)
 end
 
+"""
+    conj(cyc::CyclotomicRing{4})
+
+Return the complex conjugate of `cyc`.
+"""
 function Base.conj(cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
 #    newcoeff = (-c, -b, -a, d)
@@ -255,10 +260,16 @@ function CyclotomicRing{M}(c1, coeffs...) where M
     CyclotomicRing(cs)
 end
 
-function Domega(c1, coeffs...)
-    cs = promote(DyadicFraction(c1), coeffs...)
+# function Domega(c1, coeffs...)
+#     cs = promote(DyadicFraction(c1), coeffs...)
+#     CyclotomicRing(cs)
+# end
+
+function Domega(c1, c2, c3, c4)
+    cs = promote(DyadicFraction(c1), c2, c3, c4)
     CyclotomicRing(cs)
 end
+
 
 # Not using this. So comment out.
 # function CyclotomicRing{4, T}(a, b, c, d) where T

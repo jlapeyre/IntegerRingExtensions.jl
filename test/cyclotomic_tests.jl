@@ -11,6 +11,9 @@ import IntegerExtensions.CyclotomicRings: mul_root_two
     end
     @test isapprox(float(mul_root_two(d)) / float(d), sqrt(2))
     @test isapprox(float(mul_root_two(z)) / float(z), sqrt(2))
+
+    @test_throws MethodError Domega(1,2,3)
+    @test_throws MethodError Zomega(1,2,3)
 end
 
 
