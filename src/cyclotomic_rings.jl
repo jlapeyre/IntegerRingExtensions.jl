@@ -20,6 +20,13 @@ export CyclotomicRing, Zomega, Domega
 ####
 ########################
 
+"""
+    struct CyclotomicRing{M, CoeffT}
+        coeffs::NTuple{M, CoeffT}
+    end
+
+Represents a
+"""
 struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
 end
@@ -128,7 +135,6 @@ Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
 ```
 """
 const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
-
 
 """
     Zomega{T <: Integer}

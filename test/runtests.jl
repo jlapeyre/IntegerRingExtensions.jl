@@ -11,7 +11,7 @@ include("matricestests.jl")
     # Don't follow this example in real code!
     # If D is not literal or `const`, performance degrades by orders of magnitude!
     D = 2
-    q = QuadraticRing(1, 1, D)
+    q = QuadraticRing{D}(1, 1)
     @test q === QuadraticRing{D}(1, 1) # different ways to instantiate.
     @test iszero(zero(q))
     @test iszero(zero(QuadraticRing{D, Int}))

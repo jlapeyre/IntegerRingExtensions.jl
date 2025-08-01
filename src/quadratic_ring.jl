@@ -57,9 +57,22 @@ The Gaussian integers would be represented by `D` equal to `-1`, if this were su
 integers are already exactly represented by `Complex{<:Integer}`.
 """
 struct QuadraticRing{D, CoeffT}
+    function QuadraticRing{D, T}(a::T, b::T) where {D, T}
+        new(a, b)
+    end
+
     a::CoeffT
     b::CoeffT
 end
+
+function QuadraticRing{D, CT}(a, b) where {D, CT}
+    (a, b) = (CT(a), CT(b))
+    return QuadraticRing{D}(a, b)
+end
+
+#QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
+
+QuadraticRing{D}(a::T, b::T) where {T, D} = QuadraticRing{D, T}(a, b)
 
 # Avoid temptation to do D = an integer, QuadraticRing2{D, CoeffT}.
 # That kills performance
@@ -153,8 +166,6 @@ julia> root_two(Zroot2{Int})
 """
 root_two(::Type{Zroot2{T}}) where T = Zroot2(zero(T), one(T))
 
-QuadraticRing(a::T, b::T, D) where {T} = QuadraticRing{D, T}(a, b)
-QuadraticRing{D}(a::T, b::T) where {T, D} = QuadraticRing{D, T}(a, b)
 
 function show(io::IO, ::MIME"text/plain", qr::QuadraticRing{D}) where {D}
     if isone(qr.b)
