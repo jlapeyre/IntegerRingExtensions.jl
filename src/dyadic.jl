@@ -219,16 +219,16 @@ end
 
 function Base.:(==)(df1::DyadicFraction, df2::DyadicFraction)
     if df1.k > df2.k
-        return df1.a == 2^(df1.k - df2.k) * df2.a
+        return df1.a == (1 << (df1.k - df2.k)) * df2.a
     elseif df1.k < df2.k
-        return df2.a == 2^(df2.k - df1.k) * df1.a
+        return df2.a == (1 << (df2.k - df1.k)) * df1.a
     else
         return df1.a == df2.a
     end
 end
 
 function Base.:(==)(x::Integer, df::DyadicFraction)
-    df1 = canonical(df) 
+    df1 = canonical(df)
     df1.k == 0 && df1.a == x
 end
 Base.:(==)(df::DyadicFraction, x::Integer) = x == df
