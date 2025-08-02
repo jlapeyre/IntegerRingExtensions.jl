@@ -152,6 +152,7 @@ end
 
 (::Type{T})(r::RootOne{1}) where {T <: Number} = one(T)
 (::Type{T})(r::RootOne{1}) where {T <: Complex} = one(T)
+Base.Complex(r::RootOne{1}) = Complex{Float64}(r)
 
 function (::Type{T})(r::RootOne{M}; maybe::Bool=false) where {M, T <: Real}
     iszero(r.k) && return one(T)
@@ -189,12 +190,7 @@ Base.float(r::RootOne) = complex(r)
 Base.complex(r::RootOne) = Complex(r)
 Base.big(r::RootOne) = Complex{BigFloat}(r)
 convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N} = Complex{T}(r)
-
-function Complex{T}(r::RootOne{N}) where {T, N}
-#    kT = convert(T, r.k)
-    cispi(2 * T(r.k) / N)
-end
-
+Complex{T}(r::RootOne{N}) where {T, N} = cispi(2 * T(r.k) / N)
 Base.Complex(r::RootOne) = Complex{Float64}(r)
 
 Base.angle(r::RootOne) = angle(Float64, r)
@@ -213,7 +209,11 @@ Base.real(::Type{T}, r::RootOne{N}) where {T, N} = cospi(T(2 * r.k) / N)
 Base.imag(r::RootOne{N}) where {N} = imag(Int, r)
 Base.imag(::Type{T}, r::RootOne{N}) where {T, N} = sinpi(T(2 * r.k) / N)
 
-Base.isreal(r::RootOne{N}) where {N} = r.k == 0 || div(N, r.k) == 2
+function Base.isreal(r::RootOne{N}) where {N}
+    r.k == 0 && return true
+    iszero(mod(r.k << 1, N))
+end
+
 Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
 Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)
 
@@ -224,7 +224,7 @@ Base.literal_pow(::typeof(Base.:^), r::RootOne{N}, ::Val{n}) where {n, N} = Root
 
 function Base.:-(r::RootOne{N}) where {N}
     iseven(N) || throw(ArgumentError(lazy"InexactError unary minus of type RootOne{$N}"))
-    RootOne{N}(r.k + div(N, 2))
+    RootOne{N}(r.k + (N >> 1))
 end
 
 end # module RootOnes

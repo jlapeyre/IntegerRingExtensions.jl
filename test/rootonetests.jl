@@ -39,4 +39,11 @@
     @test CyclotomicRing{4}(0,0,1,0) == RootOne{8}(2)
     @test CyclotomicRing{4}(0,0,-1,0) == RootOne{8}(6)
     @test CyclotomicRing{3}(0,0,1) == RootOne{6}(2)
+
+    for N in (1, 2, 4, 5, 8, 12, 16)
+        for i in 0:(N-1)
+            r = RootOne{N}(i)
+            @test isreal(r) == isreal(float(r))
+        end
+    end
 end
