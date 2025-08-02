@@ -24,7 +24,7 @@ end
 # Base.copy(m::Matrix2x2) = Matrix2x2(copy(m.data))
 
 Matrix2x2(a, b, c, d) = Matrix2x2(promote(a, b, c, d))
-Matrix2x2{T}(a, b, c, d) where {T} = Matrix(T(a), T(b), T(c), T(d))
+Matrix2x2{T}(a, b, c, d) where {T} = Matrix2x2(T(a), T(b), T(c), T(d))
 
 Base.size(::Matrix2x2) = (2, 2)
 Base.eltype(::Type{Matrix2x2{T}}) where T = T
@@ -111,6 +111,12 @@ Base.complex(m::Matrix2x2) = float(m)
 # This is not conventional. Change this
 Base.AbstractFloat(m::Matrix2x2) = map(float, m)
 Base.big(m::Matrix2x2) = map(big, m)
+
+"""
+    canonical(m::Matrix2x2)
+
+Return a new matrix by calling `canonical` element-wise on `m`.
+"""
 canonical(m::Matrix2x2) = map(canonical, m)
 
 """

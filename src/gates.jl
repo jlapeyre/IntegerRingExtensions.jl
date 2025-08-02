@@ -168,7 +168,31 @@ then reduce fractions in `DyadicFraction`s after each matrix multiplication.
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
 of longer compositions with smaller data types.
 """
-function compose_one(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
+function compose_one(gates::AbstractString, gmap=GATE_MAP_INT; reduce_fractions=true)
+    result = Matrix2x2{Domega{Int}}(gmap[:I])
+    reduce_func = reduce_fractions ? canonical : identity
+    for gate in gates
+        sgate = Symbol(gate)
+        if sgate === :H
+            result = reduce_func(Gate1{:H}() * result)
+        elseif sgate === :S
+            result = reduce_func(Gate1{:S}() * result)
+        elseif sgate === :T
+            result = reduce_func(Gate1{:T}() * result)
+        elseif sgate === :X
+            result = reduce_func(Gate1{:X}() * result)
+        elseif sgate === :W
+            result = reduce_func(Gate1{:W}() * result)
+        else
+            error("bad")
+        end
+#       result = reduce_func(Gate1{sgate}() * result)
+#        result = reduce_func(gmap[sgate] * result)
+    end
+    return result
+end
+
+function oldcompose_one(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
     result = gmap[:I]
     reduce_func = reduce_fractions ? canonical : identity
     for gate in gates
@@ -176,6 +200,7 @@ function compose_one(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fracti
     end
     return result
 end
+
 
 """
     RZ(theta)
@@ -235,14 +260,12 @@ Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1{:W}() * m
 
 function Base.:*(::Gate1{:X}, m::Matrix2x2)
     (a,b,c,d) = m.data
-    v = One
-    Matrix2x2(b * v, a * v, d * v, c * v)
+    Matrix2x2(b, a, d, c)
 end
 
 function Base.:*(m::Matrix2x2, ::Gate1{:X})
     (a,b,c,d) = m.data
-    v = One
-    Matrix2x2(c * v, d * v, a * v, b * v)
+    Matrix2x2(c, d, a, b)
 end
 
 function Base.:*(::Gate1{:S}, m::Matrix2x2)
@@ -260,5 +283,11 @@ function Base.:*(::Gate1{:T}, m::Matrix2x2)
     (a,b,c,d) = m.data
     Matrix2x2(a, RootImag * b, c, RootImag * d)
 end
+
+# This mistake is very easy to make, causes bugs.
+function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
+    throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
+end
+
 
 end # module Gates

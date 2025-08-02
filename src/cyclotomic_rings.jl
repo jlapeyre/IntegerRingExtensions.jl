@@ -9,6 +9,11 @@ import ..RootOnes: RootOne8, RootOne
 
 import ..DyadicFractions: DyadicFraction
 import ..QuadraticRings: Droot2
+import ..Singletons: InvTwo, InvTwoT,
+    RootTwo, RootTwoT,
+    InvRootTwo, InvRootTwoT,
+    Imag, ImagT,
+    RootImag, RootImagT
 
 using ILog2
 
@@ -148,6 +153,13 @@ Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 """
 const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 
+function CyclotomicRing{4, T}(x::Number) where {T}
+    z = zero(T)
+    return CyclotomicRing{4, T}((T(x), z, z, z))
+end
+
+
+
 function Base.conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
     # I think promotion not needed.
@@ -194,6 +206,7 @@ function imaginary(::Type{CyclotomicRing{4, T}}) where {T}
 #    CyclotomicRing(z, o, z, z)
     CyclotomicRing(z, z, o, z)
 end
+
 
 """
     sqrt_imaginary(::Type{Domega{T}}) where {T}
@@ -244,7 +257,6 @@ function root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) where {T}
 #    CyclotomicRing(-half, z, half, z)
     CyclotomicRing(z, o, z, -o)
 end
-
 
 CyclotomicRing(coeffs::T...) where T = CyclotomicRing{length(coeffs), T}(coeffs)
 
@@ -372,43 +384,36 @@ function Base.:*(r::RootOne8, cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
     coeffs =
         if k == 0
-            (a,b,c,d)
+            (a,b,c,d)     # 1
         elseif k == 1
-            (-d,a,b,c)
+            (-d,a,b,c)    # √𝕚
         elseif k == 2
-            (-c,-d,a,b)
+            (-c,-d,a,b)   # 𝕚
         elseif k == 3
-            (-b,-c,-d,a)
+            (-b,-c,-d,a)  # 𝕚√𝕚
         elseif k == 4
-            (-a,-b,-c,-d)
+            (-a,-b,-c,-d) # -1
         elseif k == 5
-            (d,-a,-b,-c)
+            (d,-a,-b,-c)  # -√𝕚
         elseif k == 6
-            (c,d,-a,-b)
+            (c,d,-a,-b)   # -𝕚
         elseif k == 7
-            (b,c,d,-a)
+            (b,c,d,-a)    # -𝕚√𝕚
         end
-        # if k == 0
-        #     (a,b,c,d)
-        # elseif k == 1
-        #     (b,c,d,-a)
-        # elseif k == 2
-        #     (c,d,-a,-b)
-        # elseif k == 3
-        #     (d,-a,-b,-c)
-        # elseif k == 4
-        #     (-a,-b,-c,-d)
-        # elseif k == 5
-        #     (-b,-c,-d,a)
-        # elseif k == 6
-        #     (-c,-d,a,b)
-        # elseif k == 7
-        #     (-d,a,b,c)
-        # end
     return typeof(cyc)(coeffs)
 end
 
 Base.:*(c::CyclotomicRing{4}, r::RootOne8) = r * c
+
+function Base.:*(::ImagT, cyc::CyclotomicRing{4})
+    (a, b, c, d) = cyc.coeffs
+    typeof(cyc)(-c,-d,a,b)
+end
+
+function Base.:*(::RootImagT, cyc::CyclotomicRing{4})
+    (a, b, c, d) = cyc.coeffs
+    typeof(cyc)(-d,a,b,c)
+end
 
 # This expression is invariant wrt reversing
 # the order of coefficients.
@@ -431,6 +436,18 @@ Multiply `cyc` by the reciprocal of two.
 function mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
     CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
 end
+
+function Base.:*(::InvTwoT, cyc::CyclotomicRing)
+    CyclotomicRing(map(x -> InvTwo * x, cyc.coeffs))
+end
+
+function Base.:*(::RootTwoT, cyc::CyclotomicRing{4})
+    (a,b,c,d) = cyc.coeffs
+    coeffs = (b-d, c+a, b+d, c-a)
+    CyclotomicRing(coeffs)
+end
+
+Base.:*(::InvRootTwoT, cyc::CyclotomicRing{4}) = RootTwo * (InvTwo * cyc)
 
 """
     mul_one_over_root_two(cyc::CyclotomicRing{4})
@@ -536,15 +553,6 @@ function CyclotomicRing{4, T}(r::RootOne8) where {T}
         else
             (0,0,0,val)
         end
-        # if pos == 0
-        #     (0,0,0,val)
-        # elseif pos == 1
-        #     (0,0,val,0)
-        # elseif pos == 2
-        #     (0,val,0,0)
-        # else
-        #     (val,0,0,0)
-        # end
     CyclotomicRing{4, T}(coeffs)
 end
 

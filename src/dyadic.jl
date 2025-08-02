@@ -4,6 +4,7 @@ import Base: zero, iszero, one, convert, promote_rule, show
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong, PRETTY,
     lobit
 import ..Common: canonical, mul_half, params, conj_root_two
+import ..Singletons: InvTwo, InvTwoT
 
 ########################
 ####
@@ -60,6 +61,8 @@ params(d::DyadicFraction) = (d.a, d.k)
 Base.conj(d::DyadicFraction) = d
 Base.adjoint(d::DyadicFraction) = d
 conj_root_two(d::DyadicFraction) = d
+
+Base.:*(::InvTwoT, f::DyadicFraction) = mul_half(f)
 
 function mul_half(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
     n == 0 && return f
