@@ -54,13 +54,13 @@ Base.show(io::IO, g::Gate1) = show(io, PRETTY(), g)
 # Doing this has no effect on performance or resource use.
 # It is only for cleaner looking code.
 # Hmm. now that I use Gate1(:H), is this necessary? or useful?
-const Hgate = Gate1{:H}()
-const Sgate = Gate1{:S}()
-const Tgate = Gate1{:T}()
-const Wgate = Gate1{:W}()
-const Xgate = Gate1{:X}()
-const Ygate = Gate1{:Y}()
-const Zgate = Gate1{:Z}()
+# const Hgate = Gate1{:H}()
+# const Sgate = Gate1{:S}()
+# const Tgate = Gate1{:T}()
+# const Wgate = Gate1{:W}()
+# const Xgate = Gate1{:X}()
+# const Ygate = Gate1{:Y}()
+# const Zgate = Gate1{:Z}()
 
 """
     Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name}

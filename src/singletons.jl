@@ -4,13 +4,22 @@ import Base: show, inv, sqrt
 import ..Utils: PRETTY
 
 export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹,
-    𝟙, One, Zero, 𝟘
+    One, Zero, 𝟙, 𝟘
 
 ###
 ### Zero
 ###
 
-struct ZeroT end
+# Should this be a Number? What is a Number
+"""
+    abstract type SingleNum
+
+An abstract type for reprenting single numbers as singleton types.
+"""
+abstract type SingleNum end
+
+struct ZeroT <: SingleNum
+end
 const Zero = ZeroT()
 const 𝟘 = Zero
 show(io::IO, ::PRETTY, ::ZeroT) = print(io, "𝟘")
@@ -29,7 +38,8 @@ Zero
 ### One
 ###
 
-struct OneT end
+struct OneT <: SingleNum
+end
 const One = OneT()
 const 𝟙 = One
 show(io::IO, ::PRETTY, ::OneT) = print(io, "𝟙")
@@ -48,7 +58,8 @@ One
 ### Two
 ###
 
-struct TwoT end
+struct TwoT  <: SingleNum
+end
 const Two = TwoT()
 const 𝟚 = Two
 show(io::IO, ::PRETTY, ::TwoT) = print(io, "𝟚")
@@ -67,7 +78,8 @@ Two
 ### InvTwo
 ###
 
-struct InvTwoT end
+struct InvTwoT <: SingleNum
+end
 const InvTwo = InvTwoT()
 const 𝟚⁻¹ = InvTwo
 show(io::IO, ::PRETTY, ::InvTwoT) = print(io, "𝟚⁻¹")
@@ -88,7 +100,8 @@ InvTwo
 ### RootTwo
 ###
 
-struct RootTwoT end
+struct RootTwoT <: SingleNum
+end
 const RootTwo = RootTwoT()
 
 show(io::IO, ::PRETTY, ::RootTwoT) = print(io, "√𝟚")
@@ -106,7 +119,8 @@ RootTwo
 ### InvRootTwo
 ###
 
-struct InvRootTwoT end
+struct InvRootTwoT <: SingleNum
+end
 const InvRootTwo = InvRootTwoT()
 show(io::IO, ::PRETTY, ::InvRootTwoT) = print(io, "√𝟚⁻¹")
 sqrt(::InvTwoT) = InvRoot2
@@ -124,7 +138,8 @@ InvRootTwo
 ### Imag
 ###
 
-struct ImagT end
+struct ImagT <: SingleNum
+end
 const Imag = ImagT()
 const 𝕚 = Imag
 show(io::IO, ::PRETTY, ::ImagT) = print(io, "𝕚")
@@ -143,7 +158,9 @@ Imag
 ### RootImag
 ###
 
-struct RootImagT end
+struct RootImagT <: SingleNum
+end
+
 const RootImag = RootImagT()
 show(io::IO, ::PRETTY, ::RootImagT) = print(io, "√𝕚")
 sqrt(::ImagT) = RootImag
@@ -155,6 +172,88 @@ Represents the principal square root of the imaginary unit: √𝕚
 This is also the principal eight root of one.
 """
 RootImag
+
+"""
+    canconvert(::Type{T}, ::Type{V})::Bool
+    canconvert(obj::T, ::Type{V})::Bool
+
+Returns `true` if we can convert `obj::T` with the call `V(obj)`.
+
+The result should be an object of type `<: V`.
+"""
+function canconvert end
+
+# If called on an object, call again, on type of object
+canconvert(obj::SingleNum, ::Type{V}) where {V} = canconvert(typeof(obj), V)
+
+# Ugh. Minor problem. Can't specify that a type must be abstract or not abstract :(
+# If ST can be converted to some Rational type, it can be converted to some AbstractFloat type.
+# That is: If I can convert with `Rational(obj)`, then I can convert with `AbstractFloat(obj)`.
+# function canconvert(::Type{ST}, ::Type{AbstractFloat}) where {ST<:SingleNum}
+#     canconvert(ST, Rational)
+# end
+
+function canconvert(::Type{ST}, ::Type{T}) where {ST<:SingleNum, T <: AbstractFloat}
+    canconvert(ST, Rational{Int})
+end
+
+# Almost no type can be converted to `Bool`. Maybe special case `One` and `Zero`.
+function canconvert(::Type{ST}, ::Type{T}) where {ST<:SingleNum, T<:Bool}
+    false
+end
+
+# If I can convert to `T<:Real`, then I can convert to `Complex{T}`
+# i.e. If `Real(obj)` works, then `Complex(obj)` works.
+# If the method is missing, this is a violation of the (informal) interface.
+function canconvert(::Type{ST}, ::Type{Complex{T}}) where {ST<:SingleNum, T <: Real}
+    canconvert(ST, T)
+end
+
+# If I can convert to `T<:Integer`, then I can convert to `Rational{T}`
+# If `Integer(obj)` works, then `Rational(obj)` must.
+function canconvert(::Type{ST}, ::Type{Rational{T}}) where {ST<:SingleNum, T<:Integer}
+    canconvert(ST, T)
+end
+
+# If I can convert with `Integer(obj)`, then I can convert with `Rational(obj)`.
+function canconvert(::Type{ST}, ::Type{Rational}) where {ST<:SingleNum}
+    canconvert(ST, Integer)
+end
+
+# If `AbstractFloat(obj)` works, then `Complex(obj)` must.
+function canconvert(::Type{ST}, ::Type{Complex}) where {ST<:SingleNum}
+    canconvert(ST, AbstractFloat)
+end
+
+canconvert(::Type{TwoT}, ::Type{T}) where {T <: Integer} = true
+
+for ST in (:RootTwoT, :InvRootTwoT)
+    @eval canconvert(::Type{$ST}, ::Type{T}) where {T <: Integer} = false
+    @eval canconvert(::Type{$ST}, ::Type{T}) where {T <: AbstractFloat} = true
+#    @eval canconvert(::Type{$ST}, ::Type{AbstractFloat}) = true
+end
+
+###
+### InvTwo
+###
+
+canconvert(::Type{InvTwoT}, ::Type{T}) where {T <: Integer} = false
+canconvert(::Type{InvTwoT}, ::Type{Rational}) = true
+
+function canconvert(::Type{InvTwoT}, ::Type{Rational{T}}) where {T<:Integer}
+    canconvert(Two, T)
+end
+
+canconvert(::Type{InvTwoT}, ::Type{T}) where {T <: Rational{Bool}} = false
+
+
+canconvert(::Type{ImagT}, ::Type{T}) where {T <: Real} = false
+canconvert(::Type{ImagT}, ::Type{T}) where {T <: Complex} = true
+
+# canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Real} = false
+# canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Complex{<:Integer}} = false
+# canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Complex{<:Rational}} = false
+# canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Complex{<:AbstractFloat}} = true
 
 ###
 ### Maybe most of the stuff below is not necessary.
@@ -232,4 +331,4 @@ Base.:*(x::T, ::OneT) where {T} = x * one(T)
 Base.:*(::InvRootTwoT, x::T) where {T} = sqrt(float(T)(1//2)) * x
 Base.:*(x::T, ::InvRootTwoT) where {T} = InvRootTwo * x
 
-end # module Singleons
+end # module Singletons

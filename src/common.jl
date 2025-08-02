@@ -1,5 +1,11 @@
 module Common
 
+# TODO: cleanup, prolly remove, root_two, etc. in favor of T(singleton)
+# Design using `root_two` agrees Julia Base use of zero() and one().
+# But, I think using T(singleton) is more robust and flexible.
+# It allows defining method for, say :*(::SingletonType, obj)
+# The conversions are decide on in the :* method, where they belong.
+
 """
     canonical(x)
 
