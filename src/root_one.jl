@@ -222,8 +222,16 @@ Base.inv(r::RootOne{N}) where {N} = RootOne{N}(N - r.k)
 
 Base.literal_pow(::typeof(Base.:^), r::RootOne{N}, ::Val{n}) where {n, N} = RootOne{N}(r.k * mod(n, N))
 
-function Base.:-(r::RootOne{N}) where {N}
-    iseven(N) || throw(ArgumentError(lazy"InexactError unary minus of type RootOne{$N}"))
+# Have to be careful with call syntax
+# Use this:
+# Base.:-(RootOne{7}(3); maybe=true)
+# Not this:
+# -(RootOne{7}(3); maybe=true)
+function Base.:-(r::RootOne{N}; maybe=false) where {N}
+    if isodd(N)
+        maybe && return nothing
+        throw(ArgumentError(lazy"InexactError unary minus of type RootOne{$N}"))
+    end
     RootOne{N}(r.k + (N >> 1))
 end
 

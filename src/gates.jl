@@ -4,6 +4,10 @@ using ..Matrices: Matrix2x2
 using ..Common: canonical
 using ..CyclotomicRings: Domega
 using ..Singletons: One, Imag, RootImag, InvRootTwo
+using ..Utils: PRETTY
+using BenchmarkTools: @belapsed
+
+export benchmark_compose
 
 """
     struct Gate1{Name} end
@@ -15,15 +19,25 @@ huge performance hit.
 
 # Examples
 ```jldoctest
-julia> map(n -> Gate1{n}(), (:H, :S, :T, :X, :W))
-(Gate1{:H}(), Gate1{:S}(), Gate1{:T}(), Gate1{:X}(), Gate1{:W}())
+julia> map(name -> Gate1(name), (:H, :S, :T, :X, :W))
+(Gate1(:H), Gate1(:S), Gate1(:T), Gate1(:X), Gate1(:W))
 
-julia> Gate1{:H}() * one(Matrix2x2{Domega{Int}})
+julia> Gate1(:H) * one(Matrix2x2{Domega{Int}})
 2×2 Matrix2x2{Domega{Int64}}:
 1/2 ω + -1/2 ω³  1/2 ω + -1/2 ω³
 1/2 ω + -1/2 ω³  -1/2 ω + 1/2 ω³
 
-julia> Gate1{:T}() * one(Matrix2x2{Domega{Int}})
+julia> Matrix2x2{Domega{Int}}(Gate1(:H))
+2×2 Matrix2x2{Domega{Int64}}:
+1/2 ω + -1/2 ω³  1/2 ω + -1/2 ω³
+1/2 ω + -1/2 ω³  -1/2 ω + 1/2 ω³
+
+julia> Matrix2x2{Float64}(Gate1(:H))
+2×2 Matrix2x2{Float64}:
+0.707107   0.707107
+0.707107  -0.707107
+
+julia> Matrix2x2{Domega{Int}}(Gate1(:T))
 2×2 Matrix2x2{Domega{Int64}}:
  ω⁰   0
  0    ω
@@ -31,8 +45,15 @@ julia> Gate1{:T}() * one(Matrix2x2{Domega{Int}})
 """
 struct Gate1{Name} end
 
+Gate1(name) = Gate1{name}()
+function Base.show(io::IO, ::PRETTY, ::Gate1{Name}) where {Name}
+    print(io, "Gate1($(repr(Name)))")
+end
+Base.show(io::IO, g::Gate1) = show(io, PRETTY(), g)
+
 # Doing this has no effect on performance or resource use.
 # It is only for cleaner looking code.
+# Hmm. now that I use Gate1(:H), is this necessary? or useful?
 const Hgate = Gate1{:H}()
 const Sgate = Gate1{:S}()
 const Tgate = Gate1{:T}()
@@ -145,17 +166,19 @@ function compose_one(gates::AbstractString; reduce_fractions=true, map_func=noth
     return result
 end
 
+# TODO: There are some packages that do this spliting for you.
+# But I don't think general enough.
 @inline function _apply_gate(gate::Symbol, matrix)
     if gate === :H
-        Hgate * matrix
+        Gate1(:H) * matrix
     elseif gate === :S
-        Sgate * matrix
+        Gate1(:S) * matrix
     elseif gate === :T
-        Tgate * matrix
+        Gate1(:T) * matrix
     elseif gate === :X
-        Xgate * matrix
+        Gate1(:X) * matrix
     elseif gate === :W
-        Wgate * matrix
+        Gate1(:W) * matrix
     else
         nothing
     end
@@ -241,6 +264,18 @@ end
 # This mistake is very easy to make, causes bugs.
 function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
     throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
+end
+
+"""
+    benchmark_compose(gate_str)
+
+Measure and return the execution time per gate in ns of `compose(gate_str)`.
+
+Timing is done via `@belapsed`.
+"""
+function benchmark_compose(gate_str)
+    t = @belapsed compose($gate_str)
+    return 10^9 * t / length(gate_str)
 end
 
 end # module Gates
