@@ -243,5 +243,4 @@ function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
     throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
 end
 
-
 end # module Gates

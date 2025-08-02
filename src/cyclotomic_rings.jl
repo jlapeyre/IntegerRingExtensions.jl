@@ -220,6 +220,8 @@ function sqrt_imaginary(::Type{CyclotomicRing{4, T}}) where {T}
     CyclotomicRing(z, o, z, z)
 end
 
+(t::Type{CyclotomicRing{4, T}})(::Type{RootImagT}) where {T} = sqrt_imaginary(t)
+
 """
     one_over_root_two(::Type{Domega{T}}) where {T}
 
@@ -486,7 +488,6 @@ function Base.one(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT}
 end
 
 Base.one(c::CyclotomicRing) = one(typeof(c))
-
 Base.zero(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT} = CyclotomicRing(ntuple(x -> zero(CoeffT), D)...,)
 Base.zero(cr::CyclotomicRing) = zero(typeof(cr))
 

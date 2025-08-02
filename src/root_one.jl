@@ -137,13 +137,6 @@ function show(io::IO, ::MIME"text/plain", r::RootOne{N}) where {N}
     isone(r.k) || print(io, superscript(r.k))
 end
 
-convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N} = Complex{T}(r)
-
-function Complex{T}(r::RootOne{N}) where {T, N}
-    kT = convert(T, r.k)
-    cispi(2 * kT / N)
-end
-
 """
     RootOne(k, N)
 
@@ -157,16 +150,50 @@ function Base.:(==)(r1::RootOne{N1}, r2::RootOne{N2}) where {N1,N2}
     r1.k // N1 == r2.k // N2
 end
 
-Base.float(r::RootOne) = complex(r)
-Base.complex(r::RootOne) = convert(ComplexF64, r)
-Base.big(r::RootOne) = convert(Complex{BigFloat}, r)
-# TODO: angle should agree with floating point angle: in [-pi, pi] rather than [0, 2pi]
+(::Type{T})(r::RootOne{1}) where {T <: Number} = one(T)
+(::Type{T})(r::RootOne{1}) where {T <: Complex} = one(T)
 
-function Base.angle(r::RootOne{N}) where {N}
-    k = r.k <= N/2 ? r.k : r.k - N
-    2 * pi * k / N
+function (::Type{T})(r::RootOne{M}) where {M, T <: Real}
+    iszero(r.k) && return one(T)
+    (iseven(M) && div(M, r.k) == 2) || throw(ArgumentError(lazy"InexactError converting RootOne{$M}($r) to $T"))
+    return -one(T)
 end
 
+"""
+    Complex{T}(r::RootOne{M}; maybe=false) where {M, T <: Integer}
+
+Return `r` as a `Complex{T<:Integer}`.
+
+If no such conversion exists either throw an `ArgumentError`, if `maybe` is `false`,
+or return `nothing`, if `maybe` is `true`.
+"""
+function (::Type{Complex{T}})(r::RootOne{M}; maybe::Bool=false) where {M, T <: Integer}
+    CT = Complex{T}
+    iszero(r.k) && return one(CT)
+    (n, chk) = divrem(r.k << 2, M)
+    if !iszero(chk)
+        maybe && return nothing
+        throw(ArgumentError(lazy"InexactError converting RootOne{$M}($r) to $T"))
+    end
+    (z, o) = (zero(T), one(T))
+    n == 1 && return CT(z, o)
+    n == 2 && return CT(-o, z)
+    return CT(z, -o)
+end
+
+Base.float(r::RootOne) = complex(r)
+Base.complex(r::RootOne) = Complex(r)
+Base.big(r::RootOne) = Complex{BigFloat}(r)
+convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N} = Complex{T}(r)
+
+function Complex{T}(r::RootOne{N}) where {T, N}
+    kT = convert(T, r.k)
+    cispi(2 * kT / N)
+end
+
+Base.Complex(r::RootOne) = Complex{Float64}(r)
+
+Base.angle(r::RootOne) = angle(Float64, r)
 function Base.angle(::Type{T}, r::RootOne{N}) where {N, T}
     k = r.k <= N/2 ? r.k : r.k - N
     2 * T(pi) * T(k) / T(N)
@@ -186,8 +213,10 @@ Base.isreal(r::RootOne{N}) where {N} = r.k == 0 || div(N, r.k) == 2
 Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
 Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)
 
-Base.:^(r::RootOne{N}, n::Integer) where {N} = RootOne{N}(r.k * n)
+Base.:^(r::RootOne{N}, n::Integer) where {N} = RootOne{N}(r.k * mod(n, N))
 Base.inv(r::RootOne{N}) where {N} = RootOne{N}(N - r.k)
+
+Base.literal_pow(::typeof(Base.:^), r::RootOne{N}, ::Val{n}) where {n, N} = RootOne{N}(r.k * mod(n, N))
 
 function Base.:-(r::RootOne{N}) where {N}
     iseven(N) || throw(ArgumentError(lazy"InexactError unary minus of type RootOne{$N}"))
