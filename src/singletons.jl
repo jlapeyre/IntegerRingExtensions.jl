@@ -223,10 +223,13 @@ end
 
 Base.:*(x, ::RootImagT) = RootImag * x
 
-Base.:*(::ImagT, x::T) where {T} = T(im) * x
+Base.:*(::ImagT, x::T) where {T} = complex(T)(im) * x
 Base.:*(x, ::ImagT) = Imag * x
 
 Base.:*(::OneT, x::T) where {T} = one(T) * x
 Base.:*(x::T, ::OneT) where {T} = x * one(T)
+
+Base.:*(::InvRootTwoT, x::T) where {T} = sqrt(float(T)(1//2)) * x
+Base.:*(x::T, ::InvRootTwoT) where {T} = InvRootTwo * x
 
 end # module Singleons

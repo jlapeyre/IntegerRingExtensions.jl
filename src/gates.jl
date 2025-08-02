@@ -5,7 +5,7 @@ using ..Matrices: Matrix2x2
 using ..Common: imaginary, sqrt_imaginary, one_over_root_two, canonical
 using ..CyclotomicRings: Domega
 using ..QuadraticRings: Droot2
-using ..Singletons: RootImag, One
+using ..Singletons: One, Imag, RootImag, InvRootTwo
 
 # using Nemo: ZZ, ZZRingElem
 
@@ -245,12 +245,20 @@ function Base.:*(m::Matrix2x2, ::Gate1{:X})
     Matrix2x2(c * v, d * v, a * v, b * v)
 end
 
-# b k   d k
-# a k   c k
+function Base.:*(::Gate1{:S}, m::Matrix2x2)
+    (a,b,c,d) = m.data
+    Matrix2x2(a, Imag * b, c, Imag * d)
+end
 
-# c k   a k
-# d k   b k
+function Base.:*(::Gate1{:H}, m::Matrix2x2)
+    (a,b,c,d) = m.data
+    s = InvRootTwo
+    Matrix2x2(s*(a + b), s*(a-b), s*(c+d), s*(c-d))
+end
 
-
+function Base.:*(::Gate1{:T}, m::Matrix2x2)
+    (a,b,c,d) = m.data
+    Matrix2x2(a, RootImag * b, c, RootImag * d)
+end
 
 end # module Gates
