@@ -1,113 +1,14 @@
 module Gates
 
-# Better to use relative path. If I could find out how
 using ..Matrices: Matrix2x2
-using ..Common: imaginary, sqrt_imaginary, one_over_root_two, canonical
+using ..Common: canonical
 using ..CyclotomicRings: Domega
-using ..QuadraticRings: Droot2
 using ..Singletons: One, Imag, RootImag, InvRootTwo
-
-# using Nemo: ZZ, ZZRingElem
-
-function Igate(::Type{T}) where T
-    o = one(T)
-    z = zero(T)
-    Matrix2x2(o, z, z, o)
-end
-
-function Xgate(::Type{T}) where T
-    o = one(T)
-    z = zero(T)
-    Matrix2x2(z, o, o, z)
-end
-
-function Ygate(::Type{T}) where T
-    z = zero(T)
-    img = imaginary(T)
-    Matrix2x2(z, img, -img, z)
-end
-
-function Zgate(::Type{T}) where T
-    o = one(T)
-    z = zero(T)
-    Matrix2x2(o, z, z, -o)
-end
-
-function Sgate(::Type{T}) where T
-    o = one(T)
-    z = zero(T)
-    img = imaginary(T)
-    Matrix2x2(o, z, z, img)
-end
-
-function Tgate(::Type{T}) where T
-    o = one(T)
-    z = zero(T)
-    sqrt_img = sqrt_imaginary(T)
-    Matrix2x2(o, z, z, sqrt_img)
-end
-
-function Hgate(::Type{T}) where T
-    inv_half = one_over_root_two(T)
-    Matrix2x2(inv_half, inv_half, inv_half, -inv_half)
-end
-
-
-function Wgate(::Type{T}) where T
-    z = zero(T)
-    sqrt_img = sqrt_imaginary(T)
-    Matrix2x2(sqrt_img, z, z, sqrt_img)
-end
-
-function gate_map(::Type{T}) where T
-   return Dict(
-       :H => Hgate(T),
-       :S => Sgate(T),
-       :Z => Zgate(T),
-       :X => Xgate(T),
-       :T => Tgate(T),
-       :I => Igate(T),
-       :W => Wgate(T)
-    )
-end
-
-const GATE_MAP_INT = gate_map(Domega{Int})
-const GATE_MAP_BIG_INT = gate_map(Domega{BigInt})
-const GATE_MAP_INT128 = gate_map(Domega{Int128})
-const GATE_MAP_BIG_FLOAT = gate_map(BigFloat)
-
-# In principle, we gain efficiency by using a minimal representation of each gate,
-# and defining multiplication of the simpler numeric types with Domega{Int}, which
-# is the most complex.
-# However, doing it like this causes dynamic dispatch, because gates are pulled from
-# an untyped container (they must be). This wipes out any performance gain.
-# If we want to use simpler types for efficiency, branching needs to happen by
-# with if-else, and not the type-dispatch system.
-# const GATE_MAP_GOOD_NOT_REALLY = Dict(
-# #    :H => Hgate(Droot2{Int, Int}),  # Need to support multiplication for this
-#     :H => Hgate(Domega{Int}),
-#     :S => Sgate(Int),
-#     :X => Xgate(Int),
-#     :T => Tgate(Domega{Int}),
-#     :I => Igate(Domega{Int}), # Because this is output type
-#     :W => Wgate(Domega{Int}),
-# )
-
-# Careful this may segfault when using precompiled because it
-# calls a dynamically linked C library.
-# In any case, it is commented out because we are not using it at the moment.
-# const GATE_MAP_ZZ = gate_map(Domega{ZZRingElem})
 
 """
     compose(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
 
 Compute composition of the gates in `gates`.
-
-`gmap` is a map from `Symbol`s to matrices. If `reduce_fractions` is `true`
-then reduce fractions in `DyadicFraction`s after each matrix multiplication.
-
-`reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
-of longer compositions with smaller data types.
 
 # Examples
 ```jldoctest
@@ -118,16 +19,15 @@ julia> compose("TSHTHTHTHT")
 ```
 """
 function compose(gates_in::AbstractString)
-#function compose(gates_in::AbstractString; reduce_fractions=true)
     chunklen = 300
-#    reduce_func = reduce_fractions ? canonical : identity
+    length(codeunits(gates_in)) <= chunklen && return compose_one(gates_in)
     chunks = reverse(chunkstring(reverse(gates_in), chunklen))
-    mats = [map(Domega{BigInt}, compose_one(chunk, GATE_MAP_INT)) for chunk in chunks]
+    mats = [map(Domega{BigInt}, compose_one(chunk)) for chunk in chunks]
     canonical(prod(mats))
 end
 
 """
-    chunkstring(s, chunklen=5)
+    chunkstring(s, chunklen::Integer)
 
 Return an array of chunks of string `s`, each of length `chunklen`,
 except the last one, which may be shorter. Satisfies
@@ -135,7 +35,7 @@ except the last one, which may be shorter. Satisfies
 join(chunkstring(s)) == s
 ```
 """
-function chunkstring(s, chunklen=5)
+function chunkstring(s, chunklen::Integer)
     strs = String[]
     i = 1
     while true
@@ -168,11 +68,11 @@ then reduce fractions in `DyadicFraction`s after each matrix multiplication.
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
 of longer compositions with smaller data types.
 """
-function compose_one(gates::AbstractString, gmap=GATE_MAP_INT; reduce_fractions=true)
-    result = Matrix2x2{Domega{Int}}(gmap[:I])
+function compose_one(gates::AbstractString; reduce_fractions=true, map_func=nothing)
+    result = one(Matrix2x2{Domega{Int}})
     reduce_func = reduce_fractions ? canonical : identity
-    for gate in gates
-        sgate = Symbol(gate)
+    for gate in codeunits(gates)
+        sgate = Symbol(Char(gate))
         if sgate === :H
             result = reduce_func(Gate1{:H}() * result)
         elseif sgate === :S
@@ -183,24 +83,12 @@ function compose_one(gates::AbstractString, gmap=GATE_MAP_INT; reduce_fractions=
             result = reduce_func(Gate1{:X}() * result)
         elseif sgate === :W
             result = reduce_func(Gate1{:W}() * result)
-        else
-            error("bad")
+        # else
+        #     result = reduce_func(gmap[sgate] * result)
         end
-#       result = reduce_func(Gate1{sgate}() * result)
-#        result = reduce_func(gmap[sgate] * result)
     end
     return result
 end
-
-function oldcompose_one(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
-    result = gmap[:I]
-    reduce_func = reduce_fractions ? canonical : identity
-    for gate in gates
-        result = reduce_func(gmap[Symbol(gate)] * result)
-    end
-    return result
-end
-
 
 """
     RZ(theta)
@@ -240,20 +128,30 @@ function count_gates(gates::AbstractString)
 end
 
 """
-    Gate1{Name}
+    struct Gate1{Name} end
 
 Represents a one-qubit gate with name `Name`
 
-If you care at all about performance, do not take these from an untyped container and dispatch on them.
+Be careful using these. It is not hard to end up with run-time dispatch, and a concomitant
+huge performance hit.
 
 # Examples
 ```jldoctest
 julia> map(n -> Gate1{n}(), (:H, :S, :T, :X, :W))
 (Gate1{:H}(), Gate1{:S}(), Gate1{:T}(), Gate1{:X}(), Gate1{:W}())
+
+julia> Gate1{:H}() * one(Matrix2x2{Domega{Int}})
+2×2 Matrix2x2{Domega{Int64}}:
+1/2 ω + -1/2 ω³  1/2 ω + -1/2 ω³
+1/2 ω + -1/2 ω³  -1/2 ω + 1/2 ω³
+
+julia> Gate1{:T}() * one(Matrix2x2{Domega{Int}})
+2×2 Matrix2x2{Domega{Int64}}:
+ ω⁰   0
+ 0    ω
 ```
 """
-struct Gate1{Name}
-end
+struct Gate1{Name} end
 
 Base.:*(::Gate1{:W}, m::Matrix2x2) =  map(x-> RootImag * x, m)
 Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1{:W}() * m
@@ -289,5 +187,14 @@ function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
     throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
 end
 
+"""
+    Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name}
+
+Instantiate a `Matrix2x2{T}` representing thate gate `Name`.
+
+If a method for multiplying `Gate1{Name}()` by a `Matrix2x2` is note defined,
+a `MethodError` will be thrown.
+"""
+Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name} = Gate1{Name}() * one(Matrix2x2{T})
 
 end # module Gates

@@ -6,23 +6,26 @@ import ..Utils: PRETTY, cpad
 """
     Matrix2x2{T} <: AbstractMatrix{T}
 
-Stack allocated, immutable 2 x 2 matrix.
+Stack allocated, immutable, 2 x 2 matrix.
 
 If `T` is `isbits`, then `Matrix2x2{T}` is `isbits`.
 
-We implement a few necessary operations: matrix multiplication,
-addition, subtraction, unary minus. Most other things will be computed via
-fallback methods, which may be inefficient. For example eigenvalues. We could implement
-these if necessary.
+We implement a few necessary operations, including matrix multiplication,
+addition, subtraction, and unary minus. Some other things will be computed via
+fallback methods, which may be inefficient.
 """
 struct Matrix2x2{T} <: AbstractMatrix{T}
     data::NTuple{4, T}
 end
 
-# Hmmm. Depends on whether type T is copyable
-# In any case, a Tuple is not.
-# Base.copy(m::Matrix2x2) = Matrix2x2(copy(m.data))
+"""
+    Matrix2x2(a, b, c, d)
 
+Return a `Matrix2x2` with the given elements.
+
+`Matrix2x2` is column major, as is the type `Matrix`. The columns are
+`[a, b]` and `[c, d]`.
+"""
 Matrix2x2(a, b, c, d) = Matrix2x2(promote(a, b, c, d))
 Matrix2x2{T}(a, b, c, d) where {T} = Matrix2x2(T(a), T(b), T(c), T(d))
 
