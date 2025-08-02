@@ -35,6 +35,7 @@ include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, get_theta
 
 include("gates.jl")
-Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1
+Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1,
+    Xgate, Ygate, Zgate, Hgate, Sgate, Tgate, Wgate
 
 end # module IntegerExtensions

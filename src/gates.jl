@@ -36,8 +36,22 @@ struct Gate1{Name} end
 const Hgate = Gate1{:H}()
 const Sgate = Gate1{:S}()
 const Tgate = Gate1{:T}()
-const Xgate = Gate1{:X}()
 const Wgate = Gate1{:W}()
+const Xgate = Gate1{:X}()
+const Ygate = Gate1{:Y}()
+const Zgate = Gate1{:Z}()
+
+"""
+    Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name}
+    Matrix2x2{T}(::Gate1{Name}) where {T, Name}
+
+Instantiate a `Matrix2x2{T}` representing thate gate `Name`.
+
+If a method for multiplying `Gate1{Name}()` by a `Matrix2x2` is note defined,
+a `MethodError` will be thrown.
+"""
+Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name} = Gate1{Name}() * one(Matrix2x2{T})
+Matrix2x2{T}(g::Gate1{Name}) where {T, Name} = Matrix2x2{T}(typeof(g))
 
 """
     compose(gates::AbstractString; chunklen=300)
@@ -100,7 +114,7 @@ Compute composition of the gates in `gates`. The composition will be from
 *right to left*. In particular, you need to reverse the output string from
 `gridsynth` before calling `compose`.
 
-`gmap` is a map from `Symbol`s to matrices. If `reduce_fractions` is `true`
+`map_func` is a map from `Symbol`s to matrices. If `reduce_fractions` is `true`
 then reduce fractions in `DyadicFraction`s after each matrix multiplication.
 
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
@@ -150,8 +164,8 @@ end
 """
     RZ(theta)
 
-This is the Z rotation matrix that is synthesized by `gridsynth` as
-well as algorithms in other papers.
+This is the Z rotation matrix that is synthesized by `gridsynth`
+ as well as algorithms in other papers.
 """
 function RZ(theta)
     z = zero(theta)
@@ -192,6 +206,16 @@ function Base.:*(::Gate1{:X}, m::Matrix2x2)
     Matrix2x2(b, a, d, c)
 end
 
+function Base.:*(::Gate1{:Y}, m::Matrix2x2)
+    (a,b,c,d) = m.data
+    Matrix2x2(b, Imag * a, -(Imag * d), c)
+end
+
+function Base.:*(::Gate1{:Z}, m::Matrix2x2)
+    (a,b,c,d) = m.data
+    Matrix2x2(a, -b, c, -d)
+end
+
 function Base.:*(m::Matrix2x2, ::Gate1{:X})
     (a,b,c,d) = m.data
     Matrix2x2(c, d, a, b)
@@ -201,6 +225,7 @@ function Base.:*(::Gate1{:S}, m::Matrix2x2)
     (a,b,c,d) = m.data
     Matrix2x2(a, Imag * b, c, Imag * d)
 end
+
 
 function Base.:*(::Gate1{:H}, m::Matrix2x2)
     (a,b,c,d) = m.data
@@ -218,14 +243,5 @@ function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
     throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
 end
 
-"""
-    Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name}
-
-Instantiate a `Matrix2x2{T}` representing thate gate `Name`.
-
-If a method for multiplying `Gate1{Name}()` by a `Matrix2x2` is note defined,
-a `MethodError` will be thrown.
-"""
-Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name} = Gate1{Name}() * one(Matrix2x2{T})
 
 end # module Gates
