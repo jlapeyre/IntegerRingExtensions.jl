@@ -6,20 +6,58 @@ using ..CyclotomicRings: Domega
 using ..Singletons: One, Imag, RootImag, InvRootTwo
 
 """
-    compose(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
+    struct Gate1{Name} end
 
-Compute composition of the gates in `gates`.
+Represents a one-qubit gate with name `Name`
+
+Be careful using these. It is not hard to end up with run-time dispatch, and a concomitant
+huge performance hit.
 
 # Examples
 ```jldoctest
+julia> map(n -> Gate1{n}(), (:H, :S, :T, :X, :W))
+(Gate1{:H}(), Gate1{:S}(), Gate1{:T}(), Gate1{:X}(), Gate1{:W}())
+
+julia> Gate1{:H}() * one(Matrix2x2{Domega{Int}})
+2×2 Matrix2x2{Domega{Int64}}:
+1/2 ω + -1/2 ω³  1/2 ω + -1/2 ω³
+1/2 ω + -1/2 ω³  -1/2 ω + 1/2 ω³
+
+julia> Gate1{:T}() * one(Matrix2x2{Domega{Int}})
+2×2 Matrix2x2{Domega{Int64}}:
+ ω⁰   0
+ 0    ω
+```
+"""
+struct Gate1{Name} end
+
+# Doing this has no effect on performance or resource use.
+# It is only for cleaner looking code.
+const Hgate = Gate1{:H}()
+const Sgate = Gate1{:S}()
+const Tgate = Gate1{:T}()
+const Xgate = Gate1{:X}()
+const Wgate = Gate1{:W}()
+
+"""
+    compose(gates::AbstractString; chunklen=300)
+
+Compute composition of the gates in `gates`.
+
+Runs of gates of length `chunklen` are computed using `Int64` as the primitive type.
+The results are then composed with primitive type `BigInt`.
+
+This function is not type-stable. If the length of `gates` is less than or equal to
+`chunklen`, then no conversion to `BigInt` takes place.
+# Examples
+```jldoctest
 julia> compose("TSHTHTHTHT")
-2×2 Matrix2x2{Domega{BigInt}}:
+2×2 Matrix2x2{Domega{Int}}:
 1/2² ω³ + -1/2² ω² + 3/2² ω + 1/2² ω⁰   -1/2² ω³ + 1/2² ω² + 1/2² ω + 1/2² ω⁰
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
 """
-function compose(gates_in::AbstractString)
-    chunklen = 300
+function compose(gates_in::AbstractString; chunklen=300)
     length(codeunits(gates_in)) <= chunklen && return compose_one(gates_in)
     chunks = reverse(chunkstring(reverse(gates_in), chunklen))
     mats = [map(Domega{BigInt}, compose_one(chunk)) for chunk in chunks]
@@ -71,23 +109,42 @@ of longer compositions with smaller data types.
 function compose_one(gates::AbstractString; reduce_fractions=true, map_func=nothing)
     result = one(Matrix2x2{Domega{Int}})
     reduce_func = reduce_fractions ? canonical : identity
-    for gate in codeunits(gates)
-        sgate = Symbol(Char(gate))
-        if sgate === :H
-            result = reduce_func(Gate1{:H}() * result)
-        elseif sgate === :S
-            result = reduce_func(Gate1{:S}() * result)
-        elseif sgate === :T
-            result = reduce_func(Gate1{:T}() * result)
-        elseif sgate === :X
-            result = reduce_func(Gate1{:X}() * result)
-        elseif sgate === :W
-            result = reduce_func(Gate1{:W}() * result)
-        # else
-        #     result = reduce_func(gmap[sgate] * result)
+    if isnothing(map_func)
+        for gate in codeunits(gates)
+            sgate = Symbol(Char(gate))
+            new_result = _apply_gate(sgate, result)
+            if isnothing(new_result)
+                error("unknown gate")
+            end
+            result = reduce_func(new_result)
+        end
+    else
+        for gate in codeunits(gates)
+            sgate = Symbol(Char(gate))
+            new_result = _apply_gate(sgate, result)
+            if isnothing(new_result)
+                new_result = map_func(sgate) * result
+            end
+            result = reduce_func(new_result)
         end
     end
     return result
+end
+
+@inline function _apply_gate(gate::Symbol, matrix)
+    if gate === :H
+        Hgate * matrix
+    elseif gate === :S
+        Sgate * matrix
+    elseif gate === :T
+        Tgate * matrix
+    elseif gate === :X
+        Xgate * matrix
+    elseif gate === :W
+        Wgate * matrix
+    else
+        nothing
+    end
 end
 
 """
@@ -126,32 +183,6 @@ function count_gates(gates::AbstractString)
     end
     return counts
 end
-
-"""
-    struct Gate1{Name} end
-
-Represents a one-qubit gate with name `Name`
-
-Be careful using these. It is not hard to end up with run-time dispatch, and a concomitant
-huge performance hit.
-
-# Examples
-```jldoctest
-julia> map(n -> Gate1{n}(), (:H, :S, :T, :X, :W))
-(Gate1{:H}(), Gate1{:S}(), Gate1{:T}(), Gate1{:X}(), Gate1{:W}())
-
-julia> Gate1{:H}() * one(Matrix2x2{Domega{Int}})
-2×2 Matrix2x2{Domega{Int64}}:
-1/2 ω + -1/2 ω³  1/2 ω + -1/2 ω³
-1/2 ω + -1/2 ω³  -1/2 ω + 1/2 ω³
-
-julia> Gate1{:T}() * one(Matrix2x2{Domega{Int}})
-2×2 Matrix2x2{Domega{Int64}}:
- ω⁰   0
- 0    ω
-```
-"""
-struct Gate1{Name} end
 
 Base.:*(::Gate1{:W}, m::Matrix2x2) =  map(x-> RootImag * x, m)
 Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1{:W}() * m
