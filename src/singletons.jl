@@ -216,4 +216,17 @@ for (Ta, Tb) in _make_type_pairs()
     end
 end
 
+function Base.:*(::RootImagT, x::T) where {T}
+    T2 = complex(T)
+    (T2(im) + one(T2))/sqrt(T2(2)) * x
+end
+
+Base.:*(x, ::RootImagT) = RootImag * x
+
+Base.:*(::ImagT, x::T) where {T} = T(im) * x
+Base.:*(x, ::ImagT) = Imag * x
+
+Base.:*(::OneT, x::T) where {T} = one(T) * x
+Base.:*(x::T, ::OneT) where {T} = x * one(T)
+
 end # module Singleons

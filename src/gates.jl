@@ -5,6 +5,7 @@ using ..Matrices: Matrix2x2
 using ..Common: imaginary, sqrt_imaginary, one_over_root_two, canonical
 using ..CyclotomicRings: Domega
 using ..QuadraticRings: Droot2
+using ..Singletons: RootImag, One
 
 # using Nemo: ZZ, ZZRingElem
 
@@ -212,5 +213,44 @@ function count_gates(gates::AbstractString)
     end
     return counts
 end
+
+"""
+    Gate1{Name}
+
+Represents a one-qubit gate with name `Name`
+
+If you care at all about performance, do not take these from an untyped container and dispatch on them.
+
+# Examples
+```jldoctest
+julia> map(n -> Gate1{n}(), (:H, :S, :T, :X, :W))
+(Gate1{:H}(), Gate1{:S}(), Gate1{:T}(), Gate1{:X}(), Gate1{:W}())
+```
+"""
+struct Gate1{Name}
+end
+
+Base.:*(::Gate1{:W}, m::Matrix2x2) =  map(x-> RootImag * x, m)
+Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1{:W}() * m
+
+function Base.:*(::Gate1{:X}, m::Matrix2x2)
+    (a,b,c,d) = m.data
+    v = One
+    Matrix2x2(b * v, a * v, d * v, c * v)
+end
+
+function Base.:*(m::Matrix2x2, ::Gate1{:X})
+    (a,b,c,d) = m.data
+    v = One
+    Matrix2x2(c * v, d * v, a * v, b * v)
+end
+
+# b k   d k
+# a k   c k
+
+# c k   a k
+# d k   b k
+
+
 
 end # module Gates

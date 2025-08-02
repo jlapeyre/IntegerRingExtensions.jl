@@ -23,12 +23,16 @@ end
 # In any case, a Tuple is not.
 # Base.copy(m::Matrix2x2) = Matrix2x2(copy(m.data))
 
-# Make args all of same type
 Matrix2x2(a, b, c, d) = Matrix2x2(promote(a, b, c, d))
+Matrix2x2{T}(a, b, c, d) where {T} = Matrix(T(a), T(b), T(c), T(d))
+
 Base.size(::Matrix2x2) = (2, 2)
+Base.eltype(::Type{Matrix2x2{T}}) where T = T
 Base.IndexStyle(::Type{<:Matrix2x2}) = IndexLinear()
 Base.one(::Type{Matrix2x2{T}}) where T = Matrix2x2(one(T), zero(T), zero(T), one(T))
 Base.one(::Matrix2x2{T}) where {T} = one(Matrix2x2{T})
+Base.zero(::Type{Matrix2x2{T}}) where T = Matrix2x2(zero(T), zero(T), zero(T), zero(T))
+Base.zero(::Matrix2x2{T}) where {T} = zero(Matrix2x2{T})
 
 function _showstr(obj)
     b = IOBuffer()
