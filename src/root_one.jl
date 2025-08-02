@@ -153,12 +153,16 @@ end
 (::Type{T})(r::RootOne{1}) where {T <: Number} = one(T)
 (::Type{T})(r::RootOne{1}) where {T <: Complex} = one(T)
 
-function (::Type{T})(r::RootOne{M}) where {M, T <: Real}
+function (::Type{T})(r::RootOne{M}; maybe::Bool=false) where {M, T <: Real}
     iszero(r.k) && return one(T)
-    (iseven(M) && div(M, r.k) == 2) || throw(ArgumentError(lazy"InexactError converting RootOne{$M}($r) to $T"))
+    if !(iseven(M) && div(M, r.k) == 2)
+        maybe && return nothing
+        throw(ArgumentError(lazy"InexactError converting RootOne{$M}($r) to $T"))
+    end
     return -one(T)
 end
 
+# TODO: How can I see this docstring?
 """
     Complex{T}(r::RootOne{M}; maybe=false) where {M, T <: Integer}
 
@@ -187,8 +191,8 @@ Base.big(r::RootOne) = Complex{BigFloat}(r)
 convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N} = Complex{T}(r)
 
 function Complex{T}(r::RootOne{N}) where {T, N}
-    kT = convert(T, r.k)
-    cispi(2 * kT / N)
+#    kT = convert(T, r.k)
+    cispi(2 * T(r.k) / N)
 end
 
 Base.Complex(r::RootOne) = Complex{Float64}(r)
