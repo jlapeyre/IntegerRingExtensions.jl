@@ -14,7 +14,6 @@ import ..Singletons: InvTwo, InvTwoT,
     InvRootTwo, InvRootTwoT,
     Imag, ImagT,
     RootImag, RootImagT
-
 using ILog2
 
 export CyclotomicRing, Zomega, Domega
@@ -158,8 +157,6 @@ function CyclotomicRing{4, T}(x::Number) where {T}
     return CyclotomicRing{4, T}((T(x), z, z, z))
 end
 
-
-
 function Base.conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
     # I think promotion not needed.
@@ -302,6 +299,8 @@ Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(DyadicFraction{T,Int}, a,b
 
 Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
 Zomega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
+Zomega(a::Number) = Zomega{Int}(a)
+Domega(a::Number) = Domega{Int}(a)
 
 function canonical(c::CyclotomicRing)
     CyclotomicRing(map(canonical,  c.coeffs))
@@ -514,8 +513,14 @@ end
     _convert_cyc(c, D, complex)
 end
 
-function Base.Complex{Tc}(c::CyclotomicRing{D}) where {D, Tc}
-    _convert_cyc(c, D, Complex{Tc})
+function Base.Complex{Tc}(cyc::CyclotomicRing{D}) where {D, Tc}
+    _convert_cyc(cyc, D, Complex{Tc})
+end
+
+function (::Type{T})(cyc::CyclotomicRing{D}) where {T<:Real, D}
+    (f, rest...) = coeffs(cyc)
+    all(iszero, rest) || throw(ArgumentError(lazy"Inexact error converting $cyc to $T."))
+    T(f)
 end
 
 # Faster than using any kind of iterative or reduce scheme

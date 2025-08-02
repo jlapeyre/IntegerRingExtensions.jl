@@ -12,8 +12,6 @@ import IntegerExtensions.CyclotomicRings: mul_root_two
     @test isapprox(float(mul_root_two(d)) / float(d), sqrt(2))
     @test isapprox(float(mul_root_two(z)) / float(z), sqrt(2))
 
-    @test_throws MethodError Domega(1,2,3)
-    @test_throws MethodError Zomega(1,2,3)
 end
 
 @testset "cyclotomic other" begin
@@ -43,4 +41,16 @@ end
     z2 = Domega(Int128(1),2,3,DyadicFraction(5,2))
     @test isbits(z2)
     @test isa(z2, CyclotomicRing{4, DyadicFraction{Int128,Int128}})
+end
+
+@testset "CyclotomicRing construction" begin
+    @test Zomega(3) isa Zomega{Int}
+    @test Domega(10) isa Domega{Int}
+    @test Domega{Int32}(10) isa Domega{Int32}
+    # These test both construction and conversion
+    @test Int(Zomega(3)) === 3
+    @test Int(Domega(3)) === 3
+
+    @test_throws MethodError Domega(1,2,3)
+    @test_throws MethodError Zomega(1,2,3)
 end
