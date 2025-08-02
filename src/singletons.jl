@@ -193,6 +193,11 @@ canconvert(obj::SingleNum, ::Type{V}) where {V} = canconvert(typeof(obj), V)
 #     canconvert(ST, Rational)
 # end
 
+###
+### <: SingleNum
+###
+
+
 function canconvert(::Type{ST}, ::Type{T}) where {ST<:SingleNum, T <: AbstractFloat}
     canconvert(ST, Rational{Int})
 end
@@ -225,12 +230,15 @@ function canconvert(::Type{ST}, ::Type{Complex}) where {ST<:SingleNum}
     canconvert(ST, AbstractFloat)
 end
 
+###
+### Two
+###
+
 canconvert(::Type{TwoT}, ::Type{T}) where {T <: Integer} = true
 
 for ST in (:RootTwoT, :InvRootTwoT)
     @eval canconvert(::Type{$ST}, ::Type{T}) where {T <: Integer} = false
     @eval canconvert(::Type{$ST}, ::Type{T}) where {T <: AbstractFloat} = true
-#    @eval canconvert(::Type{$ST}, ::Type{AbstractFloat}) = true
 end
 
 ###
@@ -246,14 +254,30 @@ end
 
 canconvert(::Type{InvTwoT}, ::Type{T}) where {T <: Rational{Bool}} = false
 
+###
+### Imag
+###
 
 canconvert(::Type{ImagT}, ::Type{T}) where {T <: Real} = false
-canconvert(::Type{ImagT}, ::Type{T}) where {T <: Complex} = true
+canconvert(::Type{ImagT}, ::Type{T}) where {T <: Integer} = false
+canconvert(::Type{ImagT}, ::Type{Rational}) = false
+canconvert(::Type{ImagT}, ::Type{Rational{T}}) where {T <: Integer} = false
+canconvert(::Type{ImagT}, ::Type{T}) where {T <: AbstractFloat} = false
+canconvert(::Type{ImagT}, ::Type{Complex{T}}) where {T <: Real} = true
+canconvert(::Type{ImagT}, ::Type{Complex}) = true
 
-# canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Real} = false
-# canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Complex{<:Integer}} = false
-# canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Complex{<:Rational}} = false
-# canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Complex{<:AbstractFloat}} = true
+###
+### RootImag
+###
+
+canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Real} = false
+canconvert(::Type{RootImagT}, ::Type{T}) where {T <: Integer} = false
+canconvert(::Type{RootImagT}, ::Type{Rational}) = false
+canconvert(::Type{RootImagT}, ::Type{Rational{T}}) where {T <: Integer} = false
+canconvert(::Type{RootImagT}, ::Type{T}) where {T <: AbstractFloat} = false
+canconvert(::Type{RootImagT}, ::Type{Complex{T}}) where {T <: Rational} = false
+canconvert(::Type{RootImagT}, ::Type{Complex{T}}) where {T <: Real} = true
+canconvert(::Type{RootImagT}, ::Type{Complex}) = true
 
 ###
 ### Maybe most of the stuff below is not necessary.
