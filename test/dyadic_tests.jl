@@ -17,6 +17,5 @@
     zh = mul_half(z)
     @test float(zh) == float(z) / 2
     cs = params(zh)
-    @test cs == (2, 1)
-    @test params(canonical(zh)) == (1, 0)
+    @test cs == (1, 0)
 end

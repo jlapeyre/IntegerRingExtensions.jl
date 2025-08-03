@@ -4,7 +4,7 @@ import Base: zero, iszero, one, convert, promote_rule, show
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
     PRETTY, lobit
 import ..Common: canonical, mul_half, params, conj_root_two
-import ..Singletons: InvTwo, InvTwoT
+import ..Singletons: InvTwo, InvTwoT, TwoT
 
 ########################
 ####
@@ -63,21 +63,22 @@ Base.adjoint(d::DyadicFraction) = d
 conj_root_two(d::DyadicFraction) = d
 
 Base.:*(::InvTwoT, f::DyadicFraction) = mul_half(f)
+Base.:*(::TwoT, f::DyadicFraction) = mul_half(f, -1)
 
+"""
+    mul_half(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
+
+Divide `f` by `2^n`.
+
+The value returned is in canonical form.
+"""
 function mul_half(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
     n == 0 && return f
-    n < 0 && error("Negative `n` not yet implemented")
-    m = n
-    fa = f.a
-    if iseven(f.a) # TODO: use bit shifts here
-        T2 = T(2)
-        while true
-            fa = div(fa, T2)
-            m = m - 1
-            (m == 0 || isodd(fa)) && break
-        end
+    if n < 0
+        canonical(DyadicFraction((T(1) << -n) * f.a, f.k))
+    else
+        canonical(DyadicFraction(f.a, f.k + V(n)))
     end
-    DyadicFraction(fa, f.k + V(m))
 end
 
 function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
