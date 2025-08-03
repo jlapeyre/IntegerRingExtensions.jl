@@ -24,4 +24,5 @@
     @test x * RootTwo == Droot2(10, DyadicFraction(3,2))
 
     @test x === InvRootTwo * (RootTwo * x)
+    @test x === RootTwo * (InvRootTwo * x)
 end
