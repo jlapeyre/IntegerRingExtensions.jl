@@ -300,44 +300,124 @@ Base.:*(::RootTwoT, ::InvRootTwoT) = 1 # May want to use a different type
 
 Base.:*(::ImagT, ::ImagT) = -1
 
-function _make_type_pairs()
-    _pairs = []
-    for s in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
-        push!(_pairs, (s, s))
-        rs = :(Rational{$s})
-        push!(_pairs, (rs, rs))
-        rs = :(Complex{$s})
-        push!(_pairs, (rs, rs))
-    end
-    for s in (:Float64, :Float32, :Float16)
-        push!(_pairs, (s, s))
-        rs = :(Complex{$s})
-        push!(_pairs, (rs, rs))
-    end
-    for ps in ((:Integer, :Int64), (:Rational, :(Rational{Int})), (:AbstractFloat, :Float64),)
-        push!(_pairs, ps)
-    end
-    _pairs
+function _make_types()
+    intypes = [:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128, :BigInt]
+    floatypes = [:Float32, :Float64, :BigFloat]
+    rattypes = [:(Rational{$t}) for t in intypes]
+    comptypes = [:(Complex{$t}) for t in intypes]
+    comprattypes = [:(Complex{Rational{$t}}) for t in intypes]
+
+    alltypes = [intypes..., floatypes..., rattypes..., comptypes..., comprattypes...]
+    return alltypes
 end
 
-for (Ta, Tb) in _make_type_pairs()
-    for (V, val) = ((:TwoT, 2), (:InvTwoT, 1//2), (:ImagT, im))
+import Base: Int8, Int16, Int32, Int64, Int128, UInt8, UInt16, UInt32, UInt64, UInt128, BigInt
+import Base: Float32, Float64, BigFloat
 
-        tT = @eval $Ta
-        if V in (:InvTwoT,) && (tT <: Integer || tT <: Complex{<:Integer})
-            continue
+# const ALLTYPES = _make_types()
+# @show ALLTYPES
+import Base: sqrt, AbstractFloat, Complex, Rational, Real, Integer, big
+
+for (ST, litST, func) in ((:TwoT, 2, :identity), (:InvTwoT, 1//2, :identity), (:RootTwoT, 2, :sqrt),
+                          (:InvRootTwoT, 1//2, :sqrt))
+    STT = @eval $ST
+    for T in _make_types()
+        TT = @eval $T
+        if canconvert(STT, TT)
+            @eval function ($T)(obj::$ST)
+                $func($T($litST))
+            end
         end
-        if V in (:ImagT,) && !(tT <: Complex)
-            continue
+    end
+    if canconvert(STT, AbstractFloat)
+        @eval function AbstractFloat(obj::$ST)
+                $func(Float64(obj))
         end
-        @eval function Base.convert(::Type{$Ta}, ::$V)
-            $Tb($val)
+    end
+    if canconvert(STT, Rational)
+        @eval function Rational(obj::$ST)
+                Rational(Int64(obj))
         end
-        @eval function (::Type{$Ta})(::$V)
-            $Tb($val)
+    end
+    if canconvert(STT, Int64)
+        @eval function Real(obj::$ST)
+            Int64(obj)
+        end
+        @eval function Integer(obj::$ST)
+            Int64(obj)
+        end
+        @eval function big(obj::$ST)
+            BigInt(obj)
+        end
+    elseif canconvert(STT, Rational{Int64})
+        @eval function Real(obj::$ST)
+             Rational{Int64}(obj)
+        end
+        @eval function big(obj::$ST)
+            Rational{BigInt}(obj)
+        end
+    elseif canconvert(STT, Float64)
+        @eval function Real(obj::$ST)
+             Float64(obj)
+        end
+        @eval function big(obj::$ST)
+            BigFloat(obj)
+        end
+    end
+
+    if canconvert(STT, Complex{Int64})
+        @eval function Complex(obj::$ST)
+                Complex(Int64(obj))
+        end
+    elseif canconvert(STT, Complex{Rational{Int64}})
+        @eval function Complex(obj::$ST)
+                Complex{Rational{Int64}}(obj)
+        end
+    elseif canconvert(STT, Complex{Float64})
+        @eval function Complex(obj::$ST)
+                Complex(Float64(obj))
         end
     end
 end
+
+# function _make_type_pairs()
+#     _pairs = []
+#     for s in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
+#         push!(_pairs, (s, s))
+#         rs = :(Rational{$s})
+#         push!(_pairs, (rs, rs))
+#         rs = :(Complex{$s})
+#         push!(_pairs, (rs, rs))
+#     end
+#     for s in (:Float64, :Float32, :Float16)
+#         push!(_pairs, (s, s))
+#         rs = :(Complex{$s})
+#         push!(_pairs, (rs, rs))
+#     end
+#     for ps in ((:Integer, :Int64), (:Rational, :(Rational{Int})), (:AbstractFloat, :Float64),)
+#         push!(_pairs, ps)
+#     end
+#     _pairs
+# end
+
+# for (Ta, Tb) in _make_type_pairs()
+#     for (V, val) = ((:TwoT, 2), (:InvTwoT, 1//2), (:ImagT, im))
+
+#         tT = @eval $Ta
+#         if V in (:InvTwoT,) && (tT <: Integer || tT <: Complex{<:Integer})
+#             continue
+#         end
+#         if V in (:ImagT,) && !(tT <: Complex)
+#             continue
+#         end
+#         @eval function Base.convert(::Type{$Ta}, ::$V)
+#             $Tb($val)
+#         end
+#         @eval function (::Type{$Ta})(::$V)
+#             $Tb($val)
+#         end
+#     end
+# end
 
 function Base.:*(::RootImagT, x::T) where {T}
     T2 = complex(T)

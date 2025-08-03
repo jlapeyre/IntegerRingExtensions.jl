@@ -1,6 +1,7 @@
 using IntegerExtensions
 using Test
 
+include("singleton_conversion_tests.jl")
 include("rootonetests.jl")
 include("matricestests.jl")
 include("dyadic_tests.jl")
