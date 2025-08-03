@@ -160,10 +160,14 @@ end
 function Base.conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
     # I think promotion not needed.
-#   newcoeff = promote(-c, -b, -a, d)
     newcoeff = promote(a, -d, -c, -b)
     Domega{T}(newcoeff)
 end
+
+Base.one(::Type{Domega}) = one(Domega{Int})
+Base.one(::Type{Zomega}) = one(Zomega{Int})
+Base.zero(::Type{Domega}) = zero(Domega{Int})
+Base.zero(::Type{Zomega}) = zero(Zomega{Int})
 
 """
     conj(cyc::CyclotomicRing{4})
@@ -180,16 +184,18 @@ end
 Base.adjoint(cyc::CyclotomicRing) = conj(cyc)
 
 """
+    conj_root_two(cyc::CyclotomicRing{4})
     conj_root_two(cyc::Domega)
+    conj_root_two(cyc::Zomega)
 
 Maps `a + b√2` to `a - b√2` in all coefficients in `cyc`.
 
 This implements √2-conjugation.
 """
-function conj_root_two(cyc::Domega{T}) where T
+function conj_root_two(cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
     newcoeff = (a, -b, c, -d)
-    Domega{T}(newcoeff)
+    typeof(cyc)(newcoeff)
 end
 
 """
@@ -486,8 +492,11 @@ function Base.one(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT}
     CyclotomicRing{D}(one(CoeffT), ntuple(x -> zero(CoeffT), D-1)...,)
 end
 
+Base.one(::Type{CyclotomicRing{D}}) where {D} = one(CyclotomicRing{D, Int})
+
 Base.one(c::CyclotomicRing) = one(typeof(c))
 Base.zero(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT} = CyclotomicRing(ntuple(x -> zero(CoeffT), D)...,)
+Base.zero(::Type{CyclotomicRing{D}}) where {D} = zero(CyclotomicRing{D, Int})
 Base.zero(cr::CyclotomicRing) = zero(typeof(cr))
 
 function Base.convert(::Type{CyclotomicRing{M, CT1}}, c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}

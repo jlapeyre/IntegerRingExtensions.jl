@@ -261,12 +261,22 @@ function Base.big(q::QuadraticRing{D, T}) where {D, T <: AbstractFloat}
     big(q.a) + sqrt(big(D)) * big(q.b)
 end
 
+"""
+    norm_root_two(qi::QuadraticRing{D})
+
+Return the norm of `qi`.
+
+This method maps `a + b√D` to `a² - D b²`.
+This method implements the √2-norm.
+"""
 norm_root_two(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
 
 """
     conj_root_two(qi::QuadraticRing{2})
 
 Maps `a + b√2` to `a - b√2`.
+
+This implements √2-conjugation.
 """
 conj_root_two(qi::QuadraticRing{2}) = QuadraticRing{2}(qi.a, -qi.b)
 
