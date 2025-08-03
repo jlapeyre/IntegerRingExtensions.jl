@@ -338,18 +338,13 @@ function Base.:*(c1::CyclotomicRing{4}, c2::CyclotomicRing{4})
     (a1, b1, c1, d1) = c1.coeffs
     (a2, b2, c2, d2) = c2.coeffs
     coeffs = (
-        a1*a2 - c1*c2 - d1*b2 - d2*b1,
+        a1*a2 - c1*c2 - d1*b2 - b1*d2,
 
-        b2*a1 + b1*a2 - c1*d2 - d1*c2,
+        a1*b2 + b1*a2 - c1*d2 - d1*c2,
 
-        c2*a1 + b1*b2 + c1*a2 - d1*d2,
+        a1*c2 + b1*b2 + c1*a2 - d1*d2,
 
-        d2*a1 + b1*c2 + c1*b2 + d1*a2,
-        # a2*d1 + c1*b2 + b1*c2 + a1*d2,
-        # b2*d1 + c1*c2 + b1*d2 - a1*a2,
-        # c2*d1 + c1*d2 - b1*a2 - a1*b2,
-        # d1*d2 - b1*b2 - a1*c2 - a2*c1
-
+        a1*d2 + b1*c2 + c1*b2 + d1*a2,
     )
     CyclotomicRing(coeffs)
 end
