@@ -319,7 +319,7 @@ import Base: Float32, Float64, BigFloat
 import Base: sqrt, AbstractFloat, Complex, Rational, Real, Integer, big
 
 for (ST, litST, func) in ((:TwoT, 2, :identity), (:InvTwoT, 1//2, :identity), (:RootTwoT, 2, :sqrt),
-                          (:InvRootTwoT, 1//2, :sqrt))
+                          (:InvRootTwoT, 1//2, :sqrt), (:ImagT, im, :identity))
     STT = @eval $ST
     for T in _make_types()
         TT = @eval $T
@@ -367,7 +367,7 @@ for (ST, litST, func) in ((:TwoT, 2, :identity), (:InvTwoT, 1//2, :identity), (:
 
     if canconvert(STT, Complex{Int64})
         @eval function Complex(obj::$ST)
-                Complex(Int64(obj))
+                Complex{Int64}(obj)
         end
     elseif canconvert(STT, Complex{Rational{Int64}})
         @eval function Complex(obj::$ST)
