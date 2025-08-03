@@ -18,4 +18,8 @@
     @test float(zh) == float(z) / 2
     cs = params(zh)
     @test cs == (1, 0)
+
+    x = Droot2(DyadicFraction(3,2), 5)
+    @test RootTwo * x == Droot2(10, DyadicFraction(3,2))
+    @test x * RootTwo == Droot2(10, DyadicFraction(3,2))
 end
