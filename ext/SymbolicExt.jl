@@ -7,4 +7,4 @@ __init__() = println("Extension was loaded!")
 
 @info "Loading SymbolicExt for IntegerExtensions"
 
-end # module
+end # module SymbolicExt
