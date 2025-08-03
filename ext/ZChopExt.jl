@@ -12,5 +12,4 @@ function ZChop.nchop(m::Matrix2x2; kwargs...)
     Matrix2x2(map(x->nchop(x, eps; kwargs...), m.data))
 end
 
-
 end # module ZChopExt

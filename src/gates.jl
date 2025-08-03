@@ -5,7 +5,6 @@ using ..Common: canonical
 using ..CyclotomicRings: Domega
 using ..Singletons: One, Imag, RootImag, InvRootTwo
 using ..Utils: PRETTY
-using BenchmarkTools: @belapsed
 
 export benchmark_compose
 
@@ -63,13 +62,12 @@ Base.show(io::IO, g::Gate1) = show(io, PRETTY(), g)
 # const Zgate = Gate1{:Z}()
 
 """
+    Matrix2x2{T}(g::Gate1{Name}) where {T, Name}
     Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name}
-    Matrix2x2{T}(::Gate1{Name}) where {T, Name}
 
-Instantiate a `Matrix2x2{T}` representing thate gate `Name`.
+These methods instantiate a `Matrix2x2{T}` representing thate gate `Name`.
 
-If a method for multiplying `Gate1{Name}()` by a `Matrix2x2` is note defined,
-a `MethodError` will be thrown.
+If a method for multiplying `Gate1(Name)` by a `Matrix2x2` is not defined, a `MethodError` will be thrown.
 """
 Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name} = Gate1{Name}() * one(Matrix2x2{T})
 Matrix2x2{T}(g::Gate1{Name}) where {T, Name} = Matrix2x2{T}(typeof(g))
@@ -249,7 +247,6 @@ function Base.:*(::Gate1{:S}, m::Matrix2x2)
     Matrix2x2(a, Imag * b, c, Imag * d)
 end
 
-
 function Base.:*(::Gate1{:H}, m::Matrix2x2)
     (a,b,c,d) = m.data
     s = InvRootTwo
@@ -264,18 +261,6 @@ end
 # This mistake is very easy to make, causes bugs.
 function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
     throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
-end
-
-"""
-    benchmark_compose(gate_str)
-
-Measure and return the execution time per gate in ns of `compose(gate_str)`.
-
-Timing is done via `@belapsed`.
-"""
-function benchmark_compose(gate_str)
-    t = @belapsed compose($gate_str)
-    return 10^9 * t / length(gate_str)
 end
 
 end # module Gates
