@@ -6,6 +6,8 @@ module Common
 # It allows defining method for, say :*(::SingletonType, obj)
 # The conversions are decide on in the :* method, where they belong.
 
+export canonical, isrational, coeffs, params
+
 """
     canonical(x)
 
@@ -122,5 +124,15 @@ For elements of other rings, `conj_root_two` is the identity.
 conj_root_two(x::Number) = x
 
 function norm_root_two end
+
+"""
+    isrational(x)
+
+Return `true` iff the value `x` represents a rational number or a gaussian rational number.
+"""
+function isrational end
+
+isrational(x::Number) = true
+isrational(x::AbstractIrrational) = false
 
 end # module Common

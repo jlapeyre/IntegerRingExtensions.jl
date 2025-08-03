@@ -262,7 +262,7 @@ Base.:-(f::DyadicFraction) = DyadicFraction(-f.a, f.k)
 # Three seems to be much faster than 2. Even with n = 2^20
 function Base.:*(n::Integer, f::DyadicFraction)
     iseven(n) && greater_than_strong(f.k, 0) ?
-        div(n, 2) * DyadicFraction(f.a, f.k - 1) :
+        (n >> 1) * DyadicFraction(f.a, f.k - 1) :
         DyadicFraction(n * f.a, f.k)
 end
 
@@ -272,7 +272,7 @@ Base.:+(f1::DyadicFraction, f2::DyadicFraction) = _plus(f1, f2, +)
 Base.:-(f1::DyadicFraction, f2::DyadicFraction) = _plus(f1, f2, -)
 function _plus(f1::DyadicFraction, f2::DyadicFraction, op)
     (minex, maxex) = minmax(f1.k, f2.k)
-    DyadicFraction(op(2^(f2.k - minex) * f1.a,  2^(f1.k - minex) * f2.a), maxex)
+    DyadicFraction(op(1 << (f2.k - minex) * f1.a,  1 << (f1.k - minex) * f2.a), maxex)
 end
 
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)

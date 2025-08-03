@@ -176,12 +176,23 @@ Return the complex conjugate of `cyc`.
 """
 function Base.conj(cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
-#    newcoeff = (-c, -b, -a, d)
     newcoeff = (a, -d, -c, -b)
     typeof(cyc)(newcoeff)
 end
 
 Base.adjoint(cyc::CyclotomicRing) = conj(cyc)
+
+LinearAlgebra.norm(cyc::CyclotomicRing) = abs(cyc)
+Base.abs(cyc::CyclotomicRing) = sqrt(abs2(cyc))
+
+function Base.abs2(cyc::CyclotomicRing)
+    (a, b, c, d) = cyc.coeffs
+    a1 = a^2 + b^2 + c^2 + d^2
+    b1 = a*(b-d) + c*(b+d)
+    c1 = zero(a)
+    d1 = -b1
+    CyclotomicRing((a1,b1,c1,d1))
+end
 
 """
     conj_root_two(cyc::CyclotomicRing{4})

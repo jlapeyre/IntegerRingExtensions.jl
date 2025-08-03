@@ -2,6 +2,7 @@ module Singletons
 
 import Base: show, inv, sqrt
 import ..Utils: PRETTY
+import ..Common: isrational
 
 export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹,
     One, Zero, 𝟙, 𝟘
@@ -24,11 +25,16 @@ const Zero = ZeroT()
 const 𝟘 = Zero
 show(io::IO, ::PRETTY, ::ZeroT) = print(io, "𝟘")
 
+isrational(::Type{ZeroT}) = true
+
 """
     Zero
     𝟘
 
-Represents the additive identity: 𝟘
+Represents the additive identity, 𝟘, in the ring of integers.
+
+`Zero` also represents the additive identity in any ring or field that
+extends the integers.
 """
 Zero
 
@@ -43,12 +49,13 @@ end
 const One = OneT()
 const 𝟙 = One
 show(io::IO, ::PRETTY, ::OneT) = print(io, "𝟙")
+isrational(::OneT) = true
 
 """
     One
     𝟙
 
-Represents the multiplicative identity: 𝟙
+Represents the multiplicative identity, 𝟙, in the ring of integers.
 """
 One
 
@@ -63,6 +70,7 @@ end
 const Two = TwoT()
 const 𝟚 = Two
 show(io::IO, ::PRETTY, ::TwoT) = print(io, "𝟚")
+isrational(::TwoT) = true
 
 """
     Two
@@ -85,6 +93,7 @@ const 𝟚⁻¹ = InvTwo
 show(io::IO, ::PRETTY, ::InvTwoT) = print(io, "𝟚⁻¹")
 inv(::TwoT) = InvTwo
 inv(::InvTwoT) = Two
+isrational(::InvTwoT) = true
 
 """
     InvTwo
@@ -105,7 +114,8 @@ end
 const RootTwo = RootTwoT()
 
 show(io::IO, ::PRETTY, ::RootTwoT) = print(io, "√𝟚")
-sqrt(Two) = RootTwo
+sqrt(::TwoT) = RootTwo
+isrational(::RootTwoT) = false
 
 """
     RootTwo
@@ -126,6 +136,7 @@ show(io::IO, ::PRETTY, ::InvRootTwoT) = print(io, "√𝟚⁻¹")
 sqrt(::InvTwoT) = InvRoot2
 inv(::InvRootTwoT) = RootTwo
 inv(::RootTwoT) = InvRootTwo
+isrational(::InvRootTwoT) = false
 
 """
     InvRootTwo
@@ -143,6 +154,7 @@ end
 const Imag = ImagT()
 const 𝕚 = Imag
 show(io::IO, ::PRETTY, ::ImagT) = print(io, "𝕚")
+isrational(::ImagT) = true
 
 """
     Imag
@@ -164,6 +176,7 @@ end
 const RootImag = RootImagT()
 show(io::IO, ::PRETTY, ::RootImagT) = print(io, "√𝕚")
 sqrt(::ImagT) = RootImag
+isrational(::RootImagT) = false
 
 """
     RootImag
@@ -182,6 +195,8 @@ Returns `true` if we can convert `obj::T` with the call `V(obj)`.
 The result should be an object of type `<: V`.
 """
 function canconvert end
+
+Base.convert(::Type{T}, obj::SingleNum) where {T} = T(obj)
 
 # If called on an object, call again, on type of object
 canconvert(obj::SingleNum, ::Type{V}) where {V} = canconvert(typeof(obj), V)
@@ -283,15 +298,6 @@ canconvert(::Type{RootImagT}, ::Type{Complex{T}}) where {T <: Rational} = false
 canconvert(::Type{RootImagT}, ::Type{Complex{T}}) where {T <: Real} = true
 canconvert(::Type{RootImagT}, ::Type{Complex}) = true
 canconvert(::Type{RootImagT}, ::Type{Real}) = false
-
-###
-### Maybe most of the stuff below is not necessary.
-###
-
-## These are DANGEROUS. Someone may be tempted to use them.
-## Used dynamically, they will give terrible performance
-## Maybe better to use a more generic function and if-else to distinguish
-## elements.
 
 Base.:*(::RootImagT, ::RootImagT) = Imag
 Base.:*(::RootTwoT, ::RootTwoT) = Two
@@ -402,59 +408,30 @@ for (ST, litST, func) in ((:TwoT, 2, :identity), (:InvTwoT, 1//2, :identity), (:
     end
 end
 
-# function _make_type_pairs()
-#     _pairs = []
-#     for s in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
-#         push!(_pairs, (s, s))
-#         rs = :(Rational{$s})
-#         push!(_pairs, (rs, rs))
-#         rs = :(Complex{$s})
-#         push!(_pairs, (rs, rs))
-#     end
-#     for s in (:Float64, :Float32, :Float16)
-#         push!(_pairs, (s, s))
-#         rs = :(Complex{$s})
-#         push!(_pairs, (rs, rs))
-#     end
-#     for ps in ((:Integer, :Int64), (:Rational, :(Rational{Int})), (:AbstractFloat, :Float64),)
-#         push!(_pairs, ps)
-#     end
-#     _pairs
-# end
+# We could make promote_rule rules.
+# We use `Number` to avoid dispatching to these when calling
+# with singletons
 
-# for (Ta, Tb) in _make_type_pairs()
-#     for (V, val) = ((:TwoT, 2), (:InvTwoT, 1//2), (:ImagT, im))
-
-#         tT = @eval $Ta
-#         if V in (:InvTwoT,) && (tT <: Integer || tT <: Complex{<:Integer})
-#             continue
-#         end
-#         if V in (:ImagT,) && !(tT <: Complex)
-#             continue
-#         end
-#         @eval function Base.convert(::Type{$Ta}, ::$V)
-#             $Tb($val)
-#         end
-#         @eval function (::Type{$Ta})(::$V)
-#             $Tb($val)
-#         end
-#     end
-# end
-
-function Base.:*(::RootImagT, x::T) where {T}
+function Base.:*(::RootImagT, x::T) where {T<:Number}
     T2 = complex(T)
     (T2(im) + one(T2))/sqrt(T2(2)) * x
 end
 
 Base.:*(x, ::RootImagT) = RootImag * x
 
-Base.:*(::ImagT, x::T) where {T} = complex(T)(im) * x
+Base.:*(::ImagT, x::T) where {T<:Number} = complex(T)(im) * x
 Base.:*(x, ::ImagT) = Imag * x
 
 Base.:*(::OneT, x::T) where {T} = one(T) * x
-Base.:*(x::T, ::OneT) where {T} = x * one(T)
+Base.:*(x, ::OneT) = One * x
 
-Base.:*(::InvRootTwoT, x::T) where {T} = sqrt(float(T)(1//2)) * x
-Base.:*(x::T, ::InvRootTwoT) where {T} = InvRootTwo * x
+# Don't know where this is used
+Base.promote_rule(::Type{TwoT}, ::Type{T}) where {T<:Integer} = T
+
+Base.:*(::TwoT, x::T) where {T} = T(2) * x
+Base.:*(x, ::TwoT) = Two * x
+
+Base.:*(::InvRootTwoT, x::T) where {T<:Number} = sqrt(float(T)(1//2)) * x
+Base.:*(x, ::InvRootTwoT) = InvRootTwo * x
 
 end # module Singletons
