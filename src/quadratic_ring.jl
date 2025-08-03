@@ -6,7 +6,7 @@ import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_t
     mul_half, conj_root_two, norm_root_two, isrational
 import ..DyadicFractions: DyadicFraction
 
-import ..Singletons: RootTwoT, RootTwo, Two
+import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
 
 ########################
@@ -301,6 +301,7 @@ Base.:*(n::Integer, q::QuadraticRing{D}) where {D} = q * n
 Base.:*(::RootTwoT, q::QuadraticRing{2}) = QuadraticRing{2}(Two * q.b, q.a)
 Base.:*(q::QuadraticRing{2}, ::RootTwoT) = RootTwo * q
 
+
 function Base.:(==)(q::QuadraticRing, n::Integer)
     return iszero(q.b) && n == q.a
 end
@@ -365,6 +366,10 @@ function root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
     o1 = one(T1)
     Droot2(DyadicFraction(z1,z2), DyadicFraction(o1,z2))
 end
+
+Base.:*(::InvRootTwoT, q::Droot2) = QuadraticRing{2}(q.b, InvTwo * q.a)
+Base.:*(q::Droot2, ::InvRootTwoT) = q * InvRootTwo
+
 
 """
     one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
