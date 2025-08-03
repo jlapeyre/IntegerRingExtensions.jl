@@ -1,8 +1,8 @@
 module DyadicFractions
 
 import Base: zero, iszero, one, convert, promote_rule, show
-import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong, PRETTY,
-    lobit
+import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
+    PRETTY, lobit
 import ..Common: canonical, mul_half, params, conj_root_two
 import ..Singletons: InvTwo, InvTwoT
 
@@ -68,9 +68,9 @@ function mul_half(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
     n == 0 && return f
     n < 0 && error("Negative `n` not yet implemented")
     m = n
-    T2 = T(2)
     fa = f.a
     if iseven(f.a) # TODO: use bit shifts here
+        T2 = T(2)
         while true
             fa = div(fa, T2)
             m = m - 1

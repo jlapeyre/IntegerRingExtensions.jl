@@ -235,10 +235,12 @@ end
 ###
 
 canconvert(::Type{TwoT}, ::Type{T}) where {T <: Integer} = true
+canconvert(::Type{TwoT}, ::Type{Real}) = true
 
 for ST in (:RootTwoT, :InvRootTwoT)
     @eval canconvert(::Type{$ST}, ::Type{T}) where {T <: Integer} = false
     @eval canconvert(::Type{$ST}, ::Type{T}) where {T <: AbstractFloat} = true
+    @eval canconvert(::Type{$ST}, ::Type{Real}) = true
 end
 
 ###
@@ -247,6 +249,7 @@ end
 
 canconvert(::Type{InvTwoT}, ::Type{T}) where {T <: Integer} = false
 canconvert(::Type{InvTwoT}, ::Type{Rational}) = true
+canconvert(::Type{InvTwoT}, ::Type{Real}) = true
 
 function canconvert(::Type{InvTwoT}, ::Type{Rational{T}}) where {T<:Integer}
     canconvert(Two, T)
@@ -265,6 +268,7 @@ canconvert(::Type{ImagT}, ::Type{Rational{T}}) where {T <: Integer} = false
 canconvert(::Type{ImagT}, ::Type{T}) where {T <: AbstractFloat} = false
 canconvert(::Type{ImagT}, ::Type{Complex{T}}) where {T <: Real} = true
 canconvert(::Type{ImagT}, ::Type{Complex}) = true
+canconvert(::Type{ImagT}, ::Type{Real}) = false
 
 ###
 ### RootImag
@@ -278,6 +282,7 @@ canconvert(::Type{RootImagT}, ::Type{T}) where {T <: AbstractFloat} = false
 canconvert(::Type{RootImagT}, ::Type{Complex{T}}) where {T <: Rational} = false
 canconvert(::Type{RootImagT}, ::Type{Complex{T}}) where {T <: Real} = true
 canconvert(::Type{RootImagT}, ::Type{Complex}) = true
+canconvert(::Type{RootImagT}, ::Type{Real}) = false
 
 ###
 ### Maybe most of the stuff below is not necessary.
@@ -305,9 +310,10 @@ function _make_types()
     floatypes = [:Float32, :Float64, :BigFloat]
     rattypes = [:(Rational{$t}) for t in intypes]
     comptypes = [:(Complex{$t}) for t in intypes]
+    compfloattypes = [:(Complex{$t}) for t in floatypes]
     comprattypes = [:(Complex{Rational{$t}}) for t in intypes]
 
-    alltypes = [intypes..., floatypes..., rattypes..., comptypes..., comprattypes...]
+    alltypes = [intypes..., floatypes..., rattypes..., comptypes..., comprattypes..., compfloattypes...]
     return alltypes
 end
 
@@ -319,7 +325,7 @@ import Base: Float32, Float64, BigFloat
 import Base: sqrt, AbstractFloat, Complex, Rational, Real, Integer, big
 
 for (ST, litST, func) in ((:TwoT, 2, :identity), (:InvTwoT, 1//2, :identity), (:RootTwoT, 2, :sqrt),
-                          (:InvRootTwoT, 1//2, :sqrt), (:ImagT, im, :identity))
+                          (:InvRootTwoT, 1//2, :sqrt), (:ImagT, im, :identity), (:RootImagT, im, :sqrt))
     STT = @eval $ST
     for T in _make_types()
         TT = @eval $T
@@ -365,17 +371,33 @@ for (ST, litST, func) in ((:TwoT, 2, :identity), (:InvTwoT, 1//2, :identity), (:
         end
     end
 
+    notreal = ! canconvert(STT, Real)
     if canconvert(STT, Complex{Int64})
         @eval function Complex(obj::$ST)
                 Complex{Int64}(obj)
+        end
+        if notreal
+            @eval function big(obj::$ST)
+                Complex{BigInt}(obj)
+            end
         end
     elseif canconvert(STT, Complex{Rational{Int64}})
         @eval function Complex(obj::$ST)
                 Complex{Rational{Int64}}(obj)
         end
+        if notreal
+            @eval function big(obj::$ST)
+                Complex{Rational{BigInt}}(obj)
+            end
+        end
     elseif canconvert(STT, Complex{Float64})
         @eval function Complex(obj::$ST)
-                Complex(Float64(obj))
+                Complex{Float64}(obj)
+        end
+        if notreal
+            @eval function big(obj::$ST)
+                Complex{BigFloat}(obj)
+            end
         end
     end
 end
