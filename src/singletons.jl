@@ -1,8 +1,9 @@
 module Singletons
 
-import Base: show, inv, sqrt
+import Base: show, inv, sqrt, isone, iszero, isinteger, iseven, isreal
 import ..Utils: PRETTY
 import ..Common: isrational
+
 
 export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹,
     One, Zero, 𝟙, 𝟘
@@ -25,7 +26,12 @@ const Zero = ZeroT()
 const 𝟘 = Zero
 show(io::IO, ::PRETTY, ::ZeroT) = print(io, "𝟘")
 
-isrational(::Type{ZeroT}) = true
+isrational(::ZeroT) = true
+isinteger(::ZeroT) = true
+iszero(::ZeroT) = true
+isone(::ZeroT) = false
+iseven(::ZeroT) = true
+isreal(::ZeroT) = true
 
 """
     Zero
@@ -50,6 +56,11 @@ const One = OneT()
 const 𝟙 = One
 show(io::IO, ::PRETTY, ::OneT) = print(io, "𝟙")
 isrational(::OneT) = true
+isinteger(::OneT) = true
+iszero(::OneT) = false
+isone(::OneT) = true
+iseven(::OneT) = false
+isreal(::OneT) = true
 
 """
     One
@@ -70,7 +81,13 @@ end
 const Two = TwoT()
 const 𝟚 = Two
 show(io::IO, ::PRETTY, ::TwoT) = print(io, "𝟚")
+
 isrational(::TwoT) = true
+isinteger(::TwoT) = true
+iszero(::TwoT) = false
+isone(::TwoT) = false
+iseven(::TwoT) = true
+isreal(::TwoT) = true
 
 """
     Two
@@ -94,6 +111,11 @@ show(io::IO, ::PRETTY, ::InvTwoT) = print(io, "𝟚⁻¹")
 inv(::TwoT) = InvTwo
 inv(::InvTwoT) = Two
 isrational(::InvTwoT) = true
+isinteger(::InvTwoT) = false
+iszero(::InvTwoT) = false
+isone(::InvTwoT) = false
+iseven(::InvTwoT) = false
+isreal(::InvTwoT) = true
 
 """
     InvTwo
@@ -116,6 +138,11 @@ const RootTwo = RootTwoT()
 show(io::IO, ::PRETTY, ::RootTwoT) = print(io, "√𝟚")
 sqrt(::TwoT) = RootTwo
 isrational(::RootTwoT) = false
+isinteger(::RootTwoT) = false
+iszero(::RootTwoT) = false
+isone(::RootTwoT) = false
+iseven(::RootTwoT) = false
+isreal(::RootTwoT) = true
 
 """
     RootTwo
@@ -137,6 +164,11 @@ sqrt(::InvTwoT) = InvRoot2
 inv(::InvRootTwoT) = RootTwo
 inv(::RootTwoT) = InvRootTwo
 isrational(::InvRootTwoT) = false
+isinteger(::InvRootTwoT) = false
+iszero(::InvRootTwoT) = false
+isone(::InvRootTwoT) = false
+iseven(::InvRootTwoT) = false
+isreal(::InvRootTwoT) = true
 
 """
     InvRootTwo
@@ -154,7 +186,17 @@ end
 const Imag = ImagT()
 const 𝕚 = Imag
 show(io::IO, ::PRETTY, ::ImagT) = print(io, "𝕚")
+
+# Not in Julia Base or stdlib. I define this to include Gaussian rationals
+# This should be evaluated based on utility.
 isrational(::ImagT) = true
+
+# Julia says imaginary numbers can't be integers. So no Gaussian integers
+isinteger(::ImagT) = false
+iszero(::ImagT) = false
+isone(::ImagT) = false
+iseven(::ImagT) = false
+isreal(::ImagT) = false
 
 """
     Imag
@@ -177,6 +219,11 @@ const RootImag = RootImagT()
 show(io::IO, ::PRETTY, ::RootImagT) = print(io, "√𝕚")
 sqrt(::ImagT) = RootImag
 isrational(::RootImagT) = false
+isinteger(::RootImagT) = false
+iszero(::RootImagT) = false
+isone(::RootImagT) = false
+iseven(::RootImagT) = false
+isreal(::RootImagT) = false
 
 """
     RootImag
@@ -201,17 +248,13 @@ Base.convert(::Type{T}, obj::SingleNum) where {T} = T(obj)
 # If called on an object, call again, on type of object
 canconvert(obj::SingleNum, ::Type{V}) where {V} = canconvert(typeof(obj), V)
 
-# Ugh. Minor problem. Can't specify that a type must be abstract or not abstract :(
-# If ST can be converted to some Rational type, it can be converted to some AbstractFloat type.
-# That is: If I can convert with `Rational(obj)`, then I can convert with `AbstractFloat(obj)`.
-# function canconvert(::Type{ST}, ::Type{AbstractFloat}) where {ST<:SingleNum}
-#     canconvert(ST, Rational)
-# end
-
 ###
 ### <: SingleNum
 ###
 
+## TODO: Re-evaluate whether the methods in this section are necessary, or useful.
+## I had to add particular cases due to dispatch ambiguities for cases when these more general methods were intended
+## to apply.
 
 function canconvert(::Type{ST}, ::Type{T}) where {ST<:SingleNum, T <: AbstractFloat}
     canconvert(ST, Rational{Int})
@@ -303,6 +346,7 @@ Base.:*(::RootImagT, ::RootImagT) = Imag
 Base.:*(::RootTwoT, ::RootTwoT) = Two
 Base.:*(::InvRootTwoT, ::InvRootTwoT) = InvTwo
 
+# Not using OneT here.
 Base.:*(::InvTwoT, ::TwoT) = 1
 Base.:*(::TwoT, ::InvTwoT) = 1
 
