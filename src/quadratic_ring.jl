@@ -3,7 +3,7 @@ module QuadraticRings
 import LinearAlgebra
 import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_half, conj_root_two, norm_root_two
+    mul_half, conj_root_two, norm_root_two, isrational
 import ..DyadicFractions: DyadicFraction
 
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
@@ -185,6 +185,9 @@ function Zroot2(a, b=zero(a))
     Zroot2{typeof(a)}(a, b)
 end
 
+isrational(q::QuadraticRing{<:Any, <:Integer}) = iszero(q.b)
+isrational(q::QuadraticRing{<:Any, <:DyadicFraction}) = iszero(q.b)
+
 """
     root_two(::Type{Zroot2{T}}) where T
 
@@ -240,6 +243,7 @@ function Base.iszero(q::QuadraticRing)
     iszero(q.a) && iszero(q.b)
 end
 
+
 Base.one(::Type{QuadraticRing{D, CoeffT}}) where {D, CoeffT} = QuadraticRing{D, CoeffT}(one(CoeffT), zero(CoeffT))
 Base.one(q::QuadraticRing) = one(typeof(q))
 
@@ -289,6 +293,9 @@ Base.:-(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q
 Base.:-(q::QuadraticRing{D}) where D = QuadraticRing{D}(-q.a, -q.b)
 Base.:+(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q1.a + q2.a, q1.b + q2.b)
 Base.:^(q::QuadraticRing{D}, n::Integer) where D = Base.power_by_squaring(q, n)
+
+Base.:*(q::QuadraticRing{D}, n::Integer) where {D} = QuadraticRing{D}(n * q.a, n * q.b)
+Base.:*(n::Integer, q::QuadraticRing{D}) where {D} = q * n
 
 function Base.:(==)(q::QuadraticRing, n::Integer)
     return iszero(q.b) && n == q.a
