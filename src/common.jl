@@ -82,6 +82,11 @@ function coeffs end
 # Get parameters of instance of type
 function params end
 
+##
+## Following are fallback methods for a few arithmetic operations.
+## Specialized methods exist for ring types.
+##
+
 """
     mul_root_two(x)
 
@@ -90,7 +95,6 @@ Return `x` multiplied by the square root of two.
 function mul_root_two(x)
     x * sqrt(typeof(x)(2))
 end
-
 
 """
     mul_one_over_root_two(x)

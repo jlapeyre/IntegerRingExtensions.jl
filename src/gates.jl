@@ -263,4 +263,14 @@ function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
     throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
 end
 
+# using ..DyadicFractions: DyadicFraction
+# function TSH()
+#     T = DyadicFraction{Int64, Int64}
+#     DT = Domega{Int64}
+#     ab = DT((T(0, 0), T(1, 1), T(0, 0), T(-1, 1)))
+#     c = DT((T(-1, 1), T(0, 0), T(1, 1), T(0, 0)))
+#     d = DT((T(1, 1), T(0, 0), T(-1, 1), T(0, 0)))
+#     Matrix2x2(ab, ab, c, d)
+# end
+
 end # module Gates

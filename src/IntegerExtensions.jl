@@ -15,8 +15,9 @@ Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imagi
     mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, norm_root_two, isrational
 
 include("singletons.jl")
-Reexport.@reexport import .Singletons: RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
-    InvTwo, 𝟚⁻¹, 𝟙, One, Zero, 𝟘, canconvert
+Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
+    InvTwo, 𝟚⁻¹, 𝟙, One, Zero, 𝟘, canconvert, Pow,
+    TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
 include("root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, RootOne8
@@ -40,5 +41,11 @@ Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose
 
+include("gridsynth.jl")
+Reexport.@reexport import .GridSynth: GridSynthOpts, makecommand, run_gridsynth, gridsynth
+
+# For compiling workflows for statically-compiled-like latency
+# using PrecompileTools: @setup_workload, @compile_workload
+# include("precompile.jl")
 
 end # module IntegerExtensions

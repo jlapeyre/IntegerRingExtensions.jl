@@ -8,6 +8,8 @@ import ..Common: isrational
 export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹,
     One, Zero, 𝟙, 𝟘
 
+export Pow
+
 ###
 ### Zero
 ###
@@ -232,6 +234,39 @@ Represents the principal square root of the imaginary unit: √𝕚
 This is also the principal eight root of one.
 """
 RootImag
+
+"""
+    struct Pow{T}
+        n::Int
+    end
+
+
+Represents and instance of type `T` raised to the power `n`.
+
+This is intended for singleton types `T`.
+"""
+struct Pow{T}
+    n::Int
+end
+
+Base.length(::Pow{<:SingleNum}) = 1
+Base.iterate(p::Pow{<:SingleNum}) = (p, nothing)
+Base.iterate(p::Pow{<:SingleNum}, ::Any) = nothing
+
+Base.length(::SingleNum) = 1
+Base.iterate(p::SingleNum) = (p, nothing)
+Base.iterate(p::SingleNum, ::Any) = nothing
+
+Base.:*(pow::Pow{T}, x::NT) where {NT <: Number, T} = NT(T())^pow.n * x
+Base.:*(x::Number, pow::Pow) = x * pow
+Base.:^(x::SingleNum, n::Integer) = Pow{typeof(x)}(n)
+
+Base.size(::SingleNum) = ()
+Base.size(::Pow{<:SingleNum}) = ()
+
+###
+### Conversion and arithmetic
+###
 
 """
     canconvert(::Type{T}, ::Type{V})::Bool

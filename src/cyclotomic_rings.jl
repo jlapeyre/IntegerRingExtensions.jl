@@ -13,8 +13,8 @@ import ..Singletons: InvTwo, InvTwoT,
     RootTwo, RootTwoT,
     InvRootTwo, InvRootTwoT,
     Imag, ImagT,
-    RootImag, RootImagT
-using ILog2
+    RootImag, RootImagT,
+    Pow
 
 export CyclotomicRing, Zomega, Domega
 
@@ -360,12 +360,23 @@ function Base.:*(c1::CyclotomicRing{4}, c2::CyclotomicRing{4})
     CyclotomicRing(coeffs)
 end
 
-function Base.:*(c::CyclotomicRing, r::Real)
+function Base.:*(r::Real, c::CyclotomicRing)
+    # These two are same speed.
+    #    cs = map(x -> r * x, c.coeffs)
     cs = c.coeffs .* r
+
+    # cs = Tuple(r * x for x in c.coeffs) slow
     CyclotomicRing(cs)
 end
 
-@inline Base.:*(r::Real, c::CyclotomicRing) = c * r
+# Specialized method does not help
+# function Base.:*(r::Real, c::CyclotomicRing{4})
+#     (a, b, c, d) = c.coeffs
+#     CyclotomicRing(r * a, r * b, r * c, r * d)
+# end
+
+
+@inline Base.:*(c::CyclotomicRing, r::Real) = r * c
 
 # Wrote this all out explicitly in case there was a broadcasting inefficiency or s.t
 # But no!
@@ -442,9 +453,11 @@ function mul_root_two(cyc::CyclotomicRing{4})
 end
 
 """
-    mul_half(cyc::CyclotomicRing{4})
+    mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
 
-Multiply `cyc` by the reciprocal of two.
+Multiply `cyc` by `n` factors of the reciprocal of two.
+
+`n` may be positive, negative, or zero.
 """
 function mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
     CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
@@ -452,6 +465,10 @@ end
 
 function Base.:*(::InvTwoT, cyc::CyclotomicRing)
     CyclotomicRing(map(x -> InvTwo * x, cyc.coeffs))
+end
+
+function Base.:*(pow::Pow, cyc::CyclotomicRing{4})
+    CyclotomicRing(map(x -> pow * x, cyc.coeffs))
 end
 
 function Base.:*(::RootTwoT, cyc::CyclotomicRing{4})
