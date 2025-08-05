@@ -90,13 +90,9 @@ julia> compose("TSHTHTHTHT")
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
 """
-function compose(gates_in::AbstractString; chunklen=300)
-#    gates = reverse(gates_in)
-    gates = gates_in
+function compose(gates::AbstractString; chunklen=300)
     length(codeunits(gates)) <= chunklen && return compose_one(gates)
-#    chunks = reverse(chunkstring(reverse(gates), chunklen))
     chunks = reverse(chunkstring(gates, chunklen))
-#    chunks = chunkstring(gates, chunklen)
     mats = [map(Domega{BigInt}, compose_one(chunk)) for chunk in chunks]
     canonical(prod(mats))
 end
@@ -266,6 +262,27 @@ end
 function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
     throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
 end
+
+"""
+    get_theta(m::Matrix2x2)
+
+Find `theta` from a Z-rotation matrix `m` with possible global phase.
+
+Assume `m` is diagonal, with `m[1] = cis(-theta/2 + phi)`
+and `m[4] = cis(theta/2 + phi)`. Return `theta`.
+"""
+get_theta(m::Matrix2x2) = angle(m[4] / m[1])
+
+"""
+    get_global_phase(m::Matrix2x2)
+
+Find global phase of a Z-rotation matrix `m` with possible global phase.
+
+Assume `m` is diagonal, with `m[1] = cis(-theta/2 + alpha)`
+and `m[4] = cis(theta/2 + alpha)`. Return `alpha`.
+"""
+get_global_phase(m::Matrix2x2) = angle(m[4] * m[1]) / 2
+
 
 # using ..DyadicFractions: DyadicFraction
 # function TSH()

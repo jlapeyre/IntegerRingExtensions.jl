@@ -123,19 +123,9 @@ Return a new matrix by calling `canonical` element-wise on `m`.
 """
 canonical(m::Matrix2x2) = map(canonical, m)
 
-"""
-    get_theta(m::Matrix2x2)
-
-Find `theta` from a Z-rotation matrix `m` with possible global phase.
-
-Assume `m` is diagonal, with `m[1] = cis(-theta/2 + phi)`
-and `m[4] = cis(theta/2 + phi)`. Return `theta`.
-"""
-get_theta(m::Matrix2x2) = angle(m[4] / m[1])
 
 function Base.transpose(m::Matrix2x2)
-#    (a, b, c, d) = map(transpose, m.data)
-    (a, b, c, d) = m.data
+    (a, b, c, d) = map(transpose, m.data)
     Matrix2x2(a, c, b, d)
 end
 
