@@ -120,6 +120,10 @@ Base.eltype(cyc::CyclotomicRing{<:Any, T}) where {T} = T
 Base.length(cyc::CyclotomicRing) = length(cyc.coeffs)
 Base.lastindex(::CyclotomicRing{M}) where M = M - 1
 
+function promote_rule(::Type{CyclotomicRing{<:Any, T}}, ::Type{V}) where {T, V <: Base.BitInteger}
+    promote_type(promote_type(T, AbstractFloat), V)
+end
+
 # The type of the exponent of (1/2) is hardcoded to Int.
 # We probably only need one type for this field.
 """
@@ -544,6 +548,19 @@ function Base.convert(::Type{CyclotomicRing{M, CT1}}, c::CyclotomicRing{M, CT2})
     CyclotomicRing{M, CT1}(c)
 end
 
+function Base.big(c::CyclotomicRing)
+    Complex{BigFloat}(c)
+end
+
+function Base.convert(::Type{T}, c::CyclotomicRing) where {T}
+    CyclotomicRing(map(x -> convert(T, x), c.coeffs))
+end
+
+
+function Base.convert(::Type{Complex{Tc}}, c::CyclotomicRing) where Tc
+    Complex{Tc}(c)
+end
+
 function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
     coeffs = convert.(CT1, c.coeffs)
     CyclotomicRing(coeffs)
@@ -610,14 +627,6 @@ function CyclotomicRing{4, T}(r::RootOne8) where {T}
             (0,0,0,val)
         end
     CyclotomicRing{4, T}(coeffs)
-end
-
-function Base.big(c::CyclotomicRing)
-    Complex{BigFloat}(c)
-end
-
-function Base.convert(::Type{Complex{Tc}}, c::CyclotomicRing) where Tc
-    Complex{Tc}(c)
 end
 
 end # module CyclotomicRings

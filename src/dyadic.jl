@@ -100,7 +100,6 @@ function mul_two(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
     return canonical(fr)
 end
 
-
 function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
     T = promote_type(T1, T2)
     V = promote_type(V1, V2)
@@ -111,6 +110,24 @@ function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{T}) where {T1<:Integ
     T3 = promote_type(T1, T)
     DyadicFraction{T3, V1}
 end
+
+function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{T}) where {T1<:Integer, V1<:Integer, T<:BigFloat}
+    BigFloat
+end
+
+function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{T}) where {T1<:BigInt, V1<:Integer, T<:AbstractFloat}
+    BigFloat
+end
+
+function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{T}) where {T1<:Base.BitInteger, V1<:Integer, T<:AbstractFloat}
+    Float64
+end
+
+function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{T}) where {T1<:Integer, V1<:Integer, T<:AbstractFloat}
+    T3 = promote_type(T1, T)
+    DyadicFraction{T3, V1}
+end
+
 
 function Base.:^(df::DyadicFraction, n::Integer)
     # Can't copy Int, but really should copy BigInt
@@ -271,7 +288,14 @@ function Base.:(==)(x::Integer, df::DyadicFraction)
 end
 Base.:(==)(df::DyadicFraction, x::Integer) = x == df
 
-Base.float(f::DyadicFraction) = convert(Float64, f)
+
+function Base.AbstractFloat(f::DyadicFraction{T,V}) where {T,V}
+    W = promote_type(T, AbstractFloat)
+    convert(W, f)
+end
+
+#function Base.float(f::DyadicFraction) = convert(Float64, f)
+
 Base.big(f::DyadicFraction) = convert(BigFloat, f)
 Base.:*(f1::DyadicFraction, f2::DyadicFraction) = DyadicFraction(f1.a * f2.a, f1.k + f2.k)
 Base.:-(f::DyadicFraction) = DyadicFraction(-f.a, f.k)
