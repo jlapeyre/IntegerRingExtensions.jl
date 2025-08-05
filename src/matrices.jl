@@ -1,5 +1,5 @@
 module Matrices
-import LinearAlgebra: eigvals, svdvals, opnorm, tr, det
+import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag
 import ..Common: canonical
 import ..Utils: PRETTY, cpad
 
@@ -16,6 +16,15 @@ addition, subtraction, and unary minus.
 struct Matrix2x2{T} <: AbstractMatrix{T}
     data::NTuple{4, T}
 end
+
+struct Vector2{T} <: AbstractVector{T}
+    data::NTuple{2, T}
+end
+Vector2(a, b) = Vector2(promote(a, b))
+Vector2{T}(a, b) where {T} = Vector2(T(a), T(b))
+Base.size(::Vector2) = (2,)
+Base.eltype(::Type{Vector2{T}}) where T = T
+Base.IndexStyle(::Type{<:Vector2}) = IndexLinear()
 
 """
     Matrix2x2(a, b, c, d)
@@ -66,6 +75,11 @@ function Base.map(f, m::Matrix2x2)
 end
 
 @inline function Base.getindex(m::Matrix2x2, i::Integer)
+    @boundscheck checkbounds(m, i)
+    return @inbounds m.data[i]
+end
+
+@inline function Base.getindex(m::Vector2, i::Integer)
     @boundscheck checkbounds(m, i)
     return @inbounds m.data[i]
 end
@@ -123,7 +137,6 @@ Return a new matrix by calling `canonical` element-wise on `m`.
 """
 canonical(m::Matrix2x2) = map(canonical, m)
 
-
 function Base.transpose(m::Matrix2x2)
     (a, b, c, d) = map(transpose, m.data)
     Matrix2x2(a, c, b, d)
@@ -161,6 +174,10 @@ end
 function opnorm(m::Matrix2x2)
     (v1, v2) = svdvals(m)
     max(v1, v2)
+end
+
+function diag(m::Matrix2x2)
+    Vector2(m[1], m[4])
 end
 
 

@@ -284,6 +284,7 @@ and `m[4] = cis(theta/2 + alpha)`. Return `alpha`.
 get_global_phase(m::Matrix2x2) = angle(m[4] * m[1]) / 2
 
 
+
 # using ..DyadicFractions: DyadicFraction
 # function TSH()
 #     T = DyadicFraction{Int64, Int64}
