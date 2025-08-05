@@ -337,6 +337,13 @@ function Base.:-(c1::CyclotomicRing{M}, c2::CyclotomicRing{M}) where {M}
     CyclotomicRing{M, T}(coeffs)
 end
 
+function Base.:+(c1::CyclotomicRing{M}, c2::CyclotomicRing{M}) where {M}
+    coeffs = promote((c1.coeffs .+ c2.coeffs)...)
+    T = typeof(first(coeffs))
+    CyclotomicRing{M, T}(coeffs)
+end
+
+
 # function Base.:-(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
 #     coeffs = promote((c1.coeffs .- c2.coeffs)...)
 #     T = typeof(first(coeffs))

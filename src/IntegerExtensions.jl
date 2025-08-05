@@ -43,7 +43,10 @@ Reexport.@reexport import .Benchmarking: benchmark_compose
 
 include("gridsynth.jl")
 Reexport.@reexport import .GridSynth: GridSynthOpts, GridSynthResults, makecommand, run_gridsynth, gridsynth,
-    stringtonum, stringtobig
+    stringtonum, stringtobig, parse_gridsynth_matrix
+
+include("gridsynth_extra.jl")
+Reexport.@reexport import .GridSynthExtra: gridsynth_matrix_to_cyclic
 
 # For compiling workflows for statically-compiled-like latency
 # using PrecompileTools: @setup_workload, @compile_workload

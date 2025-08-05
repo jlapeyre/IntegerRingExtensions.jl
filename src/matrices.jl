@@ -11,8 +11,7 @@ Stack allocated, immutable, 2 x 2 matrix.
 If `T` is `isbits`, then `Matrix2x2{T}` is `isbits`.
 
 We implement a few necessary operations, including matrix multiplication,
-addition, subtraction, and unary minus. Some other things will be computed via
-fallback methods, which may be inefficient.
+addition, subtraction, and unary minus.
 """
 struct Matrix2x2{T} <: AbstractMatrix{T}
     data::NTuple{4, T}
@@ -135,6 +134,12 @@ and `m[4] = cis(theta/2 + phi)`. Return `theta`.
 get_theta(m::Matrix2x2) = angle(m[4] / m[1])
 
 function Base.transpose(m::Matrix2x2)
+#    (a, b, c, d) = map(transpose, m.data)
+    (a, b, c, d) = m.data
+    Matrix2x2(a, c, b, d)
+end
+
+function Base.permutedims(m::Matrix2x2)
     (a, b, c, d) = m.data
     Matrix2x2(a, c, b, d)
 end

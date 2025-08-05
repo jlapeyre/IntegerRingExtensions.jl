@@ -91,8 +91,11 @@ julia> compose("TSHTHTHTHT")
 ```
 """
 function compose(gates_in::AbstractString; chunklen=300)
-    length(codeunits(gates_in)) <= chunklen && return compose_one(gates_in)
-    chunks = reverse(chunkstring(reverse(gates_in), chunklen))
+#    gates = reverse(gates_in)
+    gates = gates_in
+    length(codeunits(gates)) <= chunklen && return compose_one(gates)
+#    chunks = reverse(chunkstring(reverse(gates), chunklen))
+    chunks = chunkstring(gates, chunklen)
     mats = [map(Domega{BigInt}, compose_one(chunk)) for chunk in chunks]
     canonical(prod(mats))
 end
@@ -220,7 +223,7 @@ function count_gates(gates::AbstractString)
 end
 
 Base.:*(::Gate1{:W}, m::Matrix2x2) =  map(x-> RootImag * x, m)
-Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1{:W}() * m
+Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1(:W) * m
 
 function Base.:*(::Gate1{:X}, m::Matrix2x2)
     (a,b,c,d) = m.data

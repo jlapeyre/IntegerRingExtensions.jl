@@ -1,6 +1,6 @@
 module GridSynth
 
-using ..Utils: PRETTY
+using ..Utils: PRETTY, superscript
 import ..Gates: Gates, compose
 
 # Parameters disables the default constructor :(
@@ -20,14 +20,6 @@ import ..Gates: Gates, compose
     latex::Bool = false
     seed::Int = 0
 end
-
-# function GridSynthOpts(theta::String;
-#                        epsilon::Float64=1e-10, uptophase::Bool=false,
-#                        effort::Int=25, hexoutput=false,
-#                        stats::Bool=true, latex::Bool=false,
-#                        seed::Int=0)
-#     GridSynthOpts(theta, epsilon, uptophase, effort, hexoutput, stats, latex, seed)
-# end
 
 function makecommand(opts::GridSynthOpts)
     (;theta, epsilon, uptophase, effort, hexoutput, stats, latex, seed) = opts
@@ -148,7 +140,6 @@ end
 ### Lossless or arbitrary precision conversion of numbers as strings to number types.
 ###
 
-
 function stringtonum(gr::GridSynthResults)
     return (theta = stringtonum(gr.theta), epsilon = stringtonum(gr.epsilon), error = stringtonum(gr.error))
 end
@@ -189,5 +180,49 @@ function compose(gr::GridSynthResults; chunklen=nothing)
     str = gr.gates
     return isnothing(chunklen) ? compose(str) : compose(str; chunklen)
 end
+
+struct GridSynthMatrix{T}
+    data::Matrix{T}
+    power::Int
+end
+
+function Base.show(io::IO, ::PRETTY, m::GridSynthMatrix)
+    print(io, typeof(m), ": 1/√2", superscript(m.power),  " x\n")
+    show(io, PRETTY(), m.data)
+end
+
+"""
+    parse_matrix(str::AbstractString, ::Type{T}=BigInt) where {T}
+
+Parse the string representation of a 2x2 matrix over `𝔻[ω] = ℤ[1/√2, i]` and return
+a numeric representation.
+
+The representation is a `Matrix{Vector{BigInt}}` and a power of one over root two.
+The power is of type `Int64`. Each element is a `Vector` of coefficients of
+an element of 𝔻[ω]
+
+The returned value is a `GridSynthMatrix{T}`.
+"""
+function parse_gridsynth_matrix(str::AbstractString, ::Type{CoeffT}=BigInt) where {CoeffT}
+    rhr = r"roothalf\^(\d+)\s\*\s"
+    roothalf = parse(Int, only(match(rhr, str).captures))
+    str = replace(str, rhr => "")
+    str = replace(str, r"matrix\s+" => "")
+    rows = collect(eachmatch(r"(\[Omega[^\]]+\])", str))
+    length(rows) == 2 || error(lazy"Expected two rows")
+    row1 = only(rows[1].captures)
+    row2 = only(rows[2].captures)
+    # Reverse because S+R choose opposite order for coefficients
+    getcoeffs(el) = reverse!([parse(CoeffT, String(only(x.captures))) for x in eachmatch(r"(-?\d+)", el)])
+    matels = [split(row1, ",")..., split(row2, ",")...]
+#    matrix = collect(permutedims(reshape(map(getcoeffs, matels), (2,2))))
+    matrix = collect(reshape(map(getcoeffs, matels), (2,2)))
+    return GridSynthMatrix(matrix, roothalf)
+end
+
+function parse_gridsynth_matrix(grid_results::GridSynthResults, ::Type{CoeffT}=BigInt) where {CoeffT}
+    parse_gridsynth_matrix(grid_results.matrix, CoeffT)
+end
+
 
 end # module GridSynth
