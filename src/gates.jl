@@ -273,17 +273,51 @@ and `m[4] = cis(theta/2 + phi)`. Return `theta`.
 """
 get_theta(m::Matrix2x2) = angle(m[4] / m[1])
 
+get_theta(m::Matrix2x2{<:Domega}) = get_theta(big(m))
+
 """
     get_global_phase(m::Matrix2x2)
 
 Find global phase of a Z-rotation matrix `m` with possible global phase.
 
-Assume `m` is diagonal, with `m[1] = cis(-theta/2 + alpha)`
-and `m[4] = cis(theta/2 + alpha)`. Return `alpha`.
+Assume `m` is diagonal, with `m[1] = cis(-theta/2 + alpha)` and `m[4] = cis(theta/2 + alpha)`. Return `alpha`.
+
+It's not possible to distinguish global phases that differ by addition of π. This is because
+2α is extracted, and 2(α + π) will give the same argument of the phase factor.
 """
 get_global_phase(m::Matrix2x2) = angle(m[4] * m[1]) / 2
+get_global_phase(m::Matrix2x2{<:Domega}) = get_global_phase(big(m))
 
+"""
+    correct_global_phase(m::Matrix2x2)
 
+This may be correct, or off by a global factor of `-1`.
+"""
+function correct_global_phase(m::Matrix2x2)
+    alpha = get_global_phase(m)
+    cis(-alpha) * big(m)
+end
+
+using LinearAlgebra: opnorm
+
+"""
+    rotation_error(m::matrix2x2, alpha::number; normf=opnorm)
+
+compute the error in the approximate z-rotation gate `m` using the norm function `normf`.
+
+`alpha` is the expected rotation angle. The RZ gate is `diagm([cis(-alpha/2), cis(alpha/2)])`
+A global phase on the input matrix is corrected.
+"""
+function rotation_error(m::Matrix2x2, alpha::Number; normf=opnorm)
+    expected_m = RZ(alpha)
+    mb = big(m)
+    mbc = correct_global_phase(mb)
+    mdiff = mbc - expected_m
+    msum = mbc + expected_m
+    # We can only determine the global phase up to a term π.
+    # So we try both.
+    return min(normf(mdiff), normf(msum))
+end
 
 # using ..DyadicFractions: DyadicFraction
 # function TSH()

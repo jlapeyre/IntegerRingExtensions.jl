@@ -1,5 +1,5 @@
 module Matrices
-import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag
+import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
 import ..Common: canonical
 import ..Utils: PRETTY, cpad
 
@@ -17,14 +17,6 @@ struct Matrix2x2{T} <: AbstractMatrix{T}
     data::NTuple{4, T}
 end
 
-struct Vector2{T} <: AbstractVector{T}
-    data::NTuple{2, T}
-end
-Vector2(a, b) = Vector2(promote(a, b))
-Vector2{T}(a, b) where {T} = Vector2(T(a), T(b))
-Base.size(::Vector2) = (2,)
-Base.eltype(::Type{Vector2{T}}) where T = T
-Base.IndexStyle(::Type{<:Vector2}) = IndexLinear()
 
 """
     Matrix2x2(a, b, c, d)
@@ -79,11 +71,6 @@ end
     return @inbounds m.data[i]
 end
 
-@inline function Base.getindex(m::Vector2, i::Integer)
-    @boundscheck checkbounds(m, i)
-    return @inbounds m.data[i]
-end
-
 @inline function _mul2(m1, m2)
     (a1, b1, c1, d1) = m1.data
     (a2, b2, c2, d2) = m2.data
@@ -107,6 +94,8 @@ Base.:*(m1::Matrix2x2, m2::Matrix2x2) = _mul2(m1, m2)
 Base.:+(m1::Matrix2x2, m2::Matrix2x2) = _pair_op(+, m1, m2)
 Base.:-(m1::Matrix2x2, m2::Matrix2x2) = _pair_op(-, m1, m2)
 Base.:-(m::Matrix2x2) = map(-, m) # Unary minus
+
+#
 
 # This is only called if `n` is not literal at the call site.
 function Base.:^(m::Matrix2x2, n::Integer)
@@ -176,9 +165,32 @@ function opnorm(m::Matrix2x2)
     max(v1, v2)
 end
 
-function diag(m::Matrix2x2)
-    Vector2(m[1], m[4])
+##
+## Vector2
+##
+
+struct Vector2{T} <: AbstractVector{T}
+    data::NTuple{2, T}
 end
 
+Vector2(a, b) = Vector2(promote(a, b))
+Vector2{T}(a, b) where {T} = Vector2(T(a), T(b))
+Base.size(::Vector2) = (2,)
+Base.eltype(::Type{Vector2{T}}) where T = T
+Base.IndexStyle(::Type{<:Vector2}) = IndexLinear()
+
+@inline function Base.getindex(m::Vector2, i::Integer)
+    @boundscheck checkbounds(m, i)
+    return @inbounds m.data[i]
+end
+
+function Base.:*(m::Matrix2x2, v::Vector2)
+    (a,b,c,d) = m.data
+    (x, y) = v.data
+    Vector2(a*x + c*y, b*x + d*y)
+end
+
+diag(m::Matrix2x2) = Vector2(m[1], m[4])
+diagm(v::Vector2{T}) where {T} = Matrix2x2(v[1], zero(T), zero(T), v[2])
 
 end # module Matrices

@@ -36,7 +36,8 @@ include("matrices.jl")
 Reexport.@reexport import .Matrices: Matrix2x2, Vector2
 
 include("gates.jl")
-Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1, get_theta, get_global_phase
+Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1, get_theta, get_global_phase,
+    correct_global_phase, rotation_error
 
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose
