@@ -69,7 +69,7 @@ These methods instantiate a `Matrix2x2{T}` representing thate gate `Name`.
 
 If a method for multiplying `Gate1(Name)` by a `Matrix2x2` is not defined, a `MethodError` will be thrown.
 """
-Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name} = Gate1{Name}() * one(Matrix2x2{T})
+Matrix2x2{T}(::Type{Gate1{Name}}) where {T, Name} = Matrix2x2{T}((Gate1{Name}() * one(Matrix2x2{T}))...,)
 Matrix2x2{T}(g::Gate1{Name}) where {T, Name} = Matrix2x2{T}(typeof(g))
 
 """

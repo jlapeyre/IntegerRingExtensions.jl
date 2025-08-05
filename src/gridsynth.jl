@@ -148,7 +148,7 @@ end
 using MacroTools: postwalk, @capture
 
 # Change big(b)^big(n) to big(b)^n  . `n` can be an expr like `-n`
-# If n is a negative literal, evaluation will fail if it's made big
+# If n is a negative literal, evaluation will fail if it's made big.
 function unbigpow(expr::Expr)
     postwalk(x -> @capture(x, ^(big(b_), big(n_))) ? :(^(big($b), $n)) : x, expr)
 end
@@ -156,11 +156,14 @@ end
 biggennum(str::AbstractString) = eval(biggenex(str))
 
 function biggenex(str::AbstractString)
+    # First modify expressions output by gridsynth to be valid Julia expressions
     str = replace(str, r"(\*\*)" => "^")
-#    str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(big(\1))") # fix square root
     str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(\1)") # fix square root
+
+    # Next use MacroTools to rewrite the expression.
     biggenex(Meta.parse(str))
 end
+
 function biggenex(expr::Expr)
     res = postwalk(expr) do x
         if isa(x, Integer)
@@ -178,42 +181,42 @@ function biggenex(expr::Expr)
     unbigpow(res)
 end
 
-function stringtonum(str, ::Type{T}=BigFloat) where {T <: Number}
-    bstr = stringtobig(str)
-    num = eval(Meta.parse(bstr))
-    any(x -> isa(num, x), (Integer, Rational)) && return num
-    T <: BigFloat && return num # not necessary, but for testing
-    T(num)
-end
+# function stringtonum(str, ::Type{T}=BigFloat) where {T <: Number}
+#     bstr = stringtobig(str)
+#     num = eval(Meta.parse(bstr))
+#     any(x -> isa(num, x), (Integer, Rational)) && return num
+#     T <: BigFloat && return num # not necessary, but for testing
+#     T(num)
+# end
 
-function stringtobig(str)
-    str = replace(str, r"\*\*" => "^")  # prefer ^ for power
-    if ! isnothing(match(r"\*", str))  # multiplication
-        parts = split(str, r"\*")
-        newparts = [stringtobig(x) for x in parts]
-        return join([stringtobig(x) for x in parts], " * ")
-    end
-    str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(big(\1))") # fix square root
-    # We have already replaced ** with ^, so detecting former is obsolete
-    powmatch = match(r"(\^|\*\*)", str)
-    if ! isnothing(powmatch)
-        powop = only(powmatch.captures)
-        parts = split(str, powop)
-        if length(parts) != 2
-            error("too many parts in power")
-        end
-        (base, pow) = (parts...,)
-        if !isnothing(match(r"-\d+", pow))
-            pow = replace(pow, "-" => "")
-            return "Rational(1, $(stringtobig(base)) ^ $pow)"
-        end
-        newparts = [stringtobig(base), String(pow)]
-        return join(newparts, "^")
-    end
-    str = replace(str, r"(\d+\.?\d+)" => s"big\"\1\"")
-    str = replace(str, "pi" => "big(pi)")
-    return String(str)
-end
+# function stringtobig(str)
+#     str = replace(str, r"\*\*" => "^")  # prefer ^ for power
+#     if ! isnothing(match(r"\*", str))  # multiplication
+#         parts = split(str, r"\*")
+#         newparts = [stringtobig(x) for x in parts]
+#         return join([stringtobig(x) for x in parts], " * ")
+#     end
+#     str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(big(\1))") # fix square root
+#     # We have already replaced ** with ^, so detecting former is obsolete
+#     powmatch = match(r"(\^|\*\*)", str)
+#     if ! isnothing(powmatch)
+#         powop = only(powmatch.captures)
+#         parts = split(str, powop)
+#         if length(parts) != 2
+#             error("too many parts in power")
+#         end
+#         (base, pow) = (parts...,)
+#         if !isnothing(match(r"-\d+", pow))
+#             pow = replace(pow, "-" => "")
+#             return "Rational(1, $(stringtobig(base)) ^ $pow)"
+#         end
+#         newparts = [stringtobig(base), String(pow)]
+#         return join(newparts, "^")
+#     end
+#     str = replace(str, r"(\d+\.?\d+)" => s"big\"\1\"")
+#     str = replace(str, "pi" => "big(pi)")
+#     return String(str)
+# end
 
 function compose(gr::GridSynthResults; chunklen=nothing)
     str = gr.gates
@@ -231,7 +234,7 @@ function Base.show(io::IO, ::PRETTY, m::GridSynthMatrix)
 end
 
 """
-    parse_matrix(str::AbstractString, ::Type{T}=BigInt) where {T}
+    parse_gridsynth_matrix(str::AbstractString, ::Type{T}=BigInt) where {T}
 
 Parse the string representation of a 2x2 matrix over `𝔻[ω] = ℤ[1/√2, i]` and return
 a numeric representation.
@@ -259,7 +262,6 @@ function parse_gridsynth_matrix(str::AbstractString, ::Type{CoeffT}=BigInt) wher
     # Reverse because S+R choose opposite order for coefficients
     getcoeffs(el) = reverse!([parse(CoeffT, String(only(x.captures))) for x in eachmatch(r"(-?\d+)", el)])
     matels = [split(row1, ",")..., split(row2, ",")...]
-#    matrix = collect(permutedims(reshape(map(getcoeffs, matels), (2,2))))
     matrix = collect(reshape(map(getcoeffs, matels), (2,2)))
     return GridSynthMatrix(matrix, roothalf)
 end
