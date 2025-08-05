@@ -141,7 +141,41 @@ end
 ###
 
 function stringtonum(gr::GridSynthResults)
-    return (theta = stringtonum(gr.theta), epsilon = stringtonum(gr.epsilon), error = stringtonum(gr.error))
+    return (theta = biggennum(gr.theta), epsilon = biggennum(gr.epsilon), error = biggennum(gr.error))
+#    return (theta = stringtonum(gr.theta), epsilon = stringtonum(gr.epsilon), error = stringtonum(gr.error))
+end
+
+using MacroTools: postwalk, @capture
+
+# Change big(b)^big(n) to big(b)^n  . `n` can be an expr like `-n`
+# If n is a negative literal, evaluation will fail if it's made big
+function unbigpow(expr::Expr)
+    postwalk(x -> @capture(x, ^(big(b_), big(n_))) ? :(^(big($b), $n)) : x, expr)
+end
+
+biggennum(str::AbstractString) = eval(biggenex(str))
+
+function biggenex(str::AbstractString)
+    str = replace(str, r"(\*\*)" => "^")
+#    str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(big(\1))") # fix square root
+    str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(\1)") # fix square root
+    biggenex(Meta.parse(str))
+end
+function biggenex(expr::Expr)
+    res = postwalk(expr) do x
+        if isa(x, Integer)
+            return :(big($x))
+        end
+        if x === :pi
+            return :(big(pi))
+        end
+        if isa(x, Float64)
+            xs = string(x)
+            return :(@big_str($xs))
+        end
+        return x
+    end
+    unbigpow(res)
 end
 
 function stringtonum(str, ::Type{T}=BigFloat) where {T <: Number}
