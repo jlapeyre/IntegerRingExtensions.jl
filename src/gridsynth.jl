@@ -159,7 +159,7 @@ function stringtobig(str)
         newparts = [stringtobig(x) for x in parts]
         return join([stringtobig(x) for x in parts], " * ")
     end
-    str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(\1)") # fix square root
+    str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(big(\1))") # fix square root
     # We have already replaced ** with ^, so detecting former is obsolete
     powmatch = match(r"(\^|\*\*)", str)
     if ! isnothing(powmatch)

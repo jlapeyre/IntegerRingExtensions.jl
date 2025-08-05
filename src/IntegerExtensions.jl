@@ -36,7 +36,7 @@ include("matrices.jl")
 Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2
 
 include("ring_matrices.jl")
-Reexport.@reexport import .RingMatrices
+Reexport.@reexport import .RingMatrices: compute_phase_factor
 
 include("gates.jl")
 Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1, get_theta, get_global_phase,
