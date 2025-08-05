@@ -3,7 +3,7 @@ module DyadicFractions
 import Base: zero, iszero, one, convert, promote_rule, show
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
     PRETTY, lobit
-import ..Common: canonical, mul_half, params, conj_root_two
+import ..Common: canonical, mul_half, mul_two, params, conj_root_two
 import ..Singletons: InvTwo, InvTwoT, TwoT, Pow
 
 ########################
@@ -76,13 +76,30 @@ Divide `f` by `2^n`.
 The value returned is in canonical form.
 """
 function mul_half(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
-    n == 0 && return f
-    if n < 0
-        canonical(DyadicFraction((T(1) << -n) * f.a, f.k))
-    else
-        canonical(DyadicFraction(f.a, f.k + V(n)))
-    end
+    mul_two(f, -n)
+    # n == 0 && return f
+    # if n < 0
+    #     canonical(DyadicFraction((T(1) << -n) * f.a, f.k))
+    # else
+    #     canonical(DyadicFraction(f.a, f.k + V(n)))
+    # end
 end
+
+function mul_two(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
+    n == 0 && return f
+    fr = if n < 0
+        DyadicFraction(f.a, f.k + -V(n))
+    else
+        m = n - f.k
+        if m >= 0
+            DyadicFraction((T(1) << m) * f.a, zero(f.k))
+        else
+            DyadicFraction(f.a, -m)
+        end
+    end
+    return canonical(fr)
+end
+
 
 function promote_rule(::Type{DyadicFraction{T1,V1}}, ::Type{DyadicFraction{T2,V2}}) where {T1,T2,V1,V2}
     T = promote_type(T1, T2)

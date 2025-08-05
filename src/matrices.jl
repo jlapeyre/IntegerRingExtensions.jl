@@ -57,6 +57,9 @@ function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
     print(io, cpad(ds, w2))
 end
 
+# function Base.Matrix{T}(m::Matrix2x2{V}) where {T, V}
+# end
+
 function Base.map(f, m::Matrix2x2)
     (a, b, c, d) = m.data
     Matrix2x2(f(a), f(b), f(c), f(d))
@@ -71,8 +74,6 @@ end
     (a1, b1, c1, d1) = m1.data
     (a2, b2, c2, d2) = m2.data
     Matrix2x2(a1*a2 + c1*b2, a2*b1 + d1*b2, a1*c2 + c1*d2, b1*c2 + d1*d2)
-#    Matrix2x2(a1*a2 + c1*b2, a1*c2+c1*d2, a2*b1+d1*b2, b1*c2 + d1*d2)
-#    Matrix2x2(a1*a2 + b1*c2, a1*b2+b1*d2, a2*c1+d1*c2, c1*b2 + d1*d2)
 end
 
 @inline function Base.:*(m::Matrix2x2, x::Number)

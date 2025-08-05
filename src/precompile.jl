@@ -9,9 +9,12 @@
     @compile_workload begin
         # All calls in this block will be precompiled, regardless of whether
         # they belong to your package or not (on Julia 1.8 and higher)
-        # These don't take very long to compile anyway.
-        # Especially for larger values of N, the run time is much larger than compile time.
-
+        try
+            res = gridsynth(theta="pi/16", epsilon=1e-20)
+            print(res)
+        catch
+            nothing
+        end
         # These definitley improve TTFX. But the times were not terrible anyway.
         m = compose(gates_r1024)
         display(m[1,1])

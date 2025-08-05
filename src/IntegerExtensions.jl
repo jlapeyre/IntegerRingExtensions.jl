@@ -42,7 +42,8 @@ include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose
 
 include("gridsynth.jl")
-Reexport.@reexport import .GridSynth: GridSynthOpts, makecommand, run_gridsynth, gridsynth
+Reexport.@reexport import .GridSynth: GridSynthOpts, GridSynthResults, makecommand, run_gridsynth, gridsynth,
+    stringtonum, stringtobig
 
 # For compiling workflows for statically-compiled-like latency
 # using PrecompileTools: @setup_workload, @compile_workload

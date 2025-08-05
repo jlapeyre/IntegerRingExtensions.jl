@@ -1,6 +1,7 @@
 module GridSynth
 
 using ..Utils: PRETTY
+import ..Gates: Gates, compose
 
 # Parameters disables the default constructor :(
 # Also does not allow forwarding keywords args with (;kwargs...)
@@ -56,40 +57,24 @@ end
 
 function Base.show(io::IO, ::PRETTY, gr::Union{GridSynthResults, GridSynthOpts})
     _show(io, gr, 1)
-    # _s(obj) = show(io, PRETTY(), obj)
-    # props = propertynames(gr)
-    # println(io, typeof(gr), "(")
-    # for (i, name) in enumerate(props)
-    #     print(io, "  ", name, "=")
-    #     prop = getproperty(gr, name)
-    #     _s(prop)
-    #     print(io, "\n")
-    # end
-    # print(io, ")")
 end
 
 _show(io::IO, obj, n) = show(io, PRETTY(), obj)
 
 function _show(io::IO, gr::Union{GridSynthResults, GridSynthOpts}, n::Int)
-#    _s(obj) = _show(io, PRETTY(), obj)
     _s(obj) = _show(io, obj, n+2)
     props = propertynames(gr)
     println(io, typeof(gr), "(")
     for (i, name) in enumerate(props)
-        for i in 1:n
-            print(io, " ")
-        end
+        print(io, " "^n)
         print(io, name, "=")
         prop = getproperty(gr, name)
         _s(prop)
         print(io, "\n")
     end
-    for i in 1:(n-1)
-        print(io, " ")
-    end
+    print(io, " "^(n-1))
     print(io, ")")
 end
-
 
 
 run_gridsynth(command::Cmd) = split(read(command, String), "\n")
@@ -157,6 +142,52 @@ end
 function gridsynth(;kwargs...)
     opts = GridSynthOpts(;kwargs...)
     run_gridsynth(opts)
+end
+
+###
+### Lossless or arbitrary precision conversion of numbers as strings to number types.
+###
+
+
+function stringtonum(gr::GridSynthResults)
+    return (theta = stringtonum(gr.theta), epsilon = stringtonum(gr.epsilon), error = stringtonum(gr.error))
+end
+
+function stringtonum(str, ::Type{T}=BigFloat) where {T <: Number}
+    bstr = stringtobig(str)
+    num = eval(Meta.parse(bstr))
+    any(x -> isa(num, x), (Integer, Rational)) && return num
+    T <: BigFloat && return num # not necessary, but for testing
+    T(num)
+end
+
+function stringtobig(str)
+    if ! isnothing(match(r"\*", str))
+        parts = split(str, "*")
+        newparts = [stringtobig(x) for x in parts]
+        return join([stringtobig(x) for x in parts], " * ")
+    end
+    if ! isnothing(match(r"\^", str))
+        parts = split(str, "^")
+        if length(parts) != 2
+            error("too many parts in power")
+        end
+        (base, pow) = (parts...,)
+        if !isnothing(match(r"-\d+", pow))
+            pow = replace(pow, "-" => "")
+            return "Rational(1, $(stringtobig(base)) ^ $pow)"
+        end
+        newparts = [stringtobig(base), String(pow)]
+        return join(newparts, "^")
+    end
+    str = replace(str, r"(\d+\.?\d+)" => s"big\"\1\"")
+    str = replace(str, "pi" => "big(pi)")
+    return String(str)
+end
+
+function compose(gr::GridSynthResults; chunklen=nothing)
+    str = gr.gates
+    return isnothing(chunklen) ? compose(str) : compose(str; chunklen)
 end
 
 end # module GridSynth

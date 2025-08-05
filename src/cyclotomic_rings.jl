@@ -3,7 +3,7 @@ module CyclotomicRings
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_root_two, mul_one_over_root_two, mul_half, conj_root_two
+    mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, mul_two
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne8, RootOne
 
@@ -452,6 +452,20 @@ function mul_root_two(cyc::CyclotomicRing{4})
     CyclotomicRing(coeffs)
 end
 
+function mul_root_two(cyc::CyclotomicRing{4}, n::Integer)
+    n == 0 && return cyc
+    if n > 0
+        # We might want something more efficient, less overflow prone, etc.
+        cyc1 = mul_two(cyc, div(n,2))
+        iseven(n) && return cyc1
+        return mul_root_two(cyc1)
+    else
+        n = -n
+        iseven(n) && return mul_half(cyc, div(n, 2))
+        return mul_root_two(mul_half(cyc, div(n, 2) + 1))
+    end
+end
+
 """
     mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
 
@@ -460,7 +474,13 @@ Multiply `cyc` by `n` factors of the reciprocal of two.
 `n` may be positive, negative, or zero.
 """
 function mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
+    n == 0 && return cyc
     CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
+end
+
+function mul_two(cyc::CyclotomicRing{4}, n::Integer=1)
+    n == 0 && return cyc
+    CyclotomicRing(map(x -> mul_two(x, n), cyc.coeffs))
 end
 
 function Base.:*(::InvTwoT, cyc::CyclotomicRing)

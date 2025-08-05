@@ -118,6 +118,10 @@ function mul_half(x, n::Integer=1)
     x * (inv(typeof(x)(2))^n)
 end
 
+function mul_two(x, n::Integer=1)
+    x * (typeof(x)(2))^n
+end
+
 """
     conj_root_two(x::Number)
 
