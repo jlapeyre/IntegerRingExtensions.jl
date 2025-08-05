@@ -121,7 +121,8 @@ end
 
 # Assume gates has already been reversed!
 """
-    compose_one(gates::AbstractString, gmap=GATE_MAP_BIG_INT; reduce_fractions=true)
+    compose_one(gates::AbstractString, map_func; reduce_fractions=true)
+    compose_one(gates::AbstractString; reduce_fractions=true)
 
 Compose gates in string `gates`. This is meant to compute the composition for a chunk
 of a longer string of gates. The chunking and recombining is done by `compose`.
@@ -129,9 +130,9 @@ The reason we compute by chunks is that the chunks are small enough that computa
 can be done with 64-bit (i.e. fast) integers. Then the resulting matrices are converted to
 `BigInt`, and a final composition of these matrices is peformed.
 
-Compute composition of the gates in `gates`. The composition will be from
-*right to left*. In particular, you need to reverse the output string from
-`gridsynth` before calling `compose`.
+Compute composition of the gates in `gates`. The composition will be from *right to
+left*. In particular, you need to reverse the output string from `gridsynth` before calling
+`compose`.
 
 `map_func` is a map from `Symbol`s to matrices. If `reduce_fractions` is `true`
 then reduce fractions in `DyadicFraction`s after each matrix multiplication.
@@ -139,27 +140,28 @@ then reduce fractions in `DyadicFraction`s after each matrix multiplication.
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
 of longer compositions with smaller data types.
 """
-function compose_one(gates::AbstractString; reduce_fractions=true, map_func=nothing)
+function compose_one(gates::AbstractString; reduce_fractions=true)
     result = one(Matrix2x2{Domega{Int}})
     reduce_func = reduce_fractions ? canonical : identity
-    if isnothing(map_func)
-        for gate in codeunits(gates)
-            sgate = Symbol(Char(gate))
-            new_result = _apply_gate(sgate, result)
-            if isnothing(new_result)
-                error("unknown gate")
-            end
-            result = reduce_func(new_result)
+    for gate in codeunits(gates)
+        new_result = _apply_gate(Symbol(Char(gate)), result)
+        isnothing(new_result) && error(lazy"unknown gate $(Symbol(Char(gate)))")
+        result = reduce_func(new_result)
+    end
+    return result
+end
+
+# `map_func` allows supplying gates that are not "built in"
+function compose_one(gates::AbstractString, map_func; reduce_fractions=true)
+    result = one(Matrix2x2{Domega{Int}})
+    reduce_func = reduce_fractions ? canonical : identity
+    for gate in codeunits(gates)
+        sgate = Symbol(Char(gate))
+        new_result = _apply_gate(sgate, result)
+        if isnothing(new_result)
+            new_result = map_func(sgate) * result
         end
-    else
-        for gate in codeunits(gates)
-            sgate = Symbol(Char(gate))
-            new_result = _apply_gate(sgate, result)
-            if isnothing(new_result)
-                new_result = map_func(sgate) * result
-            end
-            result = reduce_func(new_result)
-        end
+        result = reduce_func(new_result)
     end
     return result
 end
