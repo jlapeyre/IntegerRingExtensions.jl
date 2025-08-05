@@ -57,8 +57,9 @@ function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
     print(io, cpad(ds, w2))
 end
 
-# function Base.Matrix{T}(m::Matrix2x2{V}) where {T, V}
-# end
+function Base.Matrix(m::Matrix2x2)
+    reshape([m.data...,], (2,2))
+end
 
 function Base.map(f, m::Matrix2x2)
     (a, b, c, d) = m.data

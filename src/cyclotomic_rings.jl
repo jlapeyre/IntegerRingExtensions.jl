@@ -613,6 +613,10 @@ function Base.Complex{Tc}(c::CyclotomicRing{4}) where Tc
         T(d) * T(RootOne8(3))
 end
 
+function (::Type{Complex})(c::CyclotomicRing)
+    convert(Complex, c)
+end
+
 function CyclotomicRing{4, T}(r::RootOne8) where {T}
     val = r.k == 4 ? -1 : sign(4 - r.k)
     pos = mod(r.k, 4)
