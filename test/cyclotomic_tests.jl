@@ -36,11 +36,9 @@ end
     @test !isbits(zb)
     @test isa(zb, Domega{BigInt})
 
-    # Ugh. Not really coerced to a Domega.
-    # Second Int type is also Int128 upon promotion
     z2 = Domega(Int128(1),2,3,DyadicFraction(5,2))
     @test isbits(z2)
-    @test isa(z2, CyclotomicRing{4, DyadicFraction{Int128,Int128}})
+    @test isa(z2, CyclotomicRing{4, DyadicFraction{Int128,Int}})
 end
 
 @testset "CyclotomicRing construction" begin

@@ -89,7 +89,7 @@ function store_results(lines, opts)
     seed = Tuple((ps(x) for x in spl(_seed)[3:4]))
     tcount = ps(lspl(_tcount))
     lowerbound = ps(lspl(_lb))
-    theta = String(lspl(_theta))
+    theta = String(replace(_theta, r"Theta:\s+" => ""))
     epsilon = String(lspl(_epsilon))
 
     _matrix_res  = collect(split(_matrix, r":"))
@@ -153,13 +153,18 @@ function stringtonum(str, ::Type{T}=BigFloat) where {T <: Number}
 end
 
 function stringtobig(str)
-    if ! isnothing(match(r"\*", str))
-        parts = split(str, "*")
+    str = replace(str, r"\*\*" => "^")  # prefer ^ for power
+    if ! isnothing(match(r"\*", str))  # multiplication
+        parts = split(str, r"\*")
         newparts = [stringtobig(x) for x in parts]
         return join([stringtobig(x) for x in parts], " * ")
     end
-    if ! isnothing(match(r"\^", str))
-        parts = split(str, "^")
+    str = replace(str, r"sqrt\s+([^\s]+)" => s"sqrt(\1)") # fix square root
+    # We have already replaced ** with ^, so detecting former is obsolete
+    powmatch = match(r"(\^|\*\*)", str)
+    if ! isnothing(powmatch)
+        powop = only(powmatch.captures)
+        parts = split(str, powop)
         if length(parts) != 2
             error("too many parts in power")
         end
@@ -205,7 +210,12 @@ The returned value is a `GridSynthMatrix{T}`.
 """
 function parse_gridsynth_matrix(str::AbstractString, ::Type{CoeffT}=BigInt) where {CoeffT}
     rhr = r"roothalf\^(\d+)\s\*\s"
-    roothalf = parse(Int, only(match(rhr, str).captures))
+    rootmatch = match(rhr, str)
+    if !isnothing(rootmatch)
+        roothalf = parse(Int, only(rootmatch.captures))
+    else
+        roothalf = 0
+    end
     str = replace(str, rhr => "")
     str = replace(str, r"matrix\s+" => "")
     rows = collect(eachmatch(r"(\[Omega[^\]]+\])", str))

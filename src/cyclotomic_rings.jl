@@ -296,7 +296,8 @@ end
 # end
 
 function Domega(c1, c2, c3, c4)
-    cs = promote(DyadicFraction(c1), c2, c3, c4)
+    c1a = DyadicFraction{typeof(c1), Int}(c1)
+    cs = promote(c1a, c2, c3, c4)
     CyclotomicRing(cs)
 end
 

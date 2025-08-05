@@ -1,6 +1,7 @@
 using IntegerExtensions
 using Test
 
+include("ringmatrices_tests.jl")
 include("composition_tests.jl")
 include("singleton_conversion_tests.jl")
 include("rootonetests.jl")
@@ -75,6 +76,4 @@ end
     hadamard = [z z; z -z] # Hadamard matrix
     @test isapprox(float(hadamard), 1/sqrt(2) * [1 1; 1 -1])
 end
-
-
 
