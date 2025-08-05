@@ -1,6 +1,7 @@
 using IntegerExtensions
 using Test
 
+include("composition_tests.jl")
 include("singleton_conversion_tests.jl")
 include("rootonetests.jl")
 include("matricestests.jl")
@@ -76,18 +77,4 @@ end
 end
 
 
-@testset "composition" begin
-
-    # Approximation of RZ(pi/16) up to global phase, for epsilon = 1e-20
-
-    str = "HTSHTSHTHTHTHTSHTHTSHTHTSHTSHTSHTSHTSHTSHTHTHTSHTSHTSHTHTSHTSHTHTHTHTHTSHTSHTSHTHTHTSHTHTSHTSHTSHTSHTHTHTHTHTSHTHTSHTHTSHTHTSHTHTHTHTSHTSHTSHTHTSHTHTSHTSHTHTSHTHTHTHTSHTHTSHTHTHTHTHTHTSHTHTHTHTHTHTSHTHTSHTSHTSHTSHTSHTSHTSHTHTSHTSHTHTSHTHTSHTSHTSHTSHTSHTHTSHTSHTSHTSHTHTHTSHTSHTHTSHTHTSHTSHTHTSHTSHTSHTSHTHTHTHTHTHTSHTHTSHTSHTHTHTSHTHTHTSHTHTSHTSHTSHTHTSHTSHTHTSHTSHTHTHTSHTHTHTSHTSHTSHTHTSHTHTHTSHTSHTHTSHTHTHTSHTHTSHTSHTSHTHTHTSHTHTHTHTHTHTHTHTHTHTSHTSHTHTSHTHTSHTHTSHTSHTSHTSHTSHTHTSHTHTHTSHTSHTHTXS"
-
-    # Use ordinary Int64 as the base type.
-    m = compose(str)
-    m_float = big(m) # Convert from Domega{Int} to BigFloat
-    theta = get_theta(m_float) # Extract theta. There will be a global phase
-    theta_diff = abs(theta - big(pi) / 16) # Expected theta is pi/16
-    @test theta_diff < 1e-19  # Test accuracy
-    @test theta_diff > 1e-20  # Sanity check. We are testing something.
-end
 

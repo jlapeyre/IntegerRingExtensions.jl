@@ -95,7 +95,8 @@ function compose(gates_in::AbstractString; chunklen=300)
     gates = gates_in
     length(codeunits(gates)) <= chunklen && return compose_one(gates)
 #    chunks = reverse(chunkstring(reverse(gates), chunklen))
-    chunks = chunkstring(gates, chunklen)
+    chunks = reverse(chunkstring(gates, chunklen))
+#    chunks = chunkstring(gates, chunklen)
     mats = [map(Domega{BigInt}, compose_one(chunk)) for chunk in chunks]
     canonical(prod(mats))
 end
