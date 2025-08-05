@@ -33,7 +33,7 @@ include("cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega
 
 include("matrices.jl")
-Reexport.@reexport import .Matrices: Matrix2x2, Vector2
+Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2
 
 include("gates.jl")
 Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1, get_theta, get_global_phase,

@@ -1,4 +1,4 @@
-module Matrices
+module Matrices2x2
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
 import ..Common: canonical
 import ..Utils: PRETTY, cpad
@@ -193,4 +193,4 @@ end
 diag(m::Matrix2x2) = Vector2(m[1], m[4])
 diagm(v::Vector2{T}) where {T} = Matrix2x2(v[1], zero(T), zero(T), v[2])
 
-end # module Matrices
+end # module Matrices2x2

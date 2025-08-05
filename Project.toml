@@ -8,7 +8,6 @@ ILog2 = "2cd5bd5f-40a1-5050-9e10-fc8cdb6109f5"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
-QMatrices = "e8637a5f-fa46-429a-85d3-62b6b7f83b1f"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [weakdeps]

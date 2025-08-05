@@ -1,6 +1,6 @@
 module Gates
 
-using ..Matrices: Matrix2x2
+using ..Matrices2x2: Matrix2x2
 using ..Common: canonical
 using ..CyclotomicRings: Domega
 using ..Singletons: One, Imag, RootImag, InvRootTwo
