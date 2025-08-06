@@ -35,8 +35,8 @@ values of `D` are `2` and `3`.
 
 If `D` is a supported integer and `CoeffT <: Integer`, then the type represents `ℤ[√D]`, a ring of quadratic integers.
 
-If `D` is the type `DyadicFraction`, then the ring represents `𝔻[√D]`, that is, the ring if dyadic fractions with
-`√D` adjoined.
+If `D` is the type `DyadicFraction`, then the ring represents `𝔻[√D]`, that is, the ring of
+dyadic fractions with `√D` adjoined.
 
 The following aliases are defined:
 ```julia
@@ -244,7 +244,6 @@ Base.transpose(q::QuadraticRing) = q
 function Base.iszero(q::QuadraticRing)
     iszero(q.a) && iszero(q.b)
 end
-
 
 Base.one(::Type{QuadraticRing{D, CoeffT}}) where {D, CoeffT} = QuadraticRing{D, CoeffT}(one(CoeffT), zero(CoeffT))
 Base.one(q::QuadraticRing) = one(typeof(q))
