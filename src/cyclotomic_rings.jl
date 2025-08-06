@@ -331,6 +331,13 @@ function Zomega(c::CyclotomicRing{4, CT}) where {CT}
     Zomega{typeof(first(coeffs))}(coeffs)
 end
 
+function Domega(r::Rational)
+    d = DyadicFraction(r)
+    z = zero(d)
+    T = typeof(d.a)
+    Domega{T}(d, z, z, z)
+end
+
 Domega(a::T) where {T<:Integer} = Domega{T}(a)
 #Domega(a::Number) = Domega{Int}(a)
 

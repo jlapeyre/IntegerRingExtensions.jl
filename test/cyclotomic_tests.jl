@@ -49,6 +49,8 @@ end
     @test Int(Zomega(3)) === 3
     @test Int(Domega(3)) === 3
 
+    @test typeof(Domega(3//8)) == Domega{Int}
+
     @test_throws MethodError Domega(1,2,3)
     @test_throws MethodError Zomega(1,2,3)
 end
