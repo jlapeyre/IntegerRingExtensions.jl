@@ -331,7 +331,8 @@ function Zomega(c::CyclotomicRing{4, CT}) where {CT}
     Zomega{typeof(first(coeffs))}(coeffs)
 end
 
-Domega(a::Number) = Domega{Int}(a)
+Domega(a::T) where {T<:Integer} = Domega{T}(a)
+#Domega(a::Number) = Domega{Int}(a)
 
 function canonical(c::CyclotomicRing)
     CyclotomicRing(map(canonical,  c.coeffs))
