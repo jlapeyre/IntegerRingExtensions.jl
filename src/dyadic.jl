@@ -5,6 +5,7 @@ import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
     PRETTY, lobit
 import ..Common: canonical, mul_half, mul_two, params, conj_root_two
 import ..Singletons: InvTwo, InvTwoT, TwoT, Pow
+import ILog2
 
 ########################
 ####
@@ -258,7 +259,7 @@ Base.Rational(f::DyadicFraction{aT}) where {aT} = convert(Rational{aT}, f)
 
 function convert(::Type{DyadicFraction}, r::Rational)
     ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
-    DyadicFraction(r.num, ilog2(r.den))
+    DyadicFraction(r.num, ILog2.ilog2(r.den))
 end
 
 function Complex{Tc}(df::DyadicFraction) where {Tc}

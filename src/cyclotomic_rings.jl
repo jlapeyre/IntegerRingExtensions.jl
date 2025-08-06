@@ -325,7 +325,11 @@ Zomega(a::T, b::T, c::T, d::T) where {T <: Integer} = Zomega{Int}(a, b, c, d)
 Zomega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
 
 Zomega(a::Number) = Zomega{Int}(a)
-#Zomega(
+
+function Zomega(c::CyclotomicRing{4, CT}) where {CT}
+    coeffs = map(x -> convert(Integer, x), c.coeffs)
+    Zomega{typeof(first(coeffs))}(coeffs)
+end
 
 Domega(a::Number) = Domega{Int}(a)
 
@@ -568,7 +572,6 @@ end
 function Base.convert(::Type{T}, c::CyclotomicRing) where {T}
     CyclotomicRing(map(x -> convert(T, x), c.coeffs))
 end
-
 
 function Base.convert(::Type{Complex{Tc}}, c::CyclotomicRing) where Tc
     Complex{Tc}(c)

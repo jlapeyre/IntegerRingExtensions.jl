@@ -4,6 +4,7 @@
     @test Int(DyadicFraction(4, 0)) == 4
     @test Int(DyadicFraction(4, 2)) == 1
     @test Rational(DyadicFraction(3, 3)) === 3//8
+    @test DyadicFraction(3//8) === DyadicFraction(3, 3)
     @test_throws ArgumentError Int(DyadicFraction(3, 2))
 
     z = DyadicFraction(3, 1)
