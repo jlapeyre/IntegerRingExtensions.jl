@@ -320,9 +320,13 @@ end
 
 Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(DyadicFraction{T,Int}, a,b,c,d)
 
-Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
+# Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
+Zomega(a::T, b::T, c::T, d::T) where {T <: Integer} = Zomega{Int}(a, b, c, d)
 Zomega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
+
 Zomega(a::Number) = Zomega{Int}(a)
+#Zomega(
+
 Domega(a::Number) = Domega{Int}(a)
 
 function canonical(c::CyclotomicRing)
@@ -573,7 +577,6 @@ end
 function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
     coeffs = convert.(CT1, c.coeffs)
     CyclotomicRing{M, CT1}(coeffs)
-#    CyclotomicRing(coeffs)
 end
 
 function Base.AbstractFloat(c::CyclotomicRing{4})
