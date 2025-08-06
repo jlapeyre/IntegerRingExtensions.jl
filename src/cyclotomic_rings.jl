@@ -572,7 +572,8 @@ end
 
 function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
     coeffs = convert.(CT1, c.coeffs)
-    CyclotomicRing(coeffs)
+    CyclotomicRing{M, CT1}(coeffs)
+#    CyclotomicRing(coeffs)
 end
 
 function Base.AbstractFloat(c::CyclotomicRing{4})
