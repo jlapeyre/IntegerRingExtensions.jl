@@ -332,6 +332,12 @@ function Zomega(c::CyclotomicRing{4, CT}) where {CT}
     Zomega{typeof(first(coeffs))}(coeffs)
 end
 
+function Domega(c::CyclotomicRing{4, CT}) where {CT}
+    coeffs = map(x -> DyadicFraction(x), c.coeffs)
+    T = typeof(first(coeffs).a)
+    Domega{T}(coeffs)
+end
+
 function Domega(r::Rational)
     d = DyadicFraction(r)
     z = zero(d)

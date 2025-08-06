@@ -14,7 +14,21 @@ import IntegerExtensions.CyclotomicRings: mul_root_two
 
 end
 
-@testset "cyclotomic other" begin
+@testset "cyclotomic conversion" begin
+    d = Domega(1,2,3,4)
+    @test isa(d, Domega)
+    @test !isa(d, Zomega)
+
+    z = Zomega(d)
+    @test isa(z, Zomega)
+    @test !isa(z, Domega)
+
+    dd = Domega(z)
+    @test !isa(dd, Zomega)
+    @test isa(dd, Domega)
+end
+
+@testset "cyclotomic D" begin
     z5 = CyclotomicRing{5}(0,1,0,0,0)
     @test float(z5) == float(RootOne{10}(1))
 
