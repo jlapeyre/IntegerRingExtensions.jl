@@ -38,7 +38,7 @@ julia> params(DyadicFraction(5))
 (5, 0)
 ```
 """
-struct DyadicFraction{aT, kT}
+struct DyadicFraction{aT<:Integer, kT<:Integer}
     a::aT
     k::kT
 end
