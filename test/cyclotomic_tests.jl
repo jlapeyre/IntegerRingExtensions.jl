@@ -26,6 +26,10 @@ end
     dd = Domega(z)
     @test !isa(dd, Zomega)
     @test isa(dd, Domega)
+
+    @test real(d) isa QuadraticRing
+    @test imag(d) isa QuadraticRing
+    @test isapprox(float(d), float(real(d)) + im * float(imag(d)))
 end
 
 @testset "cyclotomic D" begin

@@ -350,12 +350,12 @@ Domega(a::T) where {T<:Integer} = Domega{T}(a)
 
 function Base.real(cyc::Domega{T}) where T
     (a, b , c, d) = coeffs(cyc)
-    Droot2(DyadicFraction(a, 0), DyadicFraction(b-d, 2))
+    Droot2(DyadicFraction(a, 0), DyadicFraction(b-d, 1))
 end
 
 function Base.imag(cyc::Domega{T}) where T
     (a, b , c, d) = coeffs(cyc)
-    Droot2(DyadicFraction(c, 0), DyadicFraction(b+d, 2))
+    Droot2(DyadicFraction(c, 0), DyadicFraction(b+d, 1))
 end
 
 function canonical(c::CyclotomicRing)
