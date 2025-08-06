@@ -47,7 +47,7 @@ Reexport.@reexport import .Benchmarking: benchmark_compose
 
 include("gridsynth.jl")
 Reexport.@reexport import .GridSynth: GridSynthOpts, GridSynthResults, makecommand, run_gridsynth, gridsynth,
-    stringtonum, stringtobig, gridsynth_matrix
+    stringtonum, gridsynth_matrix
 
 include("gridsynth_extra.jl")
 Reexport.@reexport import .GridSynthExtra: gridsynth_matrix_to_cyclic

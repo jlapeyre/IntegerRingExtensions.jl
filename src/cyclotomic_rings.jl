@@ -288,13 +288,13 @@ end
 
 function CyclotomicRing{M}(c1, coeffs...) where M
     cs = promote(c1, coeffs...)
-    CyclotomicRing(cs)
+    CyclotomicRing{M, typeof(cs[1])}(cs)
 end
 
-# function Domega(c1, coeffs...)
-#     cs = promote(DyadicFraction(c1), coeffs...)
-#     CyclotomicRing(cs)
-# end
+function CyclotomicRing{4}(a,b,c,d)
+    cs = promote(a,b,c,d)
+    CyclotomicRing{4, typeof(cs[1])}(cs)
+end
 
 function Domega(c1, c2, c3, c4)
     c1a = DyadicFraction{typeof(c1), Int}(c1)
@@ -543,7 +543,7 @@ function Base.:^(c::CyclotomicRing, n::Integer)
 end
 
 function Base.one(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT}
-    CyclotomicRing{D}(one(CoeffT), ntuple(x -> zero(CoeffT), D-1)...,)
+    CyclotomicRing{D, CoeffT}(one(CoeffT), ntuple(x -> zero(CoeffT), D-1)...,)
 end
 
 Base.one(::Type{CyclotomicRing{D}}) where {D} = one(CyclotomicRing{D, Int})
