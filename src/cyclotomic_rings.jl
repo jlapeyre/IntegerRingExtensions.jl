@@ -348,12 +348,12 @@ end
 Domega(a::T) where {T<:Integer} = Domega{T}(a)
 #Domega(a::Number) = Domega{Int}(a)
 
-function Base.real(cyc::Domega{T}) where T
+function Base.real(cyc::Zomega{T}) where T
     (a, b , c, d) = coeffs(cyc)
     Droot2(DyadicFraction(a, 0), DyadicFraction(b-d, 1))
 end
 
-function Base.imag(cyc::Domega{T}) where T
+function Base.imag(cyc::Zomega{T}) where T
     (a, b , c, d) = coeffs(cyc)
     Droot2(DyadicFraction(c, 0), DyadicFraction(b+d, 1))
 end
