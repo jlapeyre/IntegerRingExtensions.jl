@@ -239,6 +239,7 @@ end
 Base.float(q::QuadraticRing) = convert(AbstractFloat, q)
 Base.zero(::Type{QuadraticRing{D, CoeffT}}) where {D, CoeffT} = QuadraticRing{D, CoeffT}(zero(CoeffT), zero(CoeffT))
 Base.zero(q::QuadraticRing) = zero(typeof(q))
+Base.transpose(q::QuadraticRing) = q
 
 function Base.iszero(q::QuadraticRing)
     iszero(q.a) && iszero(q.b)

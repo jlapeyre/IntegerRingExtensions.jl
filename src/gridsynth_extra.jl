@@ -1,7 +1,7 @@
 module GridSynthExtra
 
 using ..CyclotomicRings: Domega
-using ..GridSynth: GridSynthMatrix, GridSynthResults, parse_gridsynth_matrix
+using ..GridSynth: GridSynthMatrix, GridSynthResults, gridsynth_matrix
 using ..Common: mul_root_two
 using ..Matrices2x2: Matrix2x2
 
@@ -14,7 +14,7 @@ function gridsynth_matrix_to_cyclic(matrix::GridSynthMatrix; power=true)
 end
 
 function gridsynth_matrix_to_cyclic(grid_results::GridSynthResults; power=true)
-    gridsynth_matrix_to_cyclic(parse_gridsynth_matrix(grid_results); power=power)
+    gridsynth_matrix_to_cyclic(gridsynth_matrix(grid_results); power=power)
 end
 
 end # module GridSynthExtra

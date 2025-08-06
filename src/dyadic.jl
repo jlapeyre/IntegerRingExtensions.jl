@@ -61,6 +61,7 @@ params(d::DyadicFraction) = (d.a, d.k)
 Base.conj(d::DyadicFraction) = d
 Base.adjoint(d::DyadicFraction) = d
 conj_root_two(d::DyadicFraction) = d
+Base.transpose(d::DyadicFraction) = d
 
 Base.:*(::InvTwoT, f::DyadicFraction) = mul_half(f)
 Base.:*(::TwoT, f::DyadicFraction) = mul_half(f, -1)

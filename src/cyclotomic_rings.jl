@@ -119,6 +119,7 @@ Base.iterate(cyc::CyclotomicRing, i::Integer=1) = iterate(cyc.coeffs, i)
 Base.eltype(cyc::CyclotomicRing{<:Any, T}) where {T} = T
 Base.length(cyc::CyclotomicRing) = length(cyc.coeffs)
 Base.lastindex(::CyclotomicRing{M}) where M = M - 1
+Base.transpose(cyc::CyclotomicRing) = cyc
 
 function promote_rule(::Type{CyclotomicRing{<:Any, T}}, ::Type{V}) where {T, V <: Base.BitInteger}
     promote_type(promote_type(T, AbstractFloat), V)
