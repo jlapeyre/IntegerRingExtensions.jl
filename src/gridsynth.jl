@@ -224,7 +224,7 @@ function gridsynth_matrix(str::AbstractString, ::Type{CoeffT}=BigInt) where {Coe
     # Reverse because S+R choose opposite order for coefficients
     getcoeffs(el) = reverse!([parse(CoeffT, String(only(x.captures))) for x in eachmatch(r"(-?\d+)", el)])
     matels = [split(row1, ",")..., split(row2, ",")...]
-    matrix = collect(reshape(map(getcoeffs, matels), (2,2)))
+    matrix = permutedims(collect(reshape(map(getcoeffs, matels), (2,2))))
     return GridSynthMatrix(matrix, roothalf)
 end
 
