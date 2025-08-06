@@ -121,6 +121,7 @@ Base.length(cyc::CyclotomicRing) = length(cyc.coeffs)
 Base.lastindex(::CyclotomicRing{M}) where M = M - 1
 Base.transpose(cyc::CyclotomicRing) = cyc
 
+# This looks wrong
 function promote_rule(::Type{CyclotomicRing{<:Any, T}}, ::Type{V}) where {T, V <: Base.BitInteger}
     promote_type(promote_type(T, AbstractFloat), V)
 end
@@ -340,6 +341,16 @@ end
 
 Domega(a::T) where {T<:Integer} = Domega{T}(a)
 #Domega(a::Number) = Domega{Int}(a)
+
+function Base.real(cyc::Domega{T}) where T
+    (a, b , c, d) = coeffs(cyc)
+    Droot2(DyadicFraction(a, 0), DyadicFraction(b-d, 2))
+end
+
+function Base.imag(cyc::Domega{T}) where T
+    (a, b , c, d) = coeffs(cyc)
+    Droot2(DyadicFraction(c, 0), DyadicFraction(b+d, 2))
+end
 
 function canonical(c::CyclotomicRing)
     CyclotomicRing(map(canonical,  c.coeffs))
@@ -577,32 +588,53 @@ function Base.big(c::CyclotomicRing)
     Complex{BigFloat}(c)
 end
 
-function Base.convert(::Type{T}, c::CyclotomicRing) where {T}
-    CyclotomicRing(map(x -> convert(T, x), c.coeffs))
-end
+# function Base.convert(::Type{T}, c::CyclotomicRing) where {T}
+#     CyclotomicRing(map(x -> convert(T, x), c.coeffs))
+# end
 
-function Base.convert(::Type{Complex{Tc}}, c::CyclotomicRing) where Tc
-    Complex{Tc}(c)
-end
+# We want less of convert
+# function Base.convert(::Type{Complex{Tc}}, c::CyclotomicRing) where Tc
+#     Complex{Tc}(c)
+# end
 
 function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
     coeffs = convert.(CT1, c.coeffs)
     CyclotomicRing{M, CT1}(coeffs)
 end
 
-function Base.AbstractFloat(c::CyclotomicRing{4})
-    (a, b, c, d) = c.coeffs
+function Base.Complex(cyc::CyclotomicRing{4})
+    (a, b, c, d) = cyc.coeffs
     float(a) + float(b) * float(RootOne8(1)) + float(c) * float(RootOne8(2)) +
         float(d) * float(RootOne8(3))
 end
 
-@inline function Base.AbstractFloat(c::CyclotomicRing{D}) where {D}
-    _convert_cyc(c, D, float)
+#Base.Complex(cyc::CyclotomicRing{4}) = convert(Complex, cyc)
+
+Base.float(cyc::CyclotomicRing{4}) = Complex(cyc)
+Base.complex(cyc::CyclotomicRing) = Complex(cyc)
+# function Base.Complex(cyc::CyclotomicRing{4})
+#     (a, b, c, d) = cyc.coeffs
+#     float(a) + float(b) * float(RootOne8(1)) + float(c) * float(RootOne8(2)) +
+#         float(d) * float(RootOne8(3))
+# end
+
+#Base.Complex(cyc::CyclotomicRing{4}) = AbstractFloat(cyc)
+
+# @inline function Base.AbstractFloat(c::CyclotomicRing{D}) where {D}
+#     _convert_cyc(c, D, float)
+# end
+
+# @inline function Base.Complex(c::CyclotomicRing{D}) where {D}
+#     _convert_cyc(c, D, complex)
+# end
+
+#function Base.Complex{Tc}(cyc::CyclotomicRing{D}) where {D, Tc}
+
+function Base.Complex(cyc::CyclotomicRing{D, T}) where {D, T}
+    Tc = float(T)
+    _convert_cyc(cyc, D, Complex{Tc})
 end
 
-@inline function Base.complex(c::CyclotomicRing{D}) where {D}
-    _convert_cyc(c, D, complex)
-end
 
 function Base.Complex{Tc}(cyc::CyclotomicRing{D}) where {D, Tc}
     _convert_cyc(cyc, D, Complex{Tc})
@@ -613,6 +645,9 @@ function (::Type{T})(cyc::CyclotomicRing{D}) where {T<:Real, D}
     all(iszero, rest) || throw(ArgumentError(lazy"Inexact error converting $cyc to $T."))
     T(f)
 end
+
+Base.float(cyc::CyclotomicRing) = complex(cyc)
+
 
 # Faster than using any kind of iterative or reduce scheme
 # This is only slightly slower 2.7 vs 3.5 ns than the explicit
@@ -637,9 +672,9 @@ function Base.Complex{Tc}(c::CyclotomicRing{4}) where Tc
         T(d) * T(RootOne8(3))
 end
 
-function (::Type{Complex})(c::CyclotomicRing)
-    convert(Complex, c)
-end
+# function (::Type{Complex})(c::CyclotomicRing)
+#     convert(Complex, c)
+# end
 
 function CyclotomicRing{4, T}(r::RootOne8) where {T}
     val = r.k == 4 ? -1 : sign(4 - r.k)
