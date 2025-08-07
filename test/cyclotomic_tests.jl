@@ -30,6 +30,16 @@ end
     @test real(z) isa QuadraticRing
     @test imag(z) isa QuadraticRing
     @test isapprox(float(z), float(real(z)) + im * float(imag(z)))
+
+    z = Zomega(1,2,3,4)
+    zbig = Zomega{BigInt}(z)
+    zbigc = Complex(real(zbig) , imag(zbig))
+
+    # This tests that this bug is present
+    @test abs(float(zbig) - float(zbigc)) > 1e-18
+
+    # This depends on precision(BigFloat). So it's fragile
+    @test abs(big(zbig) - big(zbigc)) < 1e-50
 end
 
 @testset "cyclotomic D" begin
