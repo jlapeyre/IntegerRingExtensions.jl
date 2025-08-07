@@ -344,12 +344,24 @@ Base.:-(q::QuadraticRing{D}) where D = QuadraticRing{D}(-q.a, -q.b)
 Base.:+(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D = QuadraticRing{D}(q1.a + q2.a, q1.b + q2.b)
 Base.:^(q::QuadraticRing{D}, n::Integer) where D = Base.power_by_squaring(q, n)
 
+function Base.:+(q::QuadraticRing{M, T}, n::Integer) where {M, T}
+    (a, b, n) = promote(q.a, q.b, n)
+    QuadraticRing{M}(n + a, b)
+end
+
+Base.:+(n::Integer, q::QuadraticRing) = q + n
+
+Base.:-(q::QuadraticRing, n::Integer) = typeof(q)(q.a - typeof(q.a)(n), q.b)
+Base.:-(n::Integer, q::QuadraticRing) = q + n
+
 Base.:*(q::QuadraticRing{D}, n::Integer) where {D} = QuadraticRing{D}(n * q.a, n * q.b)
 Base.:*(n::Integer, q::QuadraticRing{D}) where {D} = q * n
 
 Base.:*(::RootTwoT, q::QuadraticRing{2}) = QuadraticRing{2}(Two * q.b, q.a)
 Base.:*(q::QuadraticRing{2}, ::RootTwoT) = RootTwo * q
 
+Base.:*(::RootTwoT, n::Integer) = QuadraticRing{2}(zero(n), n)
+Base.:*(n::Integer, ::RootTwoT) = RootTwo * n
 
 function Base.:(==)(q::QuadraticRing, n::Integer)
     return iszero(q.b) && n == q.a
