@@ -231,6 +231,33 @@ function show(io::IO, ::MIME"text/plain", qr::Complex{<:QuadraticRing})
     print(io, ")im")
 end
 
+"""
+    cmpzero(x::QuadraticRing)
+
+Return `cmp(x, zero(x))`
+"""
+function cmpzero(x::QuadraticRing)
+    (a, b) = (x.a, x.b)
+    z = zero(a)
+    acmp = cmp(a, z)
+    bcmp = cmp(b, z)
+    iszero(a) && return cmp(b, z)
+    iszero(b) && return cmp(a, z)
+    (acmp > 0 && bcmp > 0) && return 1
+    (acmp < 0 && bcmp < 0) && return -1
+    res = cmp(a*a, 2 * b*b)
+    (a > z) ? res : -res
+end
+
+Base.cmp(x::T, y::T) where {T <: QuadraticRing} = cmpzero(x - y)
+
+function Base.:<(x::T, y::T) where {T <: QuadraticRing}
+    cmp(x, y) == -1
+end
+
+function Base.:(==)(x::T, y::T) where {T <: QuadraticRing}
+    x.a == y.a && x.b == y.b
+end
 
 # Maybe not needed
 function Base.copy(q::QuadraticRing{D}) where D

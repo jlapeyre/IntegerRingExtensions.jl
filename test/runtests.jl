@@ -8,7 +8,7 @@ include("singleton_conversion_tests.jl")
 include("rootonetests.jl")
 include("matricestests.jl")
 include("dyadic_tests.jl")
-include("d_z_root2_tests.jl")
+include("quadratic_ring_tests.jl")
 
 @testset "QuadraticRing{2, Int}" begin
     # Don't follow this example in real code!
