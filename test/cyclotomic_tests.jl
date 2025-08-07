@@ -35,11 +35,11 @@ end
     zbig = Zomega{BigInt}(z)
     zbigc = Complex(real(zbig) , imag(zbig))
 
-    # This tests that this bug is present
-    @test abs(float(zbig) - float(zbigc)) > 1e-18
-
+    bigdiff = abs(big(zbig) - big(zbigc))
+    floatdiff = abs(float(zbig) - float(zbigc))
+    @test iszero(bigdiff - floatdiff)
     # This depends on precision(BigFloat). So it's fragile
-    @test abs(big(zbig) - big(zbigc)) < 1e-50
+    @test bigdiff < 1e-50
 end
 
 @testset "cyclotomic D" begin

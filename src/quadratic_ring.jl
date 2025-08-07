@@ -245,9 +245,9 @@ end
 
 # TODO: Use promote or s.t. like that
 
-
 function convert(::Type{T}, q::QuadraticRing{D}) where {T<:Number, D}
-    convert(T, q.a) + sqrt(convert(T, D)) * convert(T, q.b)
+    (a1, D1, b1) = promote(q.a, D, q.b)
+    convert(T, a1) + sqrt(convert(T, D1)) * convert(T, b1)
 end
 
 #convert(::Type{T}, ::QuadraticRing{D}) where {T<:Number, D}
@@ -258,6 +258,7 @@ function convert(::Type{T}, q::QuadraticRing{D}) where {T<:Integer, D}
 end
 
 Base.float(q::QuadraticRing) = convert(AbstractFloat, q)
+
 Base.zero(::Type{QuadraticRing{D, CoeffT}}) where {D, CoeffT} = QuadraticRing{D, CoeffT}(zero(CoeffT), zero(CoeffT))
 Base.zero(q::QuadraticRing) = zero(typeof(q))
 Base.transpose(q::QuadraticRing) = q

@@ -595,6 +595,8 @@ end
 # conversion. They should be fixed. But this method explicitly catches the case of BigFloat
 Base.float(cyc::CyclotomicRing{<:Any, BigFloat}) = big(cyc)
 
+Base.float(cyc::CyclotomicRing{4, BigFloat}) = Complex{BigFloat}(cyc)
+
 function Base.big(c::CyclotomicRing)
     Complex{BigFloat}(c)
 end
@@ -641,7 +643,10 @@ end
 
 #Base.Complex(cyc::CyclotomicRing{4}) = convert(Complex, cyc)
 
+# This gives incorrect result for BigInt
+# Plan is to make Complex(cyc) return Complex{<:QuadraticRing} rather than a float type.
 Base.float(cyc::CyclotomicRing{4}) = Complex(cyc)
+
 Base.complex(cyc::CyclotomicRing) = Complex(cyc)
 # function Base.Complex(cyc::CyclotomicRing{4})
 #     (a, b, c, d) = cyc.coeffs
