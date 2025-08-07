@@ -1,9 +1,9 @@
 using IntegerExtensions
 using Test
 
+include("composition_tests.jl")
 include("cyclotomic_tests.jl")
 include("ringmatrices_tests.jl")
-include("composition_tests.jl")
 include("singleton_conversion_tests.jl")
 include("rootonetests.jl")
 include("matricestests.jl")

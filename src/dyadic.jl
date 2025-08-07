@@ -38,7 +38,7 @@ julia> params(DyadicFraction(5))
 (5, 0)
 ```
 """
-struct DyadicFraction{aT<:Integer, kT<:Integer}
+struct DyadicFraction{aT<:Integer, kT<:Integer} <: Real
     a::aT
     k::kT
 end
@@ -170,6 +170,12 @@ function show(io::IO, ::MIME"text/plain", df::DyadicFraction)
     end
 end
 
+function show(io::IO, ::MIME"text/plain", x::Complex{<:DyadicFraction})
+    show(io, PRETTY(), x.re)
+    print(io, " + ")
+    show(io, PRETTY(), x.im)
+end
+
 """
     canonical(df::DyadicFraction)
 
@@ -209,7 +215,7 @@ Base.abs(df::DyadicFraction) = DyadicFraction(abs(df.a), df.k)
 Base.abs2(df::DyadicFraction) = df * df
 Base.sign(df::DyadicFraction) = sign(df.a)
 
-function convert(::Type{T}, f::DyadicFraction) where {T}
+function convert(::Type{T}, f::DyadicFraction) where {T <: Number}
     if iszero_strong(f.k)
         return convert(T, f.a)
     end
@@ -262,7 +268,7 @@ function convert(::Type{DyadicFraction}, r::Rational)
     DyadicFraction(r.num, ILog2.ilog2(r.den))
 end
 
-function Complex{Tc}(df::DyadicFraction) where {Tc}
+function Complex{Tc}(df::DyadicFraction) where {Tc<:Real}
     T = Complex{Tc}
     T(df.a) * T(1//2)^df.k
 end
@@ -292,7 +298,7 @@ Base.:(==)(df::DyadicFraction, x::Integer) = x == df
 
 
 function Base.AbstractFloat(f::DyadicFraction{T,V}) where {T,V}
-    W = promote_type(T, AbstractFloat)
+    W = float(T)
     convert(W, f)
 end
 
