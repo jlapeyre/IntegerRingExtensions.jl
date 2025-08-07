@@ -19,17 +19,17 @@ Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag,
     InvTwo, 𝟚⁻¹, 𝟙, One, Zero, 𝟘, canconvert, Pow,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
-include("root_one.jl")
+include("rings/root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, RootOne8
 
-include("dyadic.jl")
+include("rings/dyadic.jl")
 Reexport.@reexport import .DyadicFractions: DyadicFraction
 
-include("quadratic_ring.jl")
+include("rings/quadratic_ring.jl")
 Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, Zroot2, Droot2, QuadraticRing2, isunit,
     rootDconj, cmpzero
 
-include("cyclotomic_rings.jl")
+include("rings/cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega
 
 include("matrices.jl")
