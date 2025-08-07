@@ -608,6 +608,11 @@ function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
     CyclotomicRing{M, CT1}(coeffs)
 end
 
+# function Base.Complex(cyc::CyclotomicRing{4})
+#     Complex(real(cyc), imag(cyc))
+# end
+
+#function Base.Complex{T}(cyc::CyclotomicRing{4}) where {T <: AbstractFloat}
 function Base.Complex(cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
     float(a) + float(b) * float(RootOne8(1)) + float(c) * float(RootOne8(2)) +
