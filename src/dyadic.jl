@@ -219,7 +219,8 @@ function convert(::Type{T}, f::DyadicFraction) where {T <: Number}
     if iszero_strong(f.k)
         return convert(T, f.a)
     end
-    convert(T, f.a) / convert(T, 2)^f.k
+    (a, two) = promote(f.a, 2)
+    convert(T, a) / convert(T, two)^f.k
 end
 
 function convert(::Type{Float64}, f::DyadicFraction)

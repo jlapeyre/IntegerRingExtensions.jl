@@ -627,6 +627,12 @@ function Base.Complex(cyc::CyclotomicRing{4})
         float(d) * float(RootOne8(3))
 end
 
+function Base.Complex(cyc::CyclotomicRing{4,BigInt})
+    (a, b, c, d) = cyc.coeffs
+    cfunc = big
+    float(a) + float(b) * big(RootOne8(1)) + float(c) * big(RootOne8(2)) +
+        float(d) * big(RootOne8(3))
+end
 
 #Base.Complex(cyc::CyclotomicRing{4}) = convert(Complex, cyc)
 

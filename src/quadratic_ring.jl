@@ -245,7 +245,10 @@ end
 
 # TODO: Use promote or s.t. like that
 
-convert(::Type{T}, q::QuadraticRing{D}) where {T<:Number, D} = convert(T, q.a) + sqrt(D) * convert(T, q.b)
+
+function convert(::Type{T}, q::QuadraticRing{D}) where {T<:Number, D}
+    convert(T, q.a) + sqrt(convert(T, D)) * convert(T, q.b)
+end
 
 #convert(::Type{T}, ::QuadraticRing{D}) where {T<:Number, D}
 
