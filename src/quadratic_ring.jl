@@ -66,7 +66,7 @@ Values that could be supported, but are not, include integers such that `D < 0` 
 The Gaussian integers would be represented by `D` equal to `-1`, if this were supported. But Gaussian
 integers are already exactly represented by `Complex{<:Integer}`.
 """
-struct QuadraticRing{D, CoeffT}
+struct QuadraticRing{D, CoeffT <: Real}
     function QuadraticRing{D, T}(a::T, b::T) where {D, T}
         new(a, b)
     end
