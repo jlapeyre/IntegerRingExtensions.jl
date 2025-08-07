@@ -590,6 +590,11 @@ function Base.convert(::Type{CyclotomicRing{M, CT1}}, c::CyclotomicRing{M, CT2})
     CyclotomicRing{M, CT1}(c)
 end
 
+# This is a stopgap fix for a bug.
+# The more generic methods are introducing a Float64 somewhere in the
+# conversion. They should be fixed. But this method explicitly catches the case of BigFloat
+Base.float(cyc::CyclotomicRing{<:Any, BigFloat}) = big(cyc)
+
 function Base.big(c::CyclotomicRing)
     Complex{BigFloat}(c)
 end
