@@ -614,13 +614,19 @@ end
 # function Base.Complex(cyc::CyclotomicRing{4})
 #     Complex(real(cyc), imag(cyc))
 # end
-#function Base.Complex{T}(cyc::CyclotomicRing{4}) where {T <: AbstractFloat}
 
+#
+# function Base.Complex{T}(cyc::CyclotomicRing{4}) where {T <: AbstractFloat}
+#     (a, b, c, d) = cyc.coeffs
+#     T(a) + T(b) * T(RootOne8(1)) + T(c) * T(RootOne8(2)) +
+#         T(d) * T(RootOne8(3))
+# end
 function Base.Complex(cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
     float(a) + float(b) * float(RootOne8(1)) + float(c) * float(RootOne8(2)) +
         float(d) * float(RootOne8(3))
 end
+
 
 #Base.Complex(cyc::CyclotomicRing{4}) = convert(Complex, cyc)
 
