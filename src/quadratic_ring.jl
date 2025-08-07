@@ -8,6 +8,7 @@ import ..DyadicFractions: DyadicFraction
 
 import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
+import ..Utils: PRETTY
 
 ########################
 ####
@@ -66,7 +67,7 @@ Values that could be supported, but are not, include integers such that `D < 0` 
 The Gaussian integers would be represented by `D` equal to `-1`, if this were supported. But Gaussian
 integers are already exactly represented by `Complex{<:Integer}`.
 """
-struct QuadraticRing{D, CoeffT <: Real}
+struct QuadraticRing{D, CoeffT <: Real} <: Real
     function QuadraticRing{D, T}(a::T, b::T) where {D, T}
         new(a, b)
     end
@@ -216,6 +217,21 @@ function show(io::IO, ::MIME"text/plain", qr::QuadraticRing{D}) where {D}
     end
 end
 
+# Follow Julia convention by printing both real and imaginary parts
+# even if they are == zero.
+function show(io::IO, ::MIME"text/plain", qr::Complex{<:QuadraticRing})
+    rp = real(qr)
+    ip = imag(qr)
+    print(io, "(")
+    show(io, PRETTY(), rp)
+    print(io, ")")
+    print(io, " + ")
+    print(io, "(")
+    show(io, PRETTY(), imag(qr))
+    print(io, ")im")
+end
+
+
 # Maybe not needed
 function Base.copy(q::QuadraticRing{D}) where D
     QuadraticRing{D}(q.a, q.b)
@@ -229,7 +245,9 @@ end
 
 # TODO: Use promote or s.t. like that
 
-convert(::Type{T}, q::QuadraticRing{D}) where {T, D} = convert(T, q.a) + sqrt(D) * convert(T, q.b)
+convert(::Type{T}, q::QuadraticRing{D}) where {T<:Number, D} = convert(T, q.a) + sqrt(D) * convert(T, q.b)
+
+#convert(::Type{T}, ::QuadraticRing{D}) where {T<:Number, D}
 
 function convert(::Type{T}, q::QuadraticRing{D}) where {T<:Integer, D}
     iszero(q.b) || throw(ArgumentError(lazy"Inexact error converting $q to $T"))
