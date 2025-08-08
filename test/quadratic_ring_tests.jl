@@ -12,7 +12,7 @@
         a = rand(-rng:rng)
         b = rand(-rng:rng)
         x = QuadraticRing{2}(a, b)
-        if cmpzero(x) != cmp(float(x), 0)
+        if sign(x) != sign(float(x))
             cnt += 1
         end
     end

@@ -238,15 +238,14 @@ Return `cmp(x, zero(x))`
 """
 function Base.sign(x::QuadraticRing)
     (a, b) = (x.a, x.b)
-    z = zero(a)
-    acmp = cmp(a, z)
-    bcmp = cmp(b, z)
-    iszero(a) && return cmp(b, z)
-    iszero(b) && return cmp(a, z)
-    (acmp > 0 && bcmp > 0) && return 1
-    (acmp < 0 && bcmp < 0) && return -1
+    asgn = sign(a)
+    bsgn = sign(b)
+    iszero(a) && return bsgn
+    iszero(b) && return asgn
+    (asgn > 0 && bsgn > 0) && return 1
+    (asgn < 0 && bsgn < 0) && return -1
     res = cmp(a*a, 2 * b*b)
-    (a > z) ? res : -res
+    asgn == 1 ? res : -res
 end
 
 Base.cmp(x::T, y::T) where {T <: QuadraticRing} = sign(x - y)
