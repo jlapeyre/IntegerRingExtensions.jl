@@ -135,7 +135,7 @@ left*.
 
 Following is disabled:
 `map_func` is a map from `Symbol`s to matrices. If `reduce_fractions` is `true`
-then reduce fractions in `DyadicFraction`s after each matrix multiplication.
+then reduce fractions in `Dyadic`s after each matrix multiplication.
 
 `reduce_fractions` reduces the maximum values of intermediate numbers allowing computation
 of longer compositions with smaller data types.
@@ -323,9 +323,9 @@ function rotation_error(m::Matrix2x2, alpha::Number; normf=opnorm)
     return min(normf(mdiff), normf(msum))
 end
 
-# using ..DyadicFractions: DyadicFraction
+# using ..Dyadics: Dyadic
 # function TSH()
-#     T = DyadicFraction{Int64, Int64}
+#     T = Dyadic{Int64, Int64}
 #     DT = Domega{Int64}
 #     ab = DT((T(0, 0), T(1, 1), T(0, 0), T(-1, 1)))
 #     c = DT((T(-1, 1), T(0, 0), T(1, 1), T(0, 0)))

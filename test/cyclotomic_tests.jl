@@ -57,16 +57,16 @@ end
 end
 
 @testset "cyclotomic storage" begin
-    z = Domega(1,2,3,DyadicFraction(5,2))
+    z = Domega(1,2,3,Dyadic(5,2))
     @test isbits(z)
     @test isa(z, Domega{Int})
-    zb = CyclotomicRing{4}(1,2,3,DyadicFraction(big(5),2))
+    zb = CyclotomicRing{4}(1,2,3,Dyadic(big(5),2))
     @test !isbits(zb)
     @test isa(zb, Domega{BigInt})
 
-    z2 = Domega(Int128(1),2,3,DyadicFraction(5,2))
+    z2 = Domega(Int128(1),2,3,Dyadic(5,2))
     @test isbits(z2)
-    @test isa(z2, CyclotomicRing{4, DyadicFraction{Int128,Int}})
+    @test isa(z2, CyclotomicRing{4, Dyadic{Int128,Int}})
 end
 
 @testset "CyclotomicRing construction" begin

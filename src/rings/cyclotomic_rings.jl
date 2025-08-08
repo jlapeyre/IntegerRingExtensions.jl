@@ -7,7 +7,7 @@ import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_t
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne8, RootOne
 
-import ..DyadicFractions: DyadicFraction
+import ..Dyadics: Dyadic
 import ..QuadraticRings: Droot2
 import ..Singletons: InvTwo, InvTwoT,
     RootTwo, RootTwoT,
@@ -45,7 +45,7 @@ const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 
 The ring `𝔻[ω] = ℤ[1/√2, i]`:
 ```
-const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
+const Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 ```
 """
 struct CyclotomicRing{M, CoeffT}
@@ -65,7 +65,7 @@ julia> coeffs(Zroot2(1,2))
 julia> coeffs(Droot2(3,4))
 (3, 4)
 
-julia> coeffs(Droot2(1,DyadicFraction(3,2)))
+julia> coeffs(Droot2(1,Dyadic(3,2)))
 (1, 3/2²)
 ```
 """
@@ -135,14 +135,14 @@ Represents the ring `𝔻[ω] = ℤ[1/√2, i]`.
 
 The type `T<:Integer` is the type of the numerator in the dyadic fractions.
 
-Here, `𝔻 = ℤ[½]` is the ring of dyadic fractions, implemented by `DyadicFraction`.
+Here, `𝔻 = ℤ[½]` is the ring of dyadic fractions, implemented by `Dyadic`.
 
 `Domega{T}` is defined as the alias
 ```
-Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
+Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 ```
 """
-const Domega{T} = CyclotomicRing{4, DyadicFraction{T, Int}}
+const Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 
 """
     Zomega{T <: Integer}
@@ -253,10 +253,10 @@ julia> one_over_root_two(Domega{Int})
 1/2 ω + -1/2 ω³
 ```
 """
-function one_over_root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) where {T}
-    DT = DyadicFraction{T, Int}
+function one_over_root_two(::Type{CyclotomicRing{4, Dyadic{T, Int}}}) where {T}
+    DT = Dyadic{T, Int}
     z = zero(DT)
-    half = DyadicFraction(T(1), 1)
+    half = Dyadic(T(1), 1)
 #    CyclotomicRing(-half, z, half, z)
     CyclotomicRing(z, half, z, -half)
 end
@@ -272,8 +272,8 @@ julia> root_two(Domega{Int})
  ω + - ω³
 ```
 """
-function root_two(::Type{CyclotomicRing{4, DyadicFraction{T, Int}}}) where {T}
-    DT = DyadicFraction{T, Int}
+function root_two(::Type{CyclotomicRing{4, Dyadic{T, Int}}}) where {T}
+    DT = Dyadic{T, Int}
     z = zero(DT)
     o = one(DT)
 #    CyclotomicRing(-half, z, half, z)
@@ -298,7 +298,7 @@ function CyclotomicRing{4}(a,b,c,d)
 end
 
 function Domega(c1, c2, c3, c4)
-    c1a = DyadicFraction{typeof(c1), Int}(c1)
+    c1a = Dyadic{typeof(c1), Int}(c1)
     cs = promote(c1a, c2, c3, c4)
     CyclotomicRing(cs)
 end
@@ -319,7 +319,7 @@ end
 
 #Domega(a, b, c, d) = Domega{Int}(a,b,c,d)
 
-Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(DyadicFraction{T,Int}, a,b,c,d)
+Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(Dyadic{T,Int}, a,b,c,d)
 
 # Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
 Zomega(a::T, b::T, c::T, d::T) where {T <: Integer} = Zomega{Int}(a, b, c, d)
@@ -333,13 +333,13 @@ function Zomega(c::CyclotomicRing{4, CT}) where {CT}
 end
 
 function Domega(c::CyclotomicRing{4, CT}) where {CT}
-    coeffs = map(x -> DyadicFraction(x), c.coeffs)
+    coeffs = map(x -> Dyadic(x), c.coeffs)
     T = typeof(first(coeffs).a)
     Domega{T}(coeffs)
 end
 
 function Domega(r::Rational)
-    d = DyadicFraction(r)
+    d = Dyadic(r)
     z = zero(d)
     T = typeof(d.a)
     Domega{T}(d, z, z, z)
@@ -350,12 +350,12 @@ Domega(a::T) where {T<:Integer} = Domega{T}(a)
 
 function Base.real(cyc::Zomega{T}) where T
     (a, b , c, d) = coeffs(cyc)
-    Droot2(DyadicFraction(a, 0), DyadicFraction(b-d, 1))
+    Droot2(Dyadic(a, 0), Dyadic(b-d, 1))
 end
 
 function Base.imag(cyc::Zomega{T}) where T
     (a, b , c, d) = coeffs(cyc)
-    Droot2(DyadicFraction(c, 0), DyadicFraction(b+d, 1))
+    Droot2(Dyadic(c, 0), Dyadic(b+d, 1))
 end
 
 function canonical(c::CyclotomicRing)

@@ -4,7 +4,7 @@ import LinearAlgebra
 import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_half, conj_root_two, norm_root_two, isrational
-import ..DyadicFractions: DyadicFraction
+import ..Dyadics: Dyadic
 
 import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
@@ -17,7 +17,7 @@ import ..Utils: PRETTY
 ########################
 
 # QuadraticInteger is a good name if the type of a and by is Integer
-# But we allow DyadicFraction, as well. Not sure what a good
+# But we allow Dyadic, as well. Not sure what a good
 # name is. I use QuadraticRing
 #
 # Assume no k s.t. D != 4k + 1
@@ -36,12 +36,12 @@ values of `D` are `2` and `3`.
 
 If `D` is a supported integer and `CoeffT <: Integer`, then the type represents `ℤ[√D]`, a ring of quadratic integers.
 
-If `D` is the type `DyadicFraction`, then the ring represents `𝔻[√D]`, that is, the ring of
+If `D` is the type `Dyadic`, then the ring represents `𝔻[√D]`, that is, the ring of
 dyadic fractions with `√D` adjoined.
 
 The following aliases are defined:
 ```julia
-const Droot2{T1, T2} = QuadraticRing{2, DyadicFraction{T1, T2}}
+const Droot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
 ```
 
 ```julia
@@ -54,11 +54,11 @@ const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
 
 # Examples
 ```jldoctest
-julia> QuadraticRing{2, DyadicFraction{Int,Int}}(1, 2)
+julia> QuadraticRing{2, Dyadic{Int,Int}}(1, 2)
 1 + 2√2
 
-julia> repr(QuadraticRing{2, DyadicFraction{Int,Int}}(1, 2))
-"QuadraticRing{2, DyadicFraction{Int64, Int64}}(DyadicFraction{Int64, Int64}(1, 0), DyadicFraction{Int64, Int64}(2, 0))"
+julia> repr(QuadraticRing{2, Dyadic{Int,Int}}(1, 2))
+"QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(1, 0), Dyadic{Int64, Int64}(2, 0))"
 ```
 
 # Notes
@@ -116,10 +116,10 @@ julia> coeffs(Zroot2(1,2))
 (1, 2)
 
 julia> coeffs(Droot2(1,2))
-(DyadicFraction{Int64, Int64}(1, 0), DyadicFraction{Int64, Int64}(2, 0))
+(Dyadic{Int64, Int64}(1, 0), Dyadic{Int64, Int64}(2, 0))
 
-julia> coeffs(Droot2(1,DyadicFraction(3,2)))
-(DyadicFraction{Int64, Int64}(1, 0), DyadicFraction{Int64, Int64}(3, 2))
+julia> coeffs(Droot2(1,Dyadic(3,2)))
+(Dyadic{Int64, Int64}(1, 0), Dyadic{Int64, Int64}(3, 2))
 ```
 """
 coeffs(q::QuadraticRing) = (q.a, q.b)
@@ -176,8 +176,8 @@ julia> Zroot2{BigInt}(1, 2)
 julia> typeof(coeffs(Zroot2{BigInt}(1, 2)))
 Tuple{BigInt, BigInt}
 
-julia> Zroot2{DyadicFraction{Int, Int}}(1, 2)  # Enforces ℤ as base ring.
-ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{DyadicFraction{Int64, Int64}}
+julia> Zroot2{Dyadic{Int, Int}}(1, 2)  # Enforces ℤ as base ring.
+ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{Dyadic{Int64, Int64}}
 ```
 """
 const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
@@ -188,7 +188,7 @@ function Zroot2(a, b=zero(a))
 end
 
 isrational(q::QuadraticRing{<:Any, <:Integer}) = iszero(q.b)
-isrational(q::QuadraticRing{<:Any, <:DyadicFraction}) = iszero(q.b)
+isrational(q::QuadraticRing{<:Any, <:Dyadic}) = iszero(q.b)
 
 """
     root_two(::Type{Zroot2{T}}) where T
@@ -391,25 +391,25 @@ Represents the ring `𝔻[√2] = ℤ[√½]`.
 
 # Examples
 ```jldoctest
-julia> Droot2(DyadicFraction(1,2), DyadicFraction(3, 4))
+julia> Droot2(Dyadic(1,2), Dyadic(3, 4))
 1/2² + 3/2⁴√2
 
-julia> repr(Droot2(DyadicFraction(1,2), DyadicFraction(3, 4)))
-"QuadraticRing{2, DyadicFraction{Int64, Int64}}(DyadicFraction{Int64, Int64}(1, 2), DyadicFraction{Int64, Int64}(3, 4))"
+julia> repr(Droot2(Dyadic(1,2), Dyadic(3, 4)))
+"QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(1, 2), Dyadic{Int64, Int64}(3, 4))"
 
 
 julia> Droot2(4, 5)
 4 + 5√2
 
 julia> repr(Droot2(4, 5))
-"QuadraticRing{2, DyadicFraction{Int64, Int64}}(DyadicFraction{Int64, Int64}(4, 0), DyadicFraction{Int64, Int64}(5, 0))"
+"QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(4, 0), Dyadic{Int64, Int64}(5, 0))"
 ```
 """
-const Droot2{T1, T2} = QuadraticRing{2, DyadicFraction{T1, T2}}
+const Droot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
 
 function Droot2(a, b)
-    a1 = DyadicFraction(a)
-    a2 = DyadicFraction(b)
+    a1 = Dyadic(a)
+    a2 = Dyadic(b)
     QuadraticRing{2}(a1, a2)
 end
 
@@ -428,7 +428,7 @@ function root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
     z1 = zero(T1)
     z2 = zero(T2)
     o1 = one(T1)
-    Droot2(DyadicFraction(z1,z2), DyadicFraction(o1,z2))
+    Droot2(Dyadic(z1,z2), Dyadic(o1,z2))
 end
 
 Base.:*(::InvRootTwoT, q::Droot2) = QuadraticRing{2}(q.b, InvTwo * q.a)
@@ -457,10 +457,10 @@ function one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
     z2 = zero(T2)
     o1 = one(T1)
     o2 = one(T2)
-    Droot2(DyadicFraction(z1,z2), DyadicFraction(o1,o2))
+    Droot2(Dyadic(z1,z2), Dyadic(o1,o2))
 end
 
-function mul_half(q::QuadraticRing{D, <:DyadicFraction}, n::Integer=1) where {D}
+function mul_half(q::QuadraticRing{D, <:Dyadic}, n::Integer=1) where {D}
     @show coeffs(q)
     new_coeffs = map(x -> mul_half(x, n), coeffs(q))
     typeof(q)(new_coeffs...)

@@ -23,7 +23,7 @@ include("rings/root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, RootOne8
 
 include("rings/dyadic.jl")
-Reexport.@reexport import .DyadicFractions: DyadicFraction
+Reexport.@reexport import .Dyadics: Dyadic
 
 include("rings/quadratic_ring.jl")
 Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, Zroot2, Droot2, QuadraticRing2, isunit,

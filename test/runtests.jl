@@ -47,7 +47,7 @@ end
     @test cromega === Domega{Int}(1,2,3,4)
     @test typeof(cromega) === Domega{Int}
     @test cromega === Domega{Int}(cr)
-    z = Domega{Int}(1,2,3,DyadicFraction(1,1))
+    z = Domega{Int}(1,2,3,Dyadic(1,1))
     @test typeof(z) === Domega{Int}
     @test typeof(Domega(1,2,3,4)) === Domega{Int}
 
@@ -63,7 +63,7 @@ end
 end
 
 @testset "Droot2" begin
-    x = Droot2(1, DyadicFraction(3, 2))
+    x = Droot2(1, Dyadic(3, 2))
     @test typeof(x) === Droot2{Int64, Int64}
     @test typeof(big(x)) === QuadraticRing{2, BigFloat}
     @test typeof(big(big(x))) === BigFloat
@@ -71,7 +71,7 @@ end
 
 @testset "Matrix{QuadraticRing}" begin
     # z = 1/sqrt(2)
-    z = QuadraticRing{2}(DyadicFraction(0,0), DyadicFraction(1,1))
+    z = QuadraticRing{2}(Dyadic(0,0), Dyadic(1,1))
     @test float(z) == sqrt(2) / 2
     hadamard = [z z; z -z] # Hadamard matrix
     @test isapprox(float(hadamard), 1/sqrt(2) * [1 1; 1 -1])
