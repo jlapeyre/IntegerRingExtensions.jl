@@ -39,6 +39,15 @@ julia> params(DyadicFraction(5))
 ```
 """
 struct DyadicFraction{aT<:Integer, kT<:Integer} <: Real
+    function DyadicFraction{Ta, Tk}(a::Ta, k::Tk) where {Ta, Tk}
+        iszero(a) && return new{Ta, Tk}(zero(a), zero(k))
+        return new{Ta, Tk}(a, k)
+    end
+    function DyadicFraction(a::Ta, k::Tk) where {Ta, Tk}
+        iszero(a) && return new{Ta, Tk}(zero(a), zero(k))
+        return new{Ta, Tk}(a, k)
+    end
+
     a::aT
     k::kT
 end
