@@ -5,7 +5,7 @@ import Base: convert, zero, one, promote_rule
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, mul_two
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
-import ..RootOnes: RootOne8, RootOne
+import ..RootOnes: RootOne
 
 import ..Dyadics: Dyadic
 import ..QuadraticRings: Droot2
@@ -449,7 +449,7 @@ function Base.:*(x::Droot2, c::CyclotomicRing)
     error("not implemented")
 end
 
-function Base.:*(r::RootOne8, cyc::CyclotomicRing{4})
+function Base.:*(r::RootOne{8}, cyc::CyclotomicRing{4})
     k = r.k
     (a, b, c, d) = cyc.coeffs
     coeffs =
@@ -473,7 +473,7 @@ function Base.:*(r::RootOne8, cyc::CyclotomicRing{4})
     return typeof(cyc)(coeffs)
 end
 
-Base.:*(c::CyclotomicRing{4}, r::RootOne8) = r * c
+Base.:*(c::CyclotomicRing{4}, r::RootOne{8}) = r * c
 
 function Base.:*(::ImagT, cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
@@ -622,23 +622,19 @@ end
 #     Complex(real(cyc), imag(cyc))
 # end
 
-#
-# function Base.Complex{T}(cyc::CyclotomicRing{4}) where {T <: AbstractFloat}
-#     (a, b, c, d) = cyc.coeffs
-#     T(a) + T(b) * T(RootOne8(1)) + T(c) * T(RootOne8(2)) +
-#         T(d) * T(RootOne8(3))
-# end
 function Base.Complex(cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
-    float(a) + float(b) * float(RootOne8(1)) + float(c) * float(RootOne8(2)) +
-        float(d) * float(RootOne8(3))
+    r8 = RootOne{8}
+    float(a) + float(b) * float(r8(1)) + float(c) * float(r8(2)) +
+        float(d) * float(r8(3))
 end
 
 function Base.Complex(cyc::CyclotomicRing{4,BigInt})
     (a, b, c, d) = cyc.coeffs
     cfunc = big
-    float(a) + float(b) * big(RootOne8(1)) + float(c) * big(RootOne8(2)) +
-        float(d) * big(RootOne8(3))
+    r8 = RootOne{8}
+    float(a) + float(b) * big(r8(1)) + float(c) * big(r8(2)) +
+        float(d) * big(r8(3))
 end
 
 #Base.Complex(cyc::CyclotomicRing{4}) = convert(Complex, cyc)
@@ -648,11 +644,6 @@ end
 Base.float(cyc::CyclotomicRing{4}) = Complex(cyc)
 
 Base.complex(cyc::CyclotomicRing) = Complex(cyc)
-# function Base.Complex(cyc::CyclotomicRing{4})
-#     (a, b, c, d) = cyc.coeffs
-#     float(a) + float(b) * float(RootOne8(1)) + float(c) * float(RootOne8(2)) +
-#         float(d) * float(RootOne8(3))
-# end
 
 #Base.Complex(cyc::CyclotomicRing{4}) = AbstractFloat(cyc)
 
@@ -703,16 +694,17 @@ end
 # Slightly faster than the general method: 3.6ns vs 2.6ns
 function Base.Complex{Tc}(c::CyclotomicRing{4}) where Tc
     (a, b, c, d) = c.coeffs
+    r8 = RootOne{8}
     T = Complex{Tc}
-    T(a) + T(b) * T(RootOne8(1)) + T(c) * T(RootOne8(2)) +
-        T(d) * T(RootOne8(3))
+    T(a) + T(b) * T(r8(1)) + T(c) * T(r8(2)) +
+        T(d) * T(r8(3))
 end
 
 # function (::Type{Complex})(c::CyclotomicRing)
 #     convert(Complex, c)
 # end
 
-function CyclotomicRing{4, T}(r::RootOne8) where {T}
+function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
     val = r.k == 4 ? -1 : sign(4 - r.k)
     pos = mod(r.k, 4)
     coeffs =

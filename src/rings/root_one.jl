@@ -4,7 +4,7 @@ import ..Utils: subscript, superscript
 import ..Common: sqrt_imaginary, imaginary
 import Base: convert, show
 
-export RootOne, RootOne8
+export RootOne
 
 ########################
 ####
@@ -22,42 +22,41 @@ export RootOne, RootOne8
 
 `N` should always be a literal or a `const`. Otherwise performance is severely degraded.
 
-The type `const RootOne8 = RootOne{8}` is defined.
 `k` will be stored as `mod(k, N)`, which takes values in `(0,...,N-1)`.
 # Examples
 ```jldoctest
 
-julia> RootOne8(1)
-RootOne8(1)
+julia> RootOne{8}(1)
+RootOne{8}(1)
 ```
 
 ```jldoctest
-julia> RootOne8(-1)
-RootOne8(7)
+julia> RootOne{8}(-1)
+RootOne{8}(7)
 
-julia> -RootOne8(1) # Unary minus
-RootOne8(5)
+julia> -RootOne{8}(1) # Unary minus
+RootOne{8}(5)
 
-julia> -RootOne8(5)
-RootOne8(1)
+julia> -RootOne{8}(5)
+RootOne{8}(1)
 
 julia> -RootOne{9}(1)
 ERROR: ArgumentError: InexactError unary minus of type RootOne{9}
 
-julia> RootOne8(1)^8
-RootOne8(0)
+julia> RootOne{8}(1)^8
+RootOne{8}(0)
 
-julia> isone(RootOne8(1)^8)
+julia> isone(RootOne{8}(1)^8)
 true
 
-julia> one(RootOne8)
-RootOne8(0)
+julia> one(RootOne{8})
+RootOne{8}(0)
 
-julia> one(RootOne8(5))
-RootOne8(0)
+julia> one(RootOne{8}(5))
+RootOne{8}(0)
 
-julia> RootOne8(2) * RootOne8(3)
-RootOne8(5)
+julia> RootOne{8}(2) * RootOne{8}(3)
+RootOne{8}(5)
 ```
 """
 struct RootOne{N}
@@ -74,27 +73,6 @@ Return `RootOne{N}(1)`, the principal `n`th root of unity.
 """
 RootOne{N}() where {N} = RootOne{N}(1)
 
-# This is largely for performance. If N is not constant,
-# performance suffers by factor of 100X or more.
-
-"""
-    RootOne8(n=1)
-
-Eighth roots of unity
-"""
-const RootOne8 = RootOne{8}
-
-"""
-    imaginary(::Type{RootOne8})
-
-The value of type `RootOne8` that represents the imaginary unit.
-
-This is `RootOne8(2)`.
-"""
-function imaginary(::Type{RootOne8})
-    RootOne8(2)
-end
-
 """
     imaginary(::Type{RootOne{D}}) where {D}
 
@@ -106,17 +84,6 @@ function imaginary(::Type{RootOne{D}}) where {D}
     (n, resid) = divrem(D, 4)
     resid == 0 || throw(ArgumentError(lazy"Type RootOne{$D} cannot represent √𝕚"))
     RootOne{D}(n)
-end
-
-"""
-    sqrt_imaginary(::Type{RootOne8})
-
-The value of type `RootOne8` that represents the principal square root of the imaginary unit.
-
-This is `RootOne8(1)`.
-"""
-function sqrt_imaginary(::Type{RootOne8})
-    RootOne8(1)
 end
 
 """
