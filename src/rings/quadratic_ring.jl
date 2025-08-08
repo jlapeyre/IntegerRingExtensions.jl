@@ -232,11 +232,11 @@ function show(io::IO, ::MIME"text/plain", qr::Complex{<:QuadraticRing})
 end
 
 """
-    cmpzero(x::QuadraticRing)
+    sign(x::QuadraticRing)
 
 Return `cmp(x, zero(x))`
 """
-function cmpzero(x::QuadraticRing)
+function Base.sign(x::QuadraticRing)
     (a, b) = (x.a, x.b)
     z = zero(a)
     acmp = cmp(a, z)
@@ -249,10 +249,14 @@ function cmpzero(x::QuadraticRing)
     (a > z) ? res : -res
 end
 
-Base.cmp(x::T, y::T) where {T <: QuadraticRing} = cmpzero(x - y)
+Base.cmp(x::T, y::T) where {T <: QuadraticRing} = sign(x - y)
 
 function Base.:<(x::T, y::T) where {T <: QuadraticRing}
     cmp(x, y) == -1
+end
+
+function Base.:<=(x::T, y::T) where {T <: QuadraticRing}
+    cmp(x, y) != 1
 end
 
 function Base.:(==)(x::T, y::T) where {T <: QuadraticRing}
