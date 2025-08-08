@@ -218,6 +218,10 @@ Base.abs(df::Dyadic) = Dyadic(abs(df.a), df.k)
 Base.abs2(df::Dyadic) = df * df
 Base.sign(df::Dyadic) = sign(df.a)
 
+## According to the Julia manual, we are doing this backward.
+## We should define the constructors. And then the convert methods when
+## neccessary. Becuase `convert` is rather magic.
+
 function convert(::Type{T}, f::Dyadic) where {T <: Number}
     if iszero_strong(f.k)
         return convert(T, f.a)
@@ -332,6 +336,9 @@ function _plus(f1::Dyadic, f2::Dyadic, op)
     Dyadic(op(1 << (f2.k - minex) * f1.a,  1 << (f1.k - minex) * f2.a), maxex)
 end
 
+# This is really backward.
+# We should define the constructor functions.
+# Then, when neccessary, define the convert functions.
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
     @eval function (::Type{Base.$Ti})(df::Dyadic)
         convert($Ti, df)
