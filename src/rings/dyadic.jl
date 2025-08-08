@@ -88,12 +88,6 @@ The value returned is in canonical form.
 """
 function mul_half(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
     mul_two(f, -n)
-    # n == 0 && return f
-    # if n < 0
-    #     canonical(DyadicFraction((T(1) << -n) * f.a, f.k))
-    # else
-    #     canonical(DyadicFraction(f.a, f.k + V(n)))
-    # end
 end
 
 function mul_two(f::DyadicFraction{T,V}, n::Integer=1) where {T,V}
