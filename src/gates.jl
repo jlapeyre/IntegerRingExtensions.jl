@@ -1,6 +1,6 @@
 module Gates
 
-using ..Matrices2x2: Matrix2x2
+using ..Matrices2x2: Matrix2x2, GPID
 using ..Common: canonical
 using ..CyclotomicRings: Domega
 using ..Singletons: One, Imag, RootImag, InvRootTwo
@@ -321,6 +321,23 @@ function rotation_error(m::Matrix2x2, alpha::Number; normf=opnorm)
     # We can only determine the global phase up to a term π.
     # So we try both.
     return min(normf(mdiff), normf(msum))
+end
+
+function rotation_error_GPID(m::Matrix2x2, alpha::Number)
+    expected_m = RZ(alpha)
+    mb = big(m)
+    return GPID(mb, expected_m)
+end
+
+"""
+    cliffordTgate(theta, alpha, beta)::Matrix2x2
+
+Return a one-qubit gate that represents compositions of `S,H`.
+"""
+function cliffordTgate(theta, alpha, beta)
+    u = cis(alpha) * cos(theta)
+    t = cis(beta) * sin(theta)
+    Matrix2x2(u, t, -conj(t), conj(u))
 end
 
 # using ..Dyadics: Dyadic

@@ -18,7 +18,7 @@ export RootOne
     struct RootOne{N}
     RootOne{N}(k::Integer)
 
-`N`th roots of unity
+`N`th roots of unity. `RootOne{N}(k)` is the `k`th power of the principal root.
 
 `N` should always be a literal or a `const`. Otherwise performance is severely degraded.
 

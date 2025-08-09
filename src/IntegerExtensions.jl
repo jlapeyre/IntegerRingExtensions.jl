@@ -33,21 +33,21 @@ include("rings/cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega
 
 include("matrices.jl")
-Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2
+Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagonal_unitary
 
 include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor
 
 include("gates.jl")
 Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1, get_theta, get_global_phase,
-    correct_global_phase, rotation_error
+    correct_global_phase, rotation_error, rotation_error_GPID, cliffordTgate
 
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose
 
 include("gridsynth.jl")
 Reexport.@reexport import .GridSynth: GridSynthOpts, GridSynthResults, makecommand, run_gridsynth, gridsynth,
-    stringtonum, gridsynth_matrix
+    stringtonum, gridsynth_matrix, biggenex, biggennum
 
 include("gridsynth_extra.jl")
 Reexport.@reexport import .GridSynthExtra: gridsynth_matrix_to_cyclic

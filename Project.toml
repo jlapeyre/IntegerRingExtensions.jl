@@ -1,7 +1,7 @@
 name = "IntegerExtensions"
 uuid = "96ddcad0-4f2e-400e-a19c-75507ad3a23d"
-version = "1.0.0-DEV"
 authors = ["John Lapeyre"]
+version = "1.0.0-DEV"
 
 [deps]
 ILog2 = "2cd5bd5f-40a1-5050-9e10-fc8cdb6109f5"
@@ -25,10 +25,10 @@ ZChopExt = "ZChop"
 [compat]
 BenchmarkTools = "1.5.0"
 ILog2 = "2.0.0"
-LinearAlgebra = "1.12.0"
+LinearAlgebra = "1.11, 1.12.0"
 MacroTools = "0.5.16"
 Parameters = "0.12.3"
-PrecompileTools = "1.3.2"
+PrecompileTools = "1.0, 1.2, 1.3.2"
 Reexport = "1.2.2"
 SymbolicUtils = "3.29.0"
 Symbolics = "6.48.1"

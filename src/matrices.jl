@@ -17,7 +17,6 @@ struct Matrix2x2{T} <: AbstractMatrix{T}
     data::NTuple{4, T}
 end
 
-
 """
     Matrix2x2(a, b, c, d)
 
@@ -28,6 +27,12 @@ Return a `Matrix2x2` with the given elements.
 """
 Matrix2x2(a, b, c, d) = Matrix2x2(promote(a, b, c, d))
 Matrix2x2{T}(a, b, c, d) where {T} = Matrix2x2(T(a), T(b), T(c), T(d))
+
+
+function Matrix2x2(m::Matrix)
+    size(m) == (2,2) || error("Wrong size")
+    Matrix2x2(m...,)
+end
 
 Base.size(::Matrix2x2) = (2, 2)
 Base.eltype(::Type{Matrix2x2{T}}) where T = T
@@ -165,6 +170,20 @@ function opnorm(m::Matrix2x2)
     max(v1, v2)
 end
 
+"""
+    GPID(m1::Matrix2x2, m2::Matrix2x2)
+
+Compute the global phase invariant distance.
+
+(See Mukhopadhyay 2021)
+"""
+function GPID(m1::Matrix2x2, m2::Matrix2x2)
+    (a, b, c, d) = map(conj, m1.data)
+    (w, x, y, z) = m2.data
+    trprod = a*w + b*x + c*y + d*z
+    return sqrt(1 - abs(trprod) / 2)
+end
+
 ##
 ## Vector2
 ##
@@ -190,7 +209,27 @@ function Base.:*(m::Matrix2x2, v::Vector2)
     Vector2(a*x + c*y, b*x + d*y)
 end
 
+"""
+    diag(m::Matrix2x2)::Vector2
+
+Return the diagonal of `m` as a `Vector2`.
+"""
 diag(m::Matrix2x2) = Vector2(m[1], m[4])
-diagm(v::Vector2{T}) where {T} = Matrix2x2(v[1], zero(T), zero(T), v[2])
+
+"""
+    diagm(d::Vector2{T})::Matrix2x2 where {T}
+
+Construct a matrix with diagonal given by `d`.
+"""
+diagm(d::Vector2{T}) where {T} = Matrix2x2(d[1], zero(T), zero(T), d[2])
+
+"""
+    random_diagonal_unitary(::Type{T}=Float64)::Matrix2x2 where T
+
+Return a random diagonal `2x2` untitary of element type `Complex{T}`.
+"""
+function random_diagonal_unitary(::Type{T}=Float64) where T
+    diagm(Vector2(cispi(rand(T)), cispi(rand(T))))
+end
 
 end # module Matrices2x2
