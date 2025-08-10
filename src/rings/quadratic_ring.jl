@@ -3,7 +3,7 @@ module QuadraticRings
 import LinearAlgebra
 import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_half, conj_root_two, norm_root_two, isrational
+    mul_half, conj_root_two, norm_root_two, isrational, isunit
 import ..Dyadics: Dyadic
 
 import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
@@ -191,11 +191,16 @@ function Zroot2(a, b=zero(a))
     Zroot2{typeof(a)}(a, b)
 end
 
+
 Zroot2(::RootTwoT) = Zroot2{Int}(RootTwo)
 
-function Zroot2{T}(::RootTwoT) where {T}
-    Zroot2(zero(T), one(T))
+function QuadraticRing{2, T}(::RootTwoT) where {T}
+    QuadraticRing{2, T}(zero(T), one(T))
 end
+
+# function Zroot2{T}(::RootTwoT) where {T}
+#     Zroot2(zero(T), one(T))
+# end
 
 isrational(q::QuadraticRing{<:Any, <:Integer}) = iszero(q.b)
 isrational(q::QuadraticRing{<:Any, <:Dyadic}) = iszero(q.b)
@@ -317,7 +322,14 @@ Return `true` if `norm_root_two(q)` is either `1` or `-1`.
 """
 function isunit(q::QuadraticRing)
     nq = norm_root_two(q)
-    nq == 1 || nq == -1
+    nq == one(q) || nq == -one(q)
+end
+
+# inv, isunit, is a bit unclear and wrong.
+function Base.inv(q::QuadraticRing)
+    nq = norm_root_two(q)
+    (nq == one(q) || nq == -one(q)) || throw(ArgumentError(lazy"Inexact error inv($q)"))
+    conj_root_two(nq)
 end
 
 function Base.big(q::QuadraticRing{D}) where D

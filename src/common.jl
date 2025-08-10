@@ -6,7 +6,7 @@ module Common
 # It allows defining method for, say :*(::SingletonType, obj)
 # The conversions are decide on in the :* method, where they belong.
 
-export canonical, isrational, coeffs, params
+export canonical, isrational, coeffs, params, isunit
 
 """
     canonical(x)
@@ -142,5 +142,17 @@ function isrational end
 
 isrational(x::Number) = true
 isrational(x::AbstractIrrational) = false
+
+"""
+   isunit(x::T)::Bool where {T}
+
+Return `true` if there exists a `y::T` such that `x * y == one(T)`.
+"""
+function isunit end
+
+isunit(r::Rational) = !iszero(r)
+isunit(x::AbstractFloat) = !iszero(x)
+isunit(c::Complex{T}) where {T<:AbstractFloat} = !iszero(c)
+isunit(n::Integer) = isone(n) || isone(-n)
 
 end # module Common
