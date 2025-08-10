@@ -5,6 +5,7 @@ version = "1.0.0-DEV"
 
 [deps]
 ILog2 = "2cd5bd5f-40a1-5050-9e10-fc8cdb6109f5"
+IsApprox = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
@@ -25,6 +26,7 @@ ZChopExt = "ZChop"
 [compat]
 BenchmarkTools = "1.5.0"
 ILog2 = "2.0.0"
+IsApprox = "2.0.0"
 LinearAlgebra = "1.11, 1.12.0"
 MacroTools = "0.5.16"
 Parameters = "0.12.3"

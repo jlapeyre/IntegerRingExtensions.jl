@@ -4,7 +4,7 @@ using ..Matrices2x2: Matrix2x2, GPID
 using ..Common: canonical
 using ..CyclotomicRings: Domega
 using ..Singletons: One, Imag, RootImag, InvRootTwo
-using ..Utils: PRETTY
+using ..Utils: PRETTY, random_angle
 
 export benchmark_compose
 
@@ -198,6 +198,11 @@ function RZ(theta)
     Matrix2x2(cis(-t2), z, z, cis(t2))
 end
 
+function random_RZ(::Type{T}=Float64) where {T}
+    theta = random_angle(T)
+    return RZ(theta)
+end
+
 """
     count_gates(gates::AbstractString)::Dict{Char,Int}
 
@@ -329,15 +334,38 @@ function rotation_error_GPID(m::Matrix2x2, alpha::Number)
     return GPID(mb, expected_m)
 end
 
+# I do not have a good name for this!
 """
-    cliffordTgate(theta, alpha, beta)::Matrix2x2
+    Uapprox(theta, alpha, beta)::Matrix2x2
 
-Return a one-qubit gate that represents compositions of `S,H`.
+Return a one-qubit unitary of the following type
+```
+u    -t^*
+
+t    u^*
+```
+where `u = cis(alpha)cos(theta)` and `t = cis(beta)sin(theta)`
+
+A more restricted case of this class of unitaries are those obtainable with
+a finite string of `H`, `S` and `cispi(1/4)`.
 """
-function cliffordTgate(theta, alpha, beta)
+function Uapprox(theta, alpha, beta)
     u = cis(alpha) * cos(theta)
     t = cis(beta) * sin(theta)
     Matrix2x2(u, t, -conj(t), conj(u))
+end
+
+function random_Uapprox(::Type{T}=Float64) where {T}
+    (theta, alpha, beta) = random_angle(T, 3)
+    Uapprox(theta, alpha, beta)
+end
+
+function isUapprox(m::Matrix2x2; kwargs...)
+    (u, t, mtconj, uconj) = m.data
+    isapprox(conj(u), uconj; kwargs...) || return false
+    isapprox(-conj(t), mtconj; kwargs...) || return false
+    isapprox(abs2(u) + abs2(t), 1; kwargs...) || return false
+    return true
 end
 
 # using ..Dyadics: Dyadic

@@ -77,4 +77,12 @@ function lobit(z)
     ilog2(z & -z)
 end
 
+function random_angle(shape...)
+    random_angle(Float64, shape...)
+end
+
+function random_angle(::Type{T}, shape...) where {T}
+    2 * T(pi) * rand(shape...)
+end
+
 end # module Utils

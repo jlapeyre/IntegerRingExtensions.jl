@@ -42,6 +42,16 @@ Base.one(::Matrix2x2{T}) where {T} = one(Matrix2x2{T})
 Base.zero(::Type{Matrix2x2{T}}) where T = Matrix2x2(zero(T), zero(T), zero(T), zero(T))
 Base.zero(::Matrix2x2{T}) where {T} = zero(Matrix2x2{T})
 
+function Base.isone(m::Matrix2x2)
+    (a, b, c, d) = m.data
+    isone(a) && isone(d) && iszero(b) && iszero(c)
+end
+
+function Base.iszero(m::Matrix2x2)
+    (a, b, c, d) = m.data
+    iszero(a) && iszero(d) && iszero(b) && iszero(c)
+end
+
 function _showstr(obj)
     b = IOBuffer()
     show(IOContext(b, :compact=>true), PRETTY(), obj)

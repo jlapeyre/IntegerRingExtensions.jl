@@ -8,7 +8,7 @@ export Zroot2
 export ZrootD
 
 include("utils.jl")
-Reexport.@reexport import .Utils: subscript, superscript, lobit
+Reexport.@reexport import .Utils: subscript, superscript, lobit, random_angle
 
 include("common.jl")
 Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
@@ -40,7 +40,8 @@ Reexport.@reexport import .RingMatrices: compute_phase_factor
 
 include("gates.jl")
 Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1, get_theta, get_global_phase,
-    correct_global_phase, rotation_error, rotation_error_GPID, cliffordTgate
+    correct_global_phase, rotation_error, rotation_error_GPID, Uapprox, random_Uapprox, random_RZ,
+    isUapprox
 
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose
