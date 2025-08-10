@@ -33,7 +33,8 @@ include("rings/cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega
 
 include("matrices.jl")
-Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagonal_unitary
+Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagonal_unitary,
+    tracenorm
 
 include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor

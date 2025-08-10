@@ -18,6 +18,10 @@ struct Matrix2x2{T} <: AbstractMatrix{T}
     data::NTuple{4, T}
 end
 
+##
+## Constructors
+##
+
 """
     Matrix2x2(a, b, c, d)
 
@@ -28,11 +32,61 @@ Return a `Matrix2x2` with the given elements.
 """
 Matrix2x2(a, b, c, d) = Matrix2x2(promote(a, b, c, d))
 Matrix2x2{T}(a, b, c, d) where {T} = Matrix2x2(T(a), T(b), T(c), T(d))
-
-
 function Matrix2x2(m::Matrix)
     size(m) == (2,2) || error("Wrong size")
     Matrix2x2(m...,)
+end
+
+Base.Matrix(m::Matrix2x2) = reshape([m.data...,], (2,2))
+Matrix2x2{T}(m::Matrix2x2) where {T} = map(x -> T(x), m)
+
+function Base.map(f, m::Matrix2x2)
+    (a, b, c, d) = m.data
+    Matrix2x2(f(a), f(b), f(c), f(d))
+end
+
+##
+## Conversion and related construction
+##
+
+Base.convert(::Type{Matrix2x2{T}}, m::Matrix2x2) where {T} = Matrix2x2{T}(m)
+Base.float(m::Matrix2x2) = AbstractFloat(m)
+Base.complex(m::Matrix2x2) = float(m)
+# This is not conventional. Change this
+Base.AbstractFloat(m::Matrix2x2) = map(float, m)
+Base.big(m::Matrix2x2) = map(big, m)
+
+##
+## Display
+##
+
+function _showstr(obj)
+    b = IOBuffer()
+    show(IOContext(b, :compact=>true), PRETTY(), obj)
+    return String(take!(b))
+end
+
+function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
+    summary(io, m)
+    println(io, ":")
+    spc = "  "
+    (as, bs, cs, ds)  = map(_showstr, m.data)
+    (al, bl, cl, dl) = map(length, (as, bs, cs, ds))
+    w1 = max(al, bl)
+    w2 = max(cl, dl)
+    print(io, cpad(as, w1), spc)
+    println(io, cpad(cs, w2))
+    print(io, cpad(bs, w1), spc)
+    print(io, cpad(ds, w2))
+end
+
+##
+## Required, and standard, `Base` properties
+##
+
+@inline function Base.getindex(m::Matrix2x2, i::Integer)
+    @boundscheck checkbounds(m, i)
+    return @inbounds m.data[i]
 end
 
 Base.size(::Matrix2x2) = (2, 2)
@@ -52,6 +106,14 @@ function Base.iszero(m::Matrix2x2)
     (a, b, c, d) = m.data
     iszero(a) && iszero(d) && iszero(b) && iszero(c)
 end
+
+##
+## Further properties.
+##
+
+##
+## IsApprox.isunitary
+##
 
 function isunitary(m::Matrix2x2)
     (a, b, c, d) = m.data
@@ -79,39 +141,18 @@ function isunitary(m::Matrix2x2, app::Approx)
     isapprox(conj(a) * b, - d * conj(c); app.kw...)
 end
 
-function _showstr(obj)
-    b = IOBuffer()
-    show(IOContext(b, :compact=>true), PRETTY(), obj)
-    return String(take!(b))
-end
+"""
+    canonical(m::Matrix2x2)
 
-function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
-    summary(io, m)
-    println(io, ":")
-    spc = "  "
-    (as, bs, cs, ds)  = map(_showstr, m.data)
-    (al, bl, cl, dl) = map(length, (as, bs, cs, ds))
-    w1 = max(al, bl)
-    w2 = max(cl, dl)
-    print(io, cpad(as, w1), spc)
-    println(io, cpad(cs, w2))
-    print(io, cpad(bs, w1), spc)
-    print(io, cpad(ds, w2))
-end
+Return a new matrix by calling `canonical` element-wise on `m`.
 
-function Base.Matrix(m::Matrix2x2)
-    reshape([m.data...,], (2,2))
-end
+This may reduce or canonicalize elements that implement `canonical`.
+"""
+canonical(m::Matrix2x2) = map(canonical, m)
 
-function Base.map(f, m::Matrix2x2)
-    (a, b, c, d) = m.data
-    Matrix2x2(f(a), f(b), f(c), f(d))
-end
-
-@inline function Base.getindex(m::Matrix2x2, i::Integer)
-    @boundscheck checkbounds(m, i)
-    return @inbounds m.data[i]
-end
+##
+## Matrix arithmetic
+##
 
 @inline function _mul2(m1, m2)
     (a1, b1, c1, d1) = m1.data
@@ -137,8 +178,6 @@ Base.:+(m1::Matrix2x2, m2::Matrix2x2) = _pair_op(+, m1, m2)
 Base.:-(m1::Matrix2x2, m2::Matrix2x2) = _pair_op(-, m1, m2)
 Base.:-(m::Matrix2x2) = map(-, m) # Unary minus
 
-#
-
 # This is only called if `n` is not literal at the call site.
 function Base.:^(m::Matrix2x2, n::Integer)
     n == 0 && return one(m)
@@ -153,54 +192,44 @@ Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{2}) = m * m
 Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{3}) = m * m * m
 Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{4}) = (m * m) * (m * m)
 
-Matrix2x2{T}(m::Matrix2x2) where {T} = map(x -> T(x), m)
-
-Base.convert(::Type{Matrix2x2{T}}, m::Matrix2x2) where {T} = Matrix2x2{T}(m)
-Base.float(m::Matrix2x2) = AbstractFloat(m)
-Base.complex(m::Matrix2x2) = float(m)
-# This is not conventional. Change this
-Base.AbstractFloat(m::Matrix2x2) = map(float, m)
-Base.big(m::Matrix2x2) = map(big, m)
-
-"""
-    canonical(m::Matrix2x2)
-
-Return a new matrix by calling `canonical` element-wise on `m`.
-"""
-canonical(m::Matrix2x2) = map(canonical, m)
-
-function Base.transpose(m::Matrix2x2)
-    (a, b, c, d) = map(transpose, m.data)
-    Matrix2x2(a, c, b, d)
-end
+##
+## Linear algebra and related operations
+##
 
 function Base.permutedims(m::Matrix2x2)
     (a, b, c, d) = m.data
     Matrix2x2(a, c, b, d)
 end
 
-function Base.adjoint(m::Matrix2x2)
-    (a, b, c, d) = map(adjoint, m.data)
-    Matrix2x2(a, c, b, d)
-end
-
+Base.adjoint(m::Matrix2x2) = permutedims(map(adjoint, m))
+Base.transpose(m::Matrix2x2) = permutedims(map(transpose, m))
 tr(m::Matrix2x2) = m[1] + m[4]
-
 det(m::Matrix2x2) = m[1] * m[4] - m[3] * m[2]
 
+"""
+    eigvals(m::Matrix2x2)::NTuple{2}
+
+Return a tuple of the eigenvalues of `m`.
+"""
 function eigvals(m::Matrix2x2)
     (a, b, c, d) = m.data
     discr = sqrt(a^2 + 4*b*c - 2*a*d + d^2)
     (
-        (a + d - discr)/2,
         (a + d + discr)/2
+        (a + d - discr)/2,
     )
 end
 
+"""
+    svdvals(m::Matrix2x2)::NTuple{2}
+
+Return a tuple of the singular values of `m` in descending order.
+"""
 function svdvals(m::Matrix2x2)
     ma = m * adjoint(m)
     (v1, v2) = eigvals(ma)
-    (sqrt(real(v1)), sqrt(real(v2)))
+    (s1, s2) = (sqrt(real(v1)), sqrt(real(v2)))
+    s1 > s2 ? : (s1,s2) : (s2, s1)
 end
 
 function opnorm(m::Matrix2x2)
@@ -209,15 +238,25 @@ function opnorm(m::Matrix2x2)
 end
 
 """
-    GPID(m1::Matrix2x2, m2::Matrix2x2)
+    tracenorm(m::Matrix2x2)
 
-Compute the global phase invariant distance.
+Return the trace norm of `m`.
+"""
+function tracenorm(m::Matrix2x2)
+    (v1, v2) = svdvals(m)
+    v1 + v2
+end
+
+"""
+    GPID(A::Matrix2x2, B::Matrix2x2)
+
+Compute the global phase invariant distance between `A` and `B`.
 
 (See Mukhopadhyay 2021)
 """
-function GPID(m1::Matrix2x2, m2::Matrix2x2)
-    (a, b, c, d) = map(conj, m1.data)
-    (w, x, y, z) = m2.data
+function GPID(A::Matrix2x2, B::Matrix2x2)
+    (a, b, c, d) = map(conj, A.data)
+    (w, x, y, z) = B.data
     trprod = a*w + b*x + c*y + d*z
     return sqrt(1 - abs(trprod) / 2)
 end
