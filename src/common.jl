@@ -6,7 +6,7 @@ module Common
 # It allows defining method for, say :*(::SingletonType, obj)
 # The conversions are decide on in the :* method, where they belong.
 
-export canonical, isrational, coeffs, params, isunit
+export canonical, isrational, coeffs, params, isunit, invstrict
 
 """
     canonical(x)
@@ -154,5 +154,40 @@ isunit(r::Rational) = !iszero(r)
 isunit(x::AbstractFloat) = !iszero(x)
 isunit(c::Complex{T}) where {T<:AbstractFloat} = !iszero(c)
 isunit(n::Integer) = isone(n) || isone(-n)
+
+"""
+    invstrict(x::T)
+
+Return `y::T` such that `x * y == one(T)`.
+
+If no such `y` exists, throw an error.
+"""
+function invstrict end
+
+invstrict(x::Union{AbstractFloat}) = inv(x)
+invstrict(x::Complex{T}) where {T <: Union{AbstractFloat, Rational}} = inv(x)
+
+# Base.inv(::Rational) returns 1//0 for inv(0//n)
+function invstrict(r::Rational)
+    iszero(r) && throw(ArgumentError(lazy"$r has no inverse of type $(typeof(r))"))
+    inv(r)
+end
+
+function invstrict(n::Integer)
+    isone(n) && return n
+    isone(-n) && return n
+    throw(ArgumentError(lazy"$n has no inverse of type $(typeof(n))"))
+end
+
+function invstrict(c::Complex{T}) where {T<:Integer}
+    isone(c) && return c
+    isone(-c) && return c
+    (r, i) = reim(c)
+    if iszero(r)
+        isone(i) && return Complex{T}(0, -one(T))
+        isone(-i) && return Complex{T}(0, one(T))
+    end
+    throw(ArgumentError(lazy"$c has no inverse of type $(typeof(c))"))
+end
 
 end # module Common

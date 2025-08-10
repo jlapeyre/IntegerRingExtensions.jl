@@ -3,7 +3,7 @@ module QuadraticRings
 import LinearAlgebra
 import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_half, conj_root_two, norm_root_two, isrational, isunit
+    mul_half, conj_root_two, norm_root_two, isrational, isunit, invstrict
 import ..Dyadics: Dyadic
 
 import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
@@ -325,11 +325,20 @@ function isunit(q::QuadraticRing)
     nq == one(q) || nq == -one(q)
 end
 
-# inv, isunit, is a bit unclear and wrong.
+invstrict(q::QuadraticRing) = inv(q)
+
+"""
+    inv(q::QuadraticRing)
+
+Return `p`, of the same type as `q`, such that `p * q` equals `1`.
+
+If no such `p` exists, throw an error.
+"""
 function Base.inv(q::QuadraticRing)
-    nq = norm_root_two(q)
-    (nq == one(q) || nq == -one(q)) || throw(ArgumentError(lazy"Inexact error inv($q)"))
-    conj_root_two(nq)
+    nr = norm_root_two(q)
+    isone(nr) && return typeof(q)(q.a, -q.b)
+    isone(-nr) && return typeof(q)(-q.a, q.b)
+    throw(ArgumentError(lazy"Inexact error: $q has no inverse"))
 end
 
 function Base.big(q::QuadraticRing{D}) where D
@@ -340,6 +349,7 @@ function Base.big(q::QuadraticRing{D, T}) where {D, T <: AbstractFloat}
     big(q.a) + sqrt(big(D)) * big(q.b)
 end
 
+# This is a misnomer. Works for other D as well
 """
     norm_root_two(qi::QuadraticRing{D})
 
@@ -493,7 +503,6 @@ for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UI
         convert($Ti, q)
     end
 end
-
 
 end # module QuadraticRings
 

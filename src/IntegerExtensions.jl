@@ -12,7 +12,7 @@ Reexport.@reexport import .Utils: subscript, superscript, lobit, random_angle
 
 include("common.jl")
 Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
-    mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, norm_root_two, isrational, isunit
+    mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, norm_root_two, isrational, isunit, invstrict
 
 include("singletons.jl")
 Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
