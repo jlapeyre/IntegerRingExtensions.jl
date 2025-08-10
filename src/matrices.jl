@@ -2,6 +2,7 @@ module Matrices2x2
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
 import ..Common: canonical
 import ..Utils: PRETTY, cpad
+import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
 """
     Matrix2x2{T} <: AbstractMatrix{T}
@@ -50,6 +51,32 @@ end
 function Base.iszero(m::Matrix2x2)
     (a, b, c, d) = m.data
     iszero(a) && iszero(d) && iszero(b) && iszero(c)
+end
+
+function isunitary(m::Matrix2x2)
+    (a, b, c, d) = m.data
+    (abs2(a) + abs2(c) == one(a)) &&
+        (abs2(b) + abs2(d) == one(a)) &&
+        ((conj(a) * b + d * conj(c)) == zero(a))
+end
+
+"""
+    isunitary(m::Matrix2x2, app::Approx)
+
+Return `true` if `m` is approximately unitary.
+
+This is problematic if `m` is approximately a rotation matrix.
+The off-diagonals will have low precision. You might need to pass,
+for example, `Approx(rtol=1e-6)` for `app`. But, this tolerance will apply
+ to the diagonals as well, which should have more precision in principle.
+"""
+function isunitary(m::Matrix2x2, app::Approx)
+    app == Equal() && return isunitary(m)
+    (a, b, c, d) = m.data
+    isapprox(abs2(a) + abs2(c), one(a); app.kw...) || return false
+    isapprox(abs2(b) + abs2(d), one(a); app.kw...) || return false
+
+    isapprox(conj(a) * b, - d * conj(c); app.kw...)
 end
 
 function _showstr(obj)
@@ -126,7 +153,8 @@ Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{2}) = m * m
 Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{3}) = m * m * m
 Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{4}) = (m * m) * (m * m)
 
-Matrix2x2{T}(m::Matrix2x2) where {T} = map(x -> convert(T, x), m)
+Matrix2x2{T}(m::Matrix2x2) where {T} = map(x -> T(x), m)
+
 Base.convert(::Type{Matrix2x2{T}}, m::Matrix2x2) where {T} = Matrix2x2{T}(m)
 Base.float(m::Matrix2x2) = AbstractFloat(m)
 Base.complex(m::Matrix2x2) = float(m)

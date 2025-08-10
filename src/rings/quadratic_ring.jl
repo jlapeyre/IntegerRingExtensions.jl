@@ -182,9 +182,19 @@ ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{Dyadic{I
 """
 const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
 
+##
+## Constructors
+##
+
 function Zroot2(a, b=zero(a))
     (a, b) = promote(a, b)
     Zroot2{typeof(a)}(a, b)
+end
+
+Zroot2(::RootTwoT) = Zroot2{Int}(RootTwo)
+
+function Zroot2{T}(::RootTwoT) where {T}
+    Zroot2(zero(T), one(T))
 end
 
 isrational(q::QuadraticRing{<:Any, <:Integer}) = iszero(q.b)

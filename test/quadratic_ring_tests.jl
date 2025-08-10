@@ -19,6 +19,11 @@
     @test cnt == 0
 end
 
+@testset "Quadratic Construction" begin
+    @test Zroot2(RootTwo) == Zroot2(0, 1)
+    @test isa(Zroot2{BigInt}(RootTwo), Zroot2{BigInt})
+end
+
 @testset "Droot2" begin
     # x = Zroot2(3)
     # @test x == 3
