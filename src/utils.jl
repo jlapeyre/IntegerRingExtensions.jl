@@ -98,5 +98,23 @@ function random_angle(::Type{T}, shape...) where {T}
     2 * T(pi) * rand(shape...)
 end
 
+"""
+    small(x::BigFloat)::Float64
+
+Convert `x` to `Float64` without getting `InexactError`.
+"""
+function small(x::BigFloat)
+    Float64(trunc(x; sigdigits=17))
+end
+
+"""
+    small(z::Complex{BigFloat})::Complex{Float64}
+
+Convert `z` to `ComplexF64` without getting `InexactError`.
+"""
+function small(x::Complex{BigFloat})
+    ComplexF64(trunc(x; sigdigits=17))
+end
+
 
 end # module Utils

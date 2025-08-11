@@ -415,6 +415,10 @@ end
 
 isSU2(m::AbstractMatrix2x2) = isone(det(m))
 
+function isSU2(m::AbstractMatrix2x2, approx::AbstractApprox)
+    isone(det(m), approx)
+end
+
 random_SU2() = random_SU2(Float64)
 
 function random_SU2(::Type{T}) where {T}
@@ -515,6 +519,8 @@ function Base.:/(rz1::ZRot, rz2::ZRot)
     ZRot(rz1.minushalfthetapi - rz2.minushalfthetapi)
 end
 
+Base.:+(rz1::ZRot, rz2::ZRot) = SU2(rz1) + SU2(rz2)
+
 Base.adjoint(rz::ZRot) = ZRot(-rz.minushalfthetapi)
 
 function SU2(rz::ZRot{T}) where {T}
@@ -542,10 +548,26 @@ function eigvals(u::SU2)
     (Complex(re_u, discr), Complex(re_u, -discr))
 end
 
+Base.:+(u1::SU2, u2::SU2) = Matrix2x2(u1) + Matrix2x2(u2)
+
+# TODO:
+# function Base.:*(u1::SU2, u2::SU2)
+#     (;uabs, alpha_u, alpha_t) = u1
+#     (uabs21, alpha_u1, alpha_t1) = (uabs, alpha_u, alpha_t)
+#     (;uabs, alpha_u, alpha_t) = u1
+#     (uabs22, alpha_u2, alpha_t2) = (uabs, alpha_u, alpha_t)
+#     uabs23 = saq
+# end
 
 struct Unitary2x2{T} <: AbstractUnitary2x2{T}
     su2::SU2{T}
     phi::T
+end
+
+function Unitary2x2(m::Matrix2x2{Complex{T}}) where {T <: AbstractFloat}
+    phase_fac = sqrt(det(m))
+    msu2 = map(x -> x / phase_fac, m)
+    msu2
 end
 
 function eigvals(U::Unitary2x2)
@@ -568,31 +590,31 @@ struct SU2ParamScaled{T}
     alpha_t_scaled::T
 end
 
-struct SU2Param1{T}
-    u::Complex{T}
-    t::Complex{T}
-end
+# struct SU2Param1{T}
+#     u::Complex{T}
+#     t::Complex{T}
+# end
 
-struct SU2Param2{T}
-    uabs::T
-    alpha_u::T
-    alpha_t::T
-end
+# struct SU2Param2{T}
+#     uabs::T
+#     alpha_u::T
+#     alpha_t::T
+# end
 
-struct SU2Param3{T}
-    alpha_u::T
-    alpha_t::T
-    gamma::T
-end
+# struct SU2Param3{T}
+#     alpha_u::T
+#     alpha_t::T
+#     gamma::T
+# end
 
-function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:SU2Param1}
-    T(U[1], U[2])
-end
+# function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:SU2Param1}
+#     T(U[1], U[2])
+# end
 
-function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:SU2Param3}
-    (; u, t) = unitary_decompose(U, SU2Param1)
-    (gamma, alpha_u, alpha_t) = _unitary_decompose_special(u, t)
-    T(alpha_u, alpha_t, gamma)
-end
+# function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:SU2Param3}
+#     (; u, t) = unitary_decompose(U, SU2Param1)
+#     (gamma, alpha_u, alpha_t) = _unitary_decompose_special(u, t)
+#     T(alpha_u, alpha_t, gamma)
+# end
 
 end # module Matrices2x2

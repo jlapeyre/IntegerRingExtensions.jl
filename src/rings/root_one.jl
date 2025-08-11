@@ -157,7 +157,7 @@ Base.float(r::RootOne) = complex(r)
 Base.complex(r::RootOne) = Complex(r)
 Base.big(r::RootOne) = Complex{BigFloat}(r)
 convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N} = Complex{T}(r)
-Complex{T}(r::RootOne{N}) where {T, N} = cispi(2 * T(r.k) / N)
+Complex{T}(r::RootOne{N}) where {T, N} = cispi((T(2) * T(r.k)) / T(N))
 Base.Complex(r::RootOne) = Complex{Float64}(r)
 
 Base.angle(r::RootOne) = angle(Float64, r)
