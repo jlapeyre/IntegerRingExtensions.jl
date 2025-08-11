@@ -41,6 +41,19 @@ end
 
 const PRETTY = MIME"text/plain"
 
+function _show_with_fieldnames(io::IO, obj)
+    T = typeof(obj)
+    print(io, T, "(")
+    i = 0
+    for field in fieldnames(T)
+        i += 1
+        i > 1 && print(io, ", ")
+        print(io, field, " = ", getfield(obj, field))
+    end
+    print(io, ")")
+end
+
+
 function cpad(s::AbstractString, width::Integer, pad::AbstractString=" ")
     len = length(s)
     padlen = width - len
@@ -84,5 +97,6 @@ end
 function random_angle(::Type{T}, shape...) where {T}
     2 * T(pi) * rand(shape...)
 end
+
 
 end # module Utils

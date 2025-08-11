@@ -280,7 +280,14 @@ Find `theta` from a Z-rotation matrix `m` with possible global phase.
 Assume `m` is diagonal, with `m[1] = cis(-theta/2 + phi)`
 and `m[4] = cis(theta/2 + phi)`. Return `theta`.
 """
-get_theta(m::Matrix2x2) = angle(m[4] / m[1])
+function get_theta(m::Matrix2x2)
+    zsq = m[4] / m[1]
+    angle(zsq)
+    # @show angle(m[1])
+    # @show angle(m[4])
+    # @show angle(zsq)
+#    angle(sqrt(zsq)) * 2
+end
 
 get_theta(m::Matrix2x2{<:Domega}) = get_theta(big(m))
 
@@ -367,6 +374,7 @@ function isUapprox(m::Matrix2x2; kwargs...)
     isapprox(abs2(u) + abs2(t), 1; kwargs...) || return false
     return true
 end
+
 
 # using ..Dyadics: Dyadic
 # function TSH()

@@ -1,7 +1,7 @@
 module Matrices2x2
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
 import ..Common: canonical
-import ..Utils: PRETTY, cpad
+import ..Utils: PRETTY, cpad, _show_with_fieldnames
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
 """
@@ -122,6 +122,8 @@ function isunitary(m::Matrix2x2)
         ((conj(a) * b + d * conj(c)) == zero(a))
 end
 
+isunitary(m::Matrix2x2, ::Equal) = isunitary(m)
+
 """
     isunitary(m::Matrix2x2, app::Approx)
 
@@ -215,7 +217,7 @@ function eigvals(m::Matrix2x2)
     (a, b, c, d) = m.data
     discr = sqrt(a^2 + 4*b*c - 2*a*d + d^2)
     (
-        (a + d + discr)/2
+        (a + d + discr)/2,
         (a + d - discr)/2,
     )
 end
@@ -229,7 +231,7 @@ function svdvals(m::Matrix2x2)
     ma = m * adjoint(m)
     (v1, v2) = eigvals(ma)
     (s1, s2) = (sqrt(real(v1)), sqrt(real(v2)))
-    s1 > s2 ? : (s1,s2) : (s2, s1)
+    s1 > s2 ? (s1,s2) : (s2, s1)
 end
 
 function opnorm(m::Matrix2x2)
@@ -307,6 +309,153 @@ Return a random diagonal `2x2` untitary of element type `Complex{T}`.
 """
 function random_diagonal_unitary(::Type{T}=Float64) where T
     diagm(Vector2(cispi(rand(T)), cispi(rand(T))))
+end
+
+###
+### Parameterizations of unitaries
+###
+
+struct UnitaryParam1{T}
+    u::Complex{T}
+    t::Complex{T}
+    phi::T
+end
+
+struct UnitaryParam2{T}
+    gamma::T
+    alpha_u::T
+    alpha_t::T
+    phi::T
+end
+
+function Base.show(io::IO, ::PRETTY, U::UnitaryParam1)
+    _show_with_fieldnames(io, U)
+end
+
+function Base.show(io::IO, ::PRETTY, U::UnitaryParam2)
+    _show_with_fieldnames(io, U)
+end
+
+function unitary_compose(U::UnitaryParam1)
+    (;u, t, phi) = U
+    cp = cis(phi)
+    Matrix2x2(u, t, -conj(t)*cp, conj(u)*cp)
+end
+
+function unitary_compose(U::UnitaryParam2)
+    (;gamma, alpha_u, alpha_t, phi) = U
+    u = cis(alpha_u) * cos(gamma)
+    t = cis(alpha_t) * sin(gamma)
+    unitary_compose(UnitaryParam1(u, t, phi))
+end
+
+function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam1}
+    (u, t, c, d) = U.data
+    if !iszero(u)
+        ua = abs2(u)
+        u_d = u * d # |u|^2 cis(phi)
+        cp = u_d / ua # |u|^2/|u|^2 cis(phi) == cis(phi)
+        phi = angle(cp) # angle(cis(phi)) == phi
+    else
+        phi = zero(u)
+    end
+    return T(u, t, phi)
+end
+
+function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam2}
+    (;u, t, phi) = unitary_decompose(U, UnitaryParam1)
+    (gamma, alpha_u, alpha_t) = _unitary_decompose_special(u, t)
+    return T(gamma, alpha_u, alpha_t, phi)
+end
+
+function _unitary_decompose_special(u, t)
+    uabs = abs(u)
+    tabs = abs(t)
+    if uabs > tabs
+        gamma = acos(uabs)
+    else
+        gamma = asin(tabs)
+    end
+    alpha_u = iszero(uabs) ? zero(uabs) : angle(u/uabs)
+    alpha_t = iszero(tabs) ? zero(tabs) : angle(t/tabs)
+    return (gamma, alpha_u, alpha_t)
+end
+
+isSU2(m::Matrix2x2) = isone(det(m))
+
+function _random_SU2(::Type{T}) where {T}
+    uabs2 = rand(T) # cos^2(gamma)
+    alpha_u_scaled = T(2) * rand(T)
+    alpha_t_scaled = T(2) * rand(T)
+    return SU2ParamScaled(uabs2, alpha_u_scaled, alpha_t_scaled)
+end
+
+random_unitary2x2() = random_unitary2x2(ComplexF64)
+function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
+    random_unitary2x2(Complex{T})
+end
+
+function random_unitary2x2(::Type{Complex{T}}) where {T <: Real}
+    phi_scaled = T(2) * rand(T)
+    (; uabs2, alpha_u_scaled, alpha_t_scaled) = _random_SU2(T)
+    tabs = sqrt(one(uabs2) - uabs2)
+    uabs = sqrt(uabs2)
+    u = cispi(phi_scaled + alpha_u_scaled) * uabs
+    t = cispi(phi_scaled + alpha_t_scaled) * tabs
+    c = -cispi(phi_scaled - alpha_t_scaled) * tabs
+    d = cispi(phi_scaled - alpha_u_scaled) * uabs
+    return Matrix2x2(u, t, c, d)
+end
+
+function random_SU2(::Type{T}) where {T <: AbstractFloat}
+    random_SU2(Complex{T})
+end
+
+random_SU2() = random_SU2(ComplexF64)
+function random_SU2(::Type{Complex{T}}) where {T <: Real}
+    (; uabs2, alpha_u_scaled, alpha_t_scaled) = _random_SU2(T)
+    uabs = sqrt(uabs2)
+    tabs = sqrt(one(uabs2) - uabs2)
+    uphase = cispi(alpha_u_scaled)
+    tphase = cispi(alpha_t_scaled)
+    u = uphase * uabs
+    t = tphase * tabs
+    c = -conj(tphase) * tabs
+    d = conj(uphase) * uabs
+    Matrix2x2(u, t, c, d)
+end
+
+struct SU2ParamScaled{T}
+    uabs2::T
+    alpha_u_scaled::T
+    alpha_t_scaled::T
+end
+
+struct SU2Param1{T}
+    u::Complex{T}
+    t::Complex{T}
+end
+
+struct SU2Param2{T}
+    uabs::T
+    alpha_u::T
+    alpha_t::T
+end
+
+struct SU2Param3{T}
+    alpha_u::T
+    alpha_t::T
+    gamma::T
+end
+
+function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:SU2Param1}
+    T(U[1], U[2])
+end
+
+function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:SU2Param3}
+    (; u, t) = unitary_decompose(U, SU2Param1)
+    (gamma, alpha_u, alpha_t) = _unitary_decompose_special(u, t)
+    T(alpha_u, alpha_t, gamma)
 end
 
 end # module Matrices2x2

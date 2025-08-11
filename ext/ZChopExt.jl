@@ -4,7 +4,7 @@ using ZChop
 
 using IntegerExtensions: Matrix2x2
 
-function ZChop.zchop(m::Matrix2x2, eps=ZChop.ZEPS)
+function ZChop.zchop(m::Matrix2x2, eps::Real=ZChop.ZEPS)
     Matrix2x2(map(x->zchop(x, eps), m.data))
 end
 
