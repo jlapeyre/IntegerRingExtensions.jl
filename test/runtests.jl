@@ -1,6 +1,7 @@
 using IntegerExtensions
 using Test
 
+include("zrot_tests.jl")
 include("composition_tests.jl")
 include("cyclotomic_tests.jl")
 include("ringmatrices_tests.jl")

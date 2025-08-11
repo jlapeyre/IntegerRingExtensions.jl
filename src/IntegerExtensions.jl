@@ -36,13 +36,13 @@ include("matrices.jl")
 Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagonal_unitary,
     tracenorm, unitary_compose, unitary_decompose, UnitaryParam1, UnitaryParam2,
     SU2Param1, SU2Param2, SU2ParamScaled, SU2Param3, isSU2, random_unitary2x2, random_SU2,
-    SU2, Unitary2x2, elements
+    SU2, Unitary2x2, elements, ZRot, zrot, zrotpi, zrothalfpi, get_theta, get_thetapi, get_thetahalfpi
 
 include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor
 
 include("gates.jl")
-Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1, get_theta, get_global_phase,
+Reexport.@reexport import .Gates: compose, compose_one, RZ, count_gates, Gate1, get_global_phase,
     correct_global_phase, rotation_error, rotation_error_GPID, Uapprox, random_Uapprox, random_RZ,
     isUapprox
 

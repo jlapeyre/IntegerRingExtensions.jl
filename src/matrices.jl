@@ -6,6 +6,8 @@ import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
 abstract type AbstractMatrix2x2{T} <: AbstractMatrix{T} end
 abstract type Normal2x2{T} <: AbstractMatrix2x2{T} end
+abstract type AbstractUnitary2x2{T} <: Normal2x2{T} end
+abstract type AbstractSU2{T} <: AbstractUnitary2x2{T} end
 
 """
     Matrix2x2{T} <: AbstractMatrix{T}
@@ -113,6 +115,7 @@ end
     return @inbounds m.data[i]
 end
 
+Base.getindex(m::AbstractMatrix2x2, i::Integer) = Matrix2x2(m)[i]
 Base.size(::AbstractMatrix2x2) = (2, 2)
 Base.eltype(::Type{<:AbstractMatrix2x2{T}}) where T = T
 Base.eltype(::Type{AbstractMatrix2x2{T}}) where T = T
@@ -148,8 +151,6 @@ function isunitary(m::Matrix2x2)
 end
 
 isunitary(m::Matrix2x2, ::Equal) = isunitary(m)
-
-abstract type AbstractUnitary2x2{T} <: Normal2x2{T} end
 
 isunitary(m::AbstractUnitary2x2) = true
 svdvals(::AbstractUnitary2x2{T}) where {T} = (one(T), one(T))
@@ -461,13 +462,68 @@ end
 #     Matrix2x2(u, t, c, d)
 # end
 
-struct SU2{T} <: AbstractUnitary2x2{T}
+struct SU2{T} <: AbstractSU2{T}
     uabs2::T
     alpha_u::T
     alpha_t::T
 end
 
-det(m::SU2{T}) where {T} = one(T)
+function Matrix2x2(su2::SU2)
+    (; uabs2, alpha_u, alpha_t) = su2
+    uabs = sqrt(uabs2)
+    tabs = sqrt(one(uabs2) - uabs2)
+    pu = cispi(alpha_u)
+    pt = cispi(alpha_t)
+    Matrix2x2(uabs * pu, tabs * pt, - tabs * conj(pt), uabs * conj(pu))
+end
+
+struct ZRot{T} <: AbstractSU2{T}
+    minushalfthetapi::T
+end
+
+Base.:(==)(zr1::ZRot, zr2::ZRot) = zr1.minushalfthetapi == zr2.minushalfthetapi
+
+function zrot(theta)
+    ZRot(-(theta /  2) / pi)
+end
+
+function zrotpi(thetapi)
+    ZRot(- (thetapi /  2))
+end
+
+function zrothalfpi(thetahalfpi)
+    ZRot(-(thetahalfpi))
+end
+
+function get_theta(rz::ZRot)
+   - 2 * (pi * rz.minushalfthetapi)
+end
+
+function get_thetapi(rz::ZRot)
+   - 2 * (rz.minushalfthetapi)
+end
+
+function get_thetahalfpi(rz::ZRot)
+   - (rz.minushalfthetapi)
+end
+
+function Base.:*(rz1::ZRot, rz2::ZRot)
+    ZRot(rz1.minushalfthetapi + rz2.minushalfthetapi)
+end
+
+function Base.:/(rz1::ZRot, rz2::ZRot)
+    ZRot(rz1.minushalfthetapi - rz2.minushalfthetapi)
+end
+
+Base.adjoint(rz::ZRot) = ZRot(-rz.minushalfthetapi)
+
+function SU2(rz::ZRot{T}) where {T}
+    SU2(one(T), rz.minushalfthetapi, zero(T))
+end
+
+Matrix2x2(rz::ZRot) = Matrix2x2(SU2(rz))
+
+det(m::AbstractSU2{T}) where {T} = one(T)
 
 function tr(u::SU2)
     (; uabs2, alpha_u, alpha_t) = u
@@ -486,14 +542,6 @@ function eigvals(u::SU2)
     (Complex(re_u, discr), Complex(re_u, -discr))
 end
 
-function Matrix2x2(su2::SU2)
-    (; uabs2, alpha_u, alpha_t) = su2
-    uabs = sqrt(uabs2)
-    tabs = sqrt(one(uabs2) - uabs2)
-    pu = cispi(alpha_u)
-    pt = cispi(alpha_t)
-    Matrix2x2(uabs * pu, tabs * pt, - tabs * conj(pt), uabs * conj(pu))
-end
 
 struct Unitary2x2{T} <: AbstractUnitary2x2{T}
     su2::SU2{T}

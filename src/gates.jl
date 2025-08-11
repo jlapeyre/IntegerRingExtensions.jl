@@ -1,6 +1,7 @@
 module Gates
 
 using ..Matrices2x2: Matrix2x2, GPID
+import ..Matrices2x2: get_theta
 using ..Common: canonical
 using ..CyclotomicRings: Domega
 using ..Singletons: One, Imag, RootImag, InvRootTwo
