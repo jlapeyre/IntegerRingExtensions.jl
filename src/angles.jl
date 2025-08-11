@@ -5,7 +5,7 @@ module Angles
 
 An angular unit that takes values on [-1, 1].
 """
-struct Dar{T} <: Real
+struct Dar{T} #  <: Real I think I don't want this
     function Dar(y)
         x = minus_one_to_one(y)
         new{typeof(x)}(x)
@@ -19,6 +19,11 @@ Base.:+(x::Real, d::Dar) = d + x
 Base.:-(x::Real, d::Dar) = d - x
 Base.:+(d1::Dar, d2::Dar) = Dar(d1.x + d2.x)
 Base.:-(d1::Dar, d2::Dar) = Dar(d1.x - d2.x)
+
+# Note that we don't want ::Dar * ::Dar.
+# That would make no sense
+Base.:*(x::Real, d::Dar) = Dar(x * d.x)
+Base.:*(d::Dar, x::Real) = x * d
 
 function zero_to_two(x)
     if x >= 0  # There must be a Base function call for this.
