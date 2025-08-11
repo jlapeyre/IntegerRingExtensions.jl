@@ -259,6 +259,7 @@ Return a tuple of the singular values of `m` in descending order.
 """
 function svdvals(m::Matrix2x2)
     ma = m * adjoint(m)
+    isone(ma) && return (one(eltype(m)), one(eltype(ma)))
     (v1, v2) = eigvals(ma)
     (s1, s2) = (sqrt(real(v1)), sqrt(real(v2)))
     s1 > s2 ? (s1,s2) : (s2, s1)
@@ -467,6 +468,12 @@ struct SU2{T} <: AbstractUnitary2x2{T}
 end
 
 det(m::SU2{T}) where {T} = one(T)
+
+function tr(u::SU2)
+    (; uabs2, alpha_u, alpha_t) = u
+    uabs = sqrt(uabs2)
+    2 * uabs * cos(alpha_u)
+end
 
 function eigvals(u::SU2)
     (; uabs2, alpha_u, alpha_t) = u

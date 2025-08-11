@@ -100,6 +100,18 @@ function Base.show(io::IO, ::PRETTY, cr::CyclotomicRing)
     end
 end
 
+function Base.show(io::IO, ::PRETTY, tup::NTuple{<:Any, T}) where {T<:CyclotomicRing}
+    print(io, "(")
+    for i in 1:length(tup)
+        if i > 1
+            print(io, ", ")
+        end
+        show(io, PRETTY(), tup[i])
+    end
+    print(io, ")")
+end
+
+
 # FIX THIS! We want to agree with the rest of the world.
 """
     Base.getindex(cyc::CyclotomicRing, n::Integer)
