@@ -35,7 +35,8 @@ Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega
 include("matrices.jl")
 Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagonal_unitary,
     tracenorm, unitary_compose, unitary_decompose, UnitaryParam1, UnitaryParam2,
-    SU2Param1, SU2Param2, SU2ParamScaled, SU2Param3, isSU2, random_unitary2x2, random_SU2
+    SU2Param1, SU2Param2, SU2ParamScaled, SU2Param3, isSU2, random_unitary2x2, random_SU2,
+    SU2, Unitary2x2, elements
 
 include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor

@@ -4,6 +4,9 @@ import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
+abstract type AbstractMatrix2x2{T} <: AbstractMatrix{T} end
+abstract type Normal2x2{T} <: AbstractMatrix2x2{T} end
+
 """
     Matrix2x2{T} <: AbstractMatrix{T}
 
@@ -14,7 +17,7 @@ If `T` is `isbits`, then `Matrix2x2{T}` is `isbits`.
 We implement a few necessary operations, including matrix multiplication,
 addition, subtraction, and unary minus.
 """
-struct Matrix2x2{T} <: AbstractMatrix{T}
+struct Matrix2x2{T} <: AbstractMatrix2x2{T}
     data::NTuple{4, T}
 end
 
@@ -37,13 +40,20 @@ function Matrix2x2(m::Matrix)
     Matrix2x2(m...,)
 end
 
-Base.Matrix(m::Matrix2x2) = reshape([m.data...,], (2,2))
-Matrix2x2{T}(m::Matrix2x2) where {T} = map(x -> T(x), m)
+Base.Matrix(m::AbstractMatrix2x2) = reshape([elements(m)...,], (2,2))
 
-function Base.map(f, m::Matrix2x2)
-    (a, b, c, d) = m.data
+Matrix2x2{T}(m::AbstractMatrix2x2) where {T} = map(x -> T(x), elements(m))
+
+Matrix2x2(m::Matrix2x2) = m
+
+function Base.map(f, m::AbstractMatrix2x2)
+    (a, b, c, d) = elements(m)
     Matrix2x2(f(a), f(b), f(c), f(d))
 end
+
+elements(m::Matrix2x2) = m.data
+
+elements(m::AbstractMatrix2x2) = elements(Matrix2x2(m))
 
 ##
 ## Conversion and related construction
@@ -66,11 +76,11 @@ function _showstr(obj)
     return String(take!(b))
 end
 
-function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
+function Base.show(io::IO, ::PRETTY, m::AbstractMatrix2x2)
     summary(io, m)
     println(io, ":")
     spc = "  "
-    (as, bs, cs, ds)  = map(_showstr, m.data)
+    (as, bs, cs, ds)  = map(_showstr, elements(m))
     (al, bl, cl, dl) = map(length, (as, bs, cs, ds))
     w1 = max(al, bl)
     w2 = max(cl, dl)
@@ -79,6 +89,20 @@ function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
     print(io, cpad(bs, w1), spc)
     print(io, cpad(ds, w2))
 end
+
+# function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
+#     summary(io, m)
+#     println(io, ":")
+#     spc = "  "
+#     (as, bs, cs, ds)  = map(_showstr, m.data)
+#     (al, bl, cl, dl) = map(length, (as, bs, cs, ds))
+#     w1 = max(al, bl)
+#     w2 = max(cl, dl)
+#     print(io, cpad(as, w1), spc)
+#     println(io, cpad(cs, w2))
+#     print(io, cpad(bs, w1), spc)
+#     print(io, cpad(ds, w2))
+# end
 
 ##
 ## Required, and standard, `Base` properties
@@ -89,9 +113,10 @@ end
     return @inbounds m.data[i]
 end
 
-Base.size(::Matrix2x2) = (2, 2)
-Base.eltype(::Type{Matrix2x2{T}}) where T = T
-Base.IndexStyle(::Type{<:Matrix2x2}) = IndexLinear()
+Base.size(::AbstractMatrix2x2) = (2, 2)
+Base.eltype(::Type{<:AbstractMatrix2x2{T}}) where T = T
+Base.eltype(::Type{AbstractMatrix2x2{T}}) where T = T
+Base.IndexStyle(::Type{<:AbstractMatrix2x2}) = IndexLinear()
 Base.one(::Type{Matrix2x2{T}}) where T = Matrix2x2(one(T), zero(T), zero(T), one(T))
 Base.one(::Matrix2x2{T}) where {T} = one(Matrix2x2{T})
 Base.zero(::Type{Matrix2x2{T}}) where T = Matrix2x2(zero(T), zero(T), zero(T), zero(T))
@@ -123,6 +148,11 @@ function isunitary(m::Matrix2x2)
 end
 
 isunitary(m::Matrix2x2, ::Equal) = isunitary(m)
+
+abstract type AbstractUnitary2x2{T} <: Normal2x2{T} end
+
+isunitary(m::AbstractUnitary2x2) = true
+svdvals(::AbstractUnitary2x2{T}) where {T} = (one(T), one(T))
 
 """
     isunitary(m::Matrix2x2, app::Approx)
@@ -381,13 +411,15 @@ function _unitary_decompose_special(u, t)
     return (gamma, alpha_u, alpha_t)
 end
 
-isSU2(m::Matrix2x2) = isone(det(m))
+isSU2(m::AbstractMatrix2x2) = isone(det(m))
 
-function _random_SU2(::Type{T}) where {T}
+random_SU2() = random_SU2(Float64)
+
+function random_SU2(::Type{T}) where {T}
     uabs2 = rand(T) # cos^2(gamma)
     alpha_u_scaled = T(2) * rand(T)
     alpha_t_scaled = T(2) * rand(T)
-    return SU2ParamScaled(uabs2, alpha_u_scaled, alpha_t_scaled)
+    return SU2(uabs2, alpha_u_scaled, alpha_t_scaled)
 end
 
 random_unitary2x2() = random_unitary2x2(ComplexF64)
@@ -396,33 +428,83 @@ function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
 end
 
 function random_unitary2x2(::Type{Complex{T}}) where {T <: Real}
-    phi_scaled = T(2) * rand(T)
-    (; uabs2, alpha_u_scaled, alpha_t_scaled) = _random_SU2(T)
-    tabs = sqrt(one(uabs2) - uabs2)
-    uabs = sqrt(uabs2)
-    u = cispi(phi_scaled + alpha_u_scaled) * uabs
-    t = cispi(phi_scaled + alpha_t_scaled) * tabs
-    c = -cispi(phi_scaled - alpha_t_scaled) * tabs
-    d = cispi(phi_scaled - alpha_u_scaled) * uabs
-    return Matrix2x2(u, t, c, d)
+    su2 = random_SU2(T)
+    phi = T(2) * rand(T)
+    return Unitary2x2(su2, phi)
+    # phi = T(2) * rand(T)
+    # (; uabs2, alpha_u, alpha_t) = random_SU2(T)
+    # tabs = sqrt(one(uabs2) - uabs2)
+    # uabs = sqrt(uabs2)
+    # u = cispi(phi + alpha_u) * uabs
+    # t = cispi(phi + alpha_t) * tabs
+    # c = -cispi(phi - alpha_t) * tabs
+    # d = cispi(phi - alpha_u) * uabs
+    # return Matrix2x2(u, t, c, d)
 end
 
-function random_SU2(::Type{T}) where {T <: AbstractFloat}
-    random_SU2(Complex{T})
+# function random_SU2(::Type{T}) where {T <: AbstractFloat}
+#     random_SU2(Complex{T})
+# end
+
+# random_SU2() = random_SU2(ComplexF64)
+# function random_SU2(::Type{Complex{T}}) where {T <: Real}
+#     (; uabs2, alpha_u_scaled, alpha_t_scaled) = _random_SU2(T)
+#     uabs = sqrt(uabs2)
+#     tabs = sqrt(one(uabs2) - uabs2)
+#     uphase = cispi(alpha_u_scaled)
+#     tphase = cispi(alpha_t_scaled)
+#     u = uphase * uabs
+#     t = tphase * tabs
+#     c = -conj(tphase) * tabs
+#     d = conj(uphase) * uabs
+#     Matrix2x2(u, t, c, d)
+# end
+
+struct SU2{T} <: AbstractUnitary2x2{T}
+    uabs2::T
+    alpha_u::T
+    alpha_t::T
 end
 
-random_SU2() = random_SU2(ComplexF64)
-function random_SU2(::Type{Complex{T}}) where {T <: Real}
-    (; uabs2, alpha_u_scaled, alpha_t_scaled) = _random_SU2(T)
+det(m::SU2{T}) where {T} = one(T)
+
+function eigvals(u::SU2)
+    (; uabs2, alpha_u, alpha_t) = u
+    uabs = sqrt(uabs2)
+    (s, c) = sincospi(alpha_u)
+    re_u = c * uabs
+    im_u2 = s^2 * uabs2
+    tabs2 = 1 - uabs2
+    discr = sqrt(im_u2 + tabs2)
+    (Complex(re_u, discr), Complex(re_u, -discr))
+end
+
+function Matrix2x2(su2::SU2)
+    (; uabs2, alpha_u, alpha_t) = su2
     uabs = sqrt(uabs2)
     tabs = sqrt(one(uabs2) - uabs2)
-    uphase = cispi(alpha_u_scaled)
-    tphase = cispi(alpha_t_scaled)
-    u = uphase * uabs
-    t = tphase * tabs
-    c = -conj(tphase) * tabs
-    d = conj(uphase) * uabs
-    Matrix2x2(u, t, c, d)
+    pu = cispi(alpha_u)
+    pt = cispi(alpha_t)
+    Matrix2x2(uabs * pu, tabs * pt, - tabs * conj(pt), uabs * conj(pu))
+end
+
+struct Unitary2x2{T} <: AbstractUnitary2x2{T}
+    su2::SU2{T}
+    phi::T
+end
+
+function eigvals(U::Unitary2x2)
+    (; su2, phi) = U
+    (v1, v2) = eigvals(su2)
+    p = cispi(phi)
+    # Relatively inefficient to do ths.
+    (p * v1, p * v2)
+end
+
+function Matrix2x2(U::Unitary2x2)
+    (;su2, phi) = U
+    p = cispi(phi)
+    map(x -> p * x, Matrix2x2(su2))
 end
 
 struct SU2ParamScaled{T}
