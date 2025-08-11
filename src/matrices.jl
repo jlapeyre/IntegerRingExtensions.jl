@@ -606,11 +606,11 @@ function Matrix2x2(U::Unitary2x2)
     map(x -> p * x, Matrix2x2(su2))
 end
 
-struct SU2ParamScaled{T}
-    uabs2::T
-    alpha_u_scaled::T
-    alpha_t_scaled::T
-end
+# struct SU2ParamScaled{T}
+#     uabs2::T
+#     alpha_u_scaled::T
+#     alpha_t_scaled::T
+# end
 
 # struct SU2Param1{T}
 #     u::Complex{T}
