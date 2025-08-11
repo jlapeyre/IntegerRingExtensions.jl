@@ -591,6 +591,8 @@ function Base.one(::Type{CyclotomicRing{D, CoeffT}}) where {D, CoeffT}
     CyclotomicRing{D, CoeffT}(one(CoeffT), ntuple(x -> zero(CoeffT), D-1)...,)
 end
 
+Base.isone(cyc::CyclotomicRing) = canonical(cyc) == one(cyc)
+
 Base.one(::Type{CyclotomicRing{D}}) where {D} = one(CyclotomicRing{D, Int})
 
 Base.one(c::CyclotomicRing) = one(typeof(c))

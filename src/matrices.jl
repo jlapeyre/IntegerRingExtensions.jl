@@ -143,12 +143,17 @@ end
 ## IsApprox.isunitary
 ##
 
+# function isunitary(m::Matrix2x2)
+#     (a, b, c, d) = m.data
+#     (abs2(a) + abs2(c) == one(a)) &&
+#         (abs2(b) + abs2(d) == one(a)) &&
+#         ((conj(a) * b + d * conj(c)) == zero(a))
+# end
+
 function isunitary(m::Matrix2x2)
-    (a, b, c, d) = m.data
-    (abs2(a) + abs2(c) == one(a)) &&
-        (abs2(b) + abs2(d) == one(a)) &&
-        ((conj(a) * b + d * conj(c)) == zero(a))
+    isone(m * m')
 end
+
 
 isunitary(m::Matrix2x2, ::Equal) = isunitary(m)
 
@@ -527,6 +532,23 @@ function SU2(rz::ZRot{T}) where {T}
     SU2(one(T), rz.minushalfthetapi, zero(T))
 end
 
+function SU2(m::Matrix2x2)
+    (u, t, c, d) = elements(m)
+    uabs2 = abs2(u)
+    tabs2 = 1 - uabs2
+    if !iszero(uabs2)
+        alpha_u = angle(u/sqrt(uabs2))
+    else
+        alpha_u = zero(uabs2)
+    end
+    if !iszero(tabs2)
+        alpha_t = angle(t/sqrt(tabs2))
+    else
+        alpha_t = zero(tabs2)
+    end
+    SU2(uabs2, alpha_u / pi, alpha_t / pi)
+end
+
 Matrix2x2(rz::ZRot) = Matrix2x2(SU2(rz))
 
 det(m::AbstractSU2{T}) where {T} = one(T)
@@ -567,7 +589,7 @@ end
 function Unitary2x2(m::Matrix2x2{Complex{T}}) where {T <: AbstractFloat}
     phase_fac = sqrt(det(m))
     msu2 = map(x -> x / phase_fac, m)
-    msu2
+    Unitary2x2(SU2(msu2), angle(phase_fac) / pi)
 end
 
 function eigvals(U::Unitary2x2)
