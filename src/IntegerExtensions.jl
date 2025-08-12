@@ -23,7 +23,7 @@ include("angles.jl")
 Reexport.@reexport import .Angles: Dar, dartorad, radtodar, scalepi, unscalepi
 
 include("rings/root_one.jl")
-Reexport.@reexport import .RootOnes: RootOne
+Reexport.@reexport import .RootOnes: RootOne, Omega
 
 include("rings/dyadic.jl")
 Reexport.@reexport import .Dyadics: Dyadic

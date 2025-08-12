@@ -206,13 +206,7 @@ Base.abs(cyc::CyclotomicRing) = sqrt(abs2(cyc))
 function Base.abs2(cyc::CyclotomicRing)
     r = real(cyc)
     i = imag(cyc)
-    r * r + i * i
-    # (a, b, c, d) = cyc.coeffs
-    # a1 = a^2 + b^2 + c^2 + d^2
-    # b1 = a*(b-d) + c*(b+d)
-    # c1 = zero(a)
-    # d1 = -b1
-    # CyclotomicRing((a1,b1,c1,d1))
+    canonical(r * r + i * i)
 end
 
 """
@@ -477,6 +471,30 @@ end
 
 function Base.:*(x::Droot2, c::CyclotomicRing)
     error("not implemented")
+end
+
+Zomega(r::RootOne{8}) = CyclotomicRing{4}(r)
+
+function CyclotomicRing{4}(r::RootOne{8})
+    k = r.k
+    coeffs = if k == 0
+        (1, 0, 0, 0)
+    elseif k == 1
+        (0, 1, 0, 0)
+    elseif k == 2
+        (0, 0, 1, 0)
+    elseif k == 3
+        (0, 0, 0, 1)
+    elseif k == 4
+        (-1, 0, 0, 0)
+    elseif k == 5
+        (0, -1, 0, 0)
+    elseif k == 6
+        (0, 0, -1, 0)
+    elseif k == 7
+        (0, 0, 0, -1)
+    end
+    CyclotomicRing{4}(coeffs...)
 end
 
 function Base.:*(r::RootOne{8}, cyc::CyclotomicRing{4})

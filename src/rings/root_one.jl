@@ -4,7 +4,7 @@ import ..Utils: subscript, superscript
 import ..Common: sqrt_imaginary, imaginary
 import Base: convert, show
 
-export RootOne
+export RootOne, Omega
 
 ########################
 ####
@@ -72,6 +72,35 @@ end
 Return `RootOne{N}(1)`, the principal `n`th root of unity.
 """
 RootOne{N}() where {N} = RootOne{N}(1)
+
+"""
+    Omega = RootOne{8}
+
+The eigth roots of unity.
+
+# Examples
+
+```julia
+julia> Omega()
+ω₈
+
+julia> Omega(1)
+ω₈
+
+julia> Omega(0)
+ω₈⁰
+
+julia> Omega(5)
+ω₈⁵
+
+julia> Omega(5) * Omega(3)
+ω₈⁰
+
+julia> complex(Omega(3))
+(0 + -1/2√2) + (0 + 1/2√2)im
+```
+"""
+const Omega = RootOne{8}
 
 """
     imaginary(::Type{RootOne{D}}) where {D}
@@ -200,6 +229,21 @@ function Base.:-(r::RootOne{N}; maybe=false) where {N}
         throw(ArgumentError(lazy"InexactError unary minus of type RootOne{$N}"))
     end
     RootOne{N}(r.k + (N >> 1))
+end
+
+function Base.complex(r::RootOne{4})
+    k = r.k
+    tup =
+        if k == 0
+            (1, 0)
+        elseif k == 1
+            (0, 1)
+        elseif k == 2
+            (-1, 0)
+        elseif k == 3
+            (0, -1)
+        end
+    Complex(tup...)
 end
 
 end # module RootOnes
