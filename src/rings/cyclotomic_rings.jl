@@ -48,7 +48,7 @@ The ring `𝔻[ω] = ℤ[1/√2, i]`:
 const Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 ```
 """
-struct CyclotomicRing{M, CoeffT}
+struct CyclotomicRing{M, CoeffT <: Number}
     # function CyclotomicRing{M}(tup) where M
     #     length(tup) == M || throw(ArgumentError(lazy"Length of $tuple must be equal to $M"))
     #     tup = promote(tup...)
@@ -160,12 +160,10 @@ end
 
 Domega(a::T) where {T<:Integer} = Domega{T}(a)
 
-function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
+function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1 <: Number, CT2 <: Number}
     coeffs = convert.(CT1, c.coeffs)
     CyclotomicRing{M, CT1}(coeffs)
 end
-
-
 
 """
     coeffs(cyc::CyclotomicRing)
