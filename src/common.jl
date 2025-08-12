@@ -21,6 +21,8 @@ Note that `Rational(0, a)` is canonicalized to `Rational(0, 1)` on construction.
 """
 canonical(x) = x
 
+canonical(a::AbstractArray) = map(canonical, a)
+
 """
     one_over_root_two(::Type{T}) where {T <: Number}
 

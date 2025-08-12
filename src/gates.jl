@@ -182,6 +182,12 @@ end
         Gate1(:X) * matrix
     elseif gate === :W
         Gate1(:W) * matrix
+    elseif gate == :I
+        Gate1(:I) * matrix
+    elseif gate == :Y
+        Gate1(:Y) * matrix
+    elseif gate == :Z
+        Gate1(:Z) * matrix
     else
         nothing
     end
@@ -266,6 +272,10 @@ end
 function Base.:*(::Gate1{:T}, m::Matrix2x2)
     (a,b,c,d) = m.data
     Matrix2x2(a, RootImag * b, c, RootImag * d)
+end
+
+function Base.:*(::Gate1{:I}, m::Matrix2x2)
+    m
 end
 
 # This mistake is very easy to make, causes bugs.
