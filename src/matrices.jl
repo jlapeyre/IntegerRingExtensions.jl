@@ -314,11 +314,18 @@ Vector2{T}(a, b) where {T} = Vector2(T(a), T(b))
 Base.size(::Vector2) = (2,)
 Base.eltype(::Type{Vector2{T}}) where T = T
 Base.IndexStyle(::Type{<:Vector2}) = IndexLinear()
+elements(v::Vector2) = v.data
 
 @inline function Base.getindex(m::Vector2, i::Integer)
     @boundscheck checkbounds(m, i)
     return @inbounds m.data[i]
 end
+
+function Base.map(f, v::Vector2)
+    Vector2(map(f, elements(v)))
+end
+
+Base.float(v::Vector2) = map(float, v)
 
 function Base.:*(m::Matrix2x2, v::Vector2)
     (a,b,c,d) = m.data

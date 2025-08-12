@@ -40,6 +40,15 @@ end
     @test iszero(bigdiff - floatdiff)
     # This depends on precision(BigFloat). So it's fragile
     @test bigdiff < 1e-50
+
+    zd = Domega{Int64}((Dyadic{Int64, Int64}(3, 3), Dyadic{Int64, Int64}(1, 3), Dyadic{Int64, Int64}(3, 2), Dyadic{Int64, Int64}(0, 0)))
+    zr = real(zd)
+    zi = imag(zd)
+    zr1 = QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(3, 3), Dyadic{Int64, Int64}(1, 4))
+    zi1 = QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(3, 2), Dyadic{Int64, Int64}(1, 4))
+    @test zr === zr1
+    @test zi === zi1
+    @test zr != zi1
 end
 
 @testset "cyclotomic D" begin

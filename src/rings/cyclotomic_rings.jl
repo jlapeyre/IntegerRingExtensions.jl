@@ -360,14 +360,24 @@ end
 Domega(a::T) where {T<:Integer} = Domega{T}(a)
 #Domega(a::Number) = Domega{Int}(a)
 
-function Base.real(cyc::Zomega{T}) where T
+function Base.real(cyc::Zomega{<:Integer})
     (a, b , c, d) = coeffs(cyc)
     Droot2(Dyadic(a, 0), Dyadic(b-d, 1))
+end
+
+function Base.real(cyc::Domega{<:Integer})
+    (a, b , c, d) = coeffs(cyc)
+    Droot2(a, mul_half(b - d))
 end
 
 function Base.imag(cyc::Zomega{T}) where T
     (a, b , c, d) = coeffs(cyc)
     Droot2(Dyadic(c, 0), Dyadic(b+d, 1))
+end
+
+function Base.imag(cyc::Domega{<:Integer})
+    (a, b , c, d) = coeffs(cyc)
+    Droot2(c, mul_half(b + d))
 end
 
 function canonical(c::CyclotomicRing)
