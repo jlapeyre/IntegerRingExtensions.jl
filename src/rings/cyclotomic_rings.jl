@@ -96,6 +96,35 @@ Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 """
 const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 
+function CyclotomicRing{4, T}(x::Number) where {T}
+    z = zero(T)
+    return CyclotomicRing{4, T}((T(x), z, z, z))
+end
+
+CyclotomicRing(coeffs::T...) where T = CyclotomicRing{length(coeffs), T}(coeffs)
+
+function CyclotomicRing(c1, coeffs...)
+    cs = promote(c1, coeffs...)
+    CyclotomicRing(cs)
+end
+
+function CyclotomicRing{M}(c1::Number, coeffs...) where M
+    cs = promote(c1, coeffs...)
+    CyclotomicRing{M, typeof(cs[1])}(cs)
+end
+
+function CyclotomicRing{4}(a::Number,b,c,d)
+    cs = promote(a,b,c,d)
+    CyclotomicRing{4, typeof(cs[1])}(cs)
+end
+
+function Domega(c1, c2, c3, c4)
+    c1a = Dyadic{typeof(c1), Int}(c1)
+    cs = promote(c1a, c2, c3, c4)
+    CyclotomicRing(cs)
+end
+
+
 """
     coeffs(cyc::CyclotomicRing)
 
@@ -182,12 +211,6 @@ function promote_rule(::Type{CyclotomicRing{<:Any, T}}, ::Type{V}) where {T, V <
     promote_type(promote_type(T, AbstractFloat), V)
 end
 
-
-function CyclotomicRing{4, T}(x::Number) where {T}
-    z = zero(T)
-    return CyclotomicRing{4, T}((T(x), z, z, z))
-end
-
 function Base.conj(cyc::Domega{T}) where T
     (a, b, c, d) = cyc.coeffs
     # I think promotion not needed.
@@ -249,7 +272,6 @@ function imaginary(::Type{CyclotomicRing{4, T}}) where {T}
     CyclotomicRing(z, z, o, z)
 end
 
-
 """
     sqrt_imaginary(::Type{Domega{T}}) where {T}
 
@@ -302,28 +324,6 @@ function root_two(::Type{CyclotomicRing{4, Dyadic{T, Int}}}) where {T}
     CyclotomicRing(z, o, z, -o)
 end
 
-CyclotomicRing(coeffs::T...) where T = CyclotomicRing{length(coeffs), T}(coeffs)
-
-function CyclotomicRing(c1, coeffs...)
-    cs = promote(c1, coeffs...)
-    CyclotomicRing(cs)
-end
-
-function CyclotomicRing{M}(c1::Number, coeffs...) where M
-    cs = promote(c1, coeffs...)
-    CyclotomicRing{M, typeof(cs[1])}(cs)
-end
-
-function CyclotomicRing{4}(a::Number,b,c,d)
-    cs = promote(a,b,c,d)
-    CyclotomicRing{4, typeof(cs[1])}(cs)
-end
-
-function Domega(c1, c2, c3, c4)
-    c1a = Dyadic{typeof(c1), Int}(c1)
-    cs = promote(c1a, c2, c3, c4)
-    CyclotomicRing(cs)
-end
 
 
 # Not using this. So comment out.
