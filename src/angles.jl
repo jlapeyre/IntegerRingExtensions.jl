@@ -34,6 +34,9 @@ Base.:-(d1::Dar, d2::Dar) = Dar(d1.x - d2.x)
 Base.:-(a::Dar) = Dar(-a.x)
 Base.:(==)(a::Dar, b::Dar) = a.x == b.x
 
+Base.:(==)(a::Dar, x::Real) = unscalepi(a.x) == x
+Base.:(==)(x::Real, a::Dar) = x == a
+
 # Note that we don't want ::Dar * ::Dar.
 # That would make no sense
 Base.:*(x::Real, d::Dar) = Dar(x * d.x)
