@@ -126,4 +126,36 @@ function countmap(itr)
     d
 end
 
+# A copy of Base.power_by_squaring. Modified
+# to not fail with Matrix2x2
+function _power_by_squaring(x_, p::Integer; mul=*)
+    x = x_
+    if p == 1
+        return x
+    elseif p == 0
+        return one(x)
+    elseif p == 2
+        return mul(x, x)
+    elseif p < 0
+        isone(x) && return x
+        isone(-x) && return iseven(p) ? one(x) : x
+        throw(ArgumentError(lazy"Can't raise object $x to power $p"))
+    end
+    t = trailing_zeros(p) + 1
+    p >>= t
+    while (t -= 1) > 0
+        x = mul(x, x)
+    end
+    y = x
+    while p > 0
+        t = trailing_zeros(p) + 1
+        p >>= t
+        while (t -= 1) >= 0
+            x = mul(x, x)
+        end
+        y = mul(y, x)
+    end
+    return y
+end
+
 end # module Utils

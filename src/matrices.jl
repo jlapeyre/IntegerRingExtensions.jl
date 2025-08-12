@@ -1,7 +1,7 @@
 module Matrices2x2
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
 import ..Common: canonical
-import ..Utils: PRETTY, cpad, _show_with_fieldnames
+import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, dartorad, Dar, scalepi, unscalepi, intdiv
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
@@ -232,7 +232,7 @@ function Base.:^(m::Matrix2x2, n::Integer)
     n == 0 && return one(m)
     n == 1 && return m  # If elements of m are mutable, this is problematic
     n == 2 && return m * m
-    return Base.power_by_squaring(m, n)
+    return _power_by_squaring(m, n)
 end
 
 Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{0}) = one(m)

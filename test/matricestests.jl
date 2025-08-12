@@ -9,6 +9,12 @@
     @test m2 == m2a
     @test isapprox(m1 * m2, m1a * m2a)
     @test m1 + m2 == m1a + m2a
+
+    m = Matrix2x2(1,2,3,4)
+    mm = Matrix(m)
+    for p in (0, 1, 2, 3, 10, 11, 20, 21)
+        @test m^p == mm^p
+    end
 end
 
 # FIXME. Y and Z are not implemented anymore
