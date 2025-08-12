@@ -7,6 +7,7 @@ import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_t
 import ..Dyadics: Dyadic
 
 import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
+import ..RootOnes: RootOne
 export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
 import ..Utils: PRETTY
 
@@ -466,7 +467,6 @@ end
 Base.:*(::InvRootTwoT, q::Droot2) = QuadraticRing{2}(q.b, InvTwo * q.a)
 Base.:*(q::Droot2, ::InvRootTwoT) = q * InvRootTwo
 
-
 """
     one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
 
@@ -497,6 +497,28 @@ function mul_half(q::QuadraticRing{D, <:Dyadic}, n::Integer=1) where {D}
     new_coeffs = map(x -> mul_half(x, n), coeffs(q))
     typeof(q)(new_coeffs...)
 end
+
+function Base.complex(r::RootOne{8})
+    k = r.k
+    return if k == 0
+        Complex(Droot2(1, 0), Droot2(0, 0))
+    elseif k == 1
+        Complex(Droot2(0, Dyadic(1, 1)), Droot2(0, Dyadic(1, 1)))
+    elseif k == 2
+        Complex(Droot2(0, 0), Droot2(1, Dyadic(0, 0)))
+    elseif k == 3
+        Complex(Droot2(0, Dyadic(-1, 1)), Droot2(0, Dyadic(1, 1)))
+    elseif k == 4
+        Complex(Droot2(-1, 0), Droot2(0, 0))
+    elseif k == 5
+        Complex(Droot2(0, Dyadic(-1, 1)), Droot2(0, Dyadic(-1, 1)))
+    elseif k == 6
+        Complex(Droot2(0, 0), Droot2(-1, Dyadic(0, 0)))
+    elseif k == 7
+        Complex(Droot2(0, Dyadic(1, 1)), Droot2(0, Dyadic(-1, 1)))
+    end
+end
+
 
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
     @eval function (::Type{Base.$Ti})(q::QuadraticRing)
