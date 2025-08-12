@@ -1,7 +1,7 @@
 @testset "RootOne" begin
     # Test that `angle` gives the same result obtained by converting to
     # float, and then extracting the angle.
-    for i in 0:7
+    for i in 0:20
         root = RootOne{8}(i)
         @test RootOne{8}(i) === Omega(i)
         @test isapprox(angle(root), angle(float(root)))
