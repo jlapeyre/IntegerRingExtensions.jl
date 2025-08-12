@@ -311,12 +311,12 @@ function CyclotomicRing(c1, coeffs...)
     CyclotomicRing(cs)
 end
 
-function CyclotomicRing{M}(c1, coeffs...) where M
+function CyclotomicRing{M}(c1::Number, coeffs...) where M
     cs = promote(c1, coeffs...)
     CyclotomicRing{M, typeof(cs[1])}(cs)
 end
 
-function CyclotomicRing{4}(a,b,c,d)
+function CyclotomicRing{4}(a::Number,b,c,d)
     cs = promote(a,b,c,d)
     CyclotomicRing{4, typeof(cs[1])}(cs)
 end
