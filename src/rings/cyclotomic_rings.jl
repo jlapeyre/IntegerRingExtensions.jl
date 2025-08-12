@@ -63,8 +63,10 @@ struct CyclotomicRing{M, CoeffT <: Number}
     coeffs::NTuple{M, CoeffT}
 end
 
-# The type of the exponent of (1/2) is hardcoded to Int.
-# We probably only need one type for this field.
+###
+### Aliases for special cases: Domega, Zomega
+###
+
 """
     Domega{T}
 
@@ -94,6 +96,10 @@ Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 ```
 """
 const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
+
+###
+### Constructors
+###
 
 function CyclotomicRing{4, T}(x::Number) where {T}
     z = zero(T)
