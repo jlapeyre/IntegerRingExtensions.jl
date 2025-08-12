@@ -64,8 +64,37 @@ struct CyclotomicRing{M, CoeffT}
     coeffs::NTuple{M, CoeffT}
 end
 
-# function CyclotomicRing{<:Any, <:Number}
-# end
+# The type of the exponent of (1/2) is hardcoded to Int.
+# We probably only need one type for this field.
+"""
+    Domega{T}
+
+Represents the ring `𝔻[ω] = ℤ[1/√2, i]`.
+
+The type `T<:Integer` is the type of the numerator in the dyadic fractions.
+
+Here, `𝔻 = ℤ[½]` is the ring of dyadic fractions, implemented by `Dyadic`.
+
+`Domega{T}` is defined as the alias
+```
+Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
+```
+"""
+const Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
+
+"""
+    Zomega{T <: Integer}
+
+Represents the ring `ℤ[ω]`.
+
+The type `T<:Integer` is the type of coefficients of powers of ω.
+
+`Zomega{T}` is defined as the alias
+```
+Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
+```
+"""
+const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 
 """
     coeffs(cyc::CyclotomicRing)
@@ -153,37 +182,6 @@ function promote_rule(::Type{CyclotomicRing{<:Any, T}}, ::Type{V}) where {T, V <
     promote_type(promote_type(T, AbstractFloat), V)
 end
 
-# The type of the exponent of (1/2) is hardcoded to Int.
-# We probably only need one type for this field.
-"""
-    Domega{T}
-
-Represents the ring `𝔻[ω] = ℤ[1/√2, i]`.
-
-The type `T<:Integer` is the type of the numerator in the dyadic fractions.
-
-Here, `𝔻 = ℤ[½]` is the ring of dyadic fractions, implemented by `Dyadic`.
-
-`Domega{T}` is defined as the alias
-```
-Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
-```
-"""
-const Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
-
-"""
-    Zomega{T <: Integer}
-
-Represents the ring `ℤ[ω]`.
-
-The type `T<:Integer` is the type of coefficients of powers of ω.
-
-`Zomega{T}` is defined as the alias
-```
-Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
-```
-"""
-const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 
 function CyclotomicRing{4, T}(x::Number) where {T}
     z = zero(T)

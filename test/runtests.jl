@@ -1,6 +1,7 @@
 using IntegerExtensions
 using Test
 
+include("cyclotomic_tests.jl")
 include("zrot_tests.jl")
 include("composition_tests.jl")
 include("ringmatrices_tests.jl")
@@ -9,7 +10,6 @@ include("rootonetests.jl")
 include("matricestests.jl")
 include("dyadic_tests.jl")
 include("quadratic_ring_tests.jl")
-include("cyclotomic_tests.jl")
 
 @testset "QuadraticRing{2, Int}" begin
     # Don't follow this example in real code!
