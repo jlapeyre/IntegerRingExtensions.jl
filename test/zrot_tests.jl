@@ -21,3 +21,11 @@ using IsApprox: isunitary
     @test one(rz1) isa typeof(rz1)
     @test isa((irz1 * rz1), typeof(rz1))
 end
+
+@testset "Angle" begin
+    @test isapprox(Dar(1/4), pi/4)
+    @test !isapprox(Dar(1/4), pi/5)
+    @test isapprox(Dar(1//4), pi/4)
+    @test float(Dar(1/4)) == pi/4
+    @test float(Dar(3//5)) == 3*pi/5
+end
