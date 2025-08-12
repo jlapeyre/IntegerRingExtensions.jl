@@ -2,6 +2,7 @@ module Matrices2x2
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames
+import ..Angles: radtodar, dartorad, Dar, scalepi, unscalepi, intdiv
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
 abstract type AbstractMatrix2x2{T} <: AbstractMatrix{T} end
@@ -428,9 +429,9 @@ random_SU2() = random_SU2(Float64)
 
 function random_SU2(::Type{T}) where {T}
     uabs2 = rand(T) # cos^2(gamma)
-    alpha_u_scaled = T(2) * rand(T)
-    alpha_t_scaled = T(2) * rand(T)
-    return SU2(uabs2, alpha_u_scaled, alpha_t_scaled)
+    alpha_u = T(2) * rand(T)
+    alpha_t = T(2) * rand(T)
+    return SU2(uabs2, Dar(alpha_u), Dar(alpha_t))
 end
 
 random_unitary2x2() = random_unitary2x2(ComplexF64)
@@ -440,17 +441,8 @@ end
 
 function random_unitary2x2(::Type{Complex{T}}) where {T <: Real}
     su2 = random_SU2(T)
-    phi = T(2) * rand(T)
+    phi = Dar(T(2) * rand(T))
     return Unitary2x2(su2, phi)
-    # phi = T(2) * rand(T)
-    # (; uabs2, alpha_u, alpha_t) = random_SU2(T)
-    # tabs = sqrt(one(uabs2) - uabs2)
-    # uabs = sqrt(uabs2)
-    # u = cispi(phi + alpha_u) * uabs
-    # t = cispi(phi + alpha_t) * tabs
-    # c = -cispi(phi - alpha_t) * tabs
-    # d = cispi(phi - alpha_u) * uabs
-    # return Matrix2x2(u, t, c, d)
 end
 
 # function random_SU2(::Type{T}) where {T <: AbstractFloat}
@@ -471,65 +463,69 @@ end
 #     Matrix2x2(u, t, c, d)
 # end
 
-struct SU2{T} <: AbstractSU2{T}
+struct SU2{T, V} <: AbstractSU2{T}
     uabs2::T
-    alpha_u::T
-    alpha_t::T
+    alpha_u::V
+    alpha_t::V
 end
 
 function Matrix2x2(su2::SU2)
     (; uabs2, alpha_u, alpha_t) = su2
     uabs = sqrt(uabs2)
     tabs = sqrt(one(uabs2) - uabs2)
-    pu = cispi(alpha_u)
-    pt = cispi(alpha_t)
+    pu = cis(alpha_u)
+    pt = cis(alpha_t)
     Matrix2x2(uabs * pu, tabs * pt, - tabs * conj(pt), uabs * conj(pu))
 end
 
-struct ZRot{T} <: AbstractSU2{T}
-    minushalfthetapi::T
+struct ZRot{T, V} <: AbstractSU2{T}
+    function ZRot(t::T) where T
+        V = float(T)
+        new{T, V}(t)
+    end
+    minushalftheta::T
 end
 
-Base.:(==)(zr1::ZRot, zr2::ZRot) = zr1.minushalfthetapi == zr2.minushalfthetapi
+Base.:(==)(zr1::ZRot, zr2::ZRot) = zr1.minushalftheta == zr2.minushalftheta
 
 function zrot(theta)
-    ZRot(-(theta /  2) / pi)
-end
-
-function zrotpi(thetapi)
-    ZRot(- (thetapi /  2))
-end
-
-function zrothalfpi(thetahalfpi)
-    ZRot(-(thetahalfpi))
+    ZRot(-intdiv(theta, 2))
 end
 
 function get_theta(rz::ZRot)
-   - 2 * (pi * rz.minushalfthetapi)
+   - 2 * rz.minushalftheta
 end
 
-function get_thetapi(rz::ZRot)
-   - 2 * (rz.minushalfthetapi)
-end
+# function zrotpi(theta)
+#     ZRot(scalepi(
+# end
 
-function get_thetahalfpi(rz::ZRot)
-   - (rz.minushalfthetapi)
-end
+# function zrothalfpi(thetahalfpi)
+#     ZRot(-(thetahalfpi))
+# end
+
+# function get_theta(rz::ZRot)
+#    - 2 * (rz.minushalftheta)
+# end
+
+# function get_thetahalfpi(rz::ZRot)
+#    - (rz.minushalftheta)
+# end
 
 function Base.:*(rz1::ZRot, rz2::ZRot)
-    ZRot(rz1.minushalfthetapi + rz2.minushalfthetapi)
+    ZRot(rz1.minushalftheta + rz2.minushalftheta)
 end
 
 function Base.:/(rz1::ZRot, rz2::ZRot)
-    ZRot(rz1.minushalfthetapi - rz2.minushalfthetapi)
+    ZRot(rz1.minushalftheta - rz2.minushalftheta)
 end
 
 Base.:+(rz1::ZRot, rz2::ZRot) = SU2(rz1) + SU2(rz2)
 
-Base.adjoint(rz::ZRot) = ZRot(-rz.minushalfthetapi)
+Base.adjoint(rz::ZRot) = ZRot(-rz.minushalftheta)
 
 function SU2(rz::ZRot{T}) where {T}
-    SU2(one(T), rz.minushalfthetapi, zero(T))
+    SU2(one(float(T)), rz.minushalftheta, zero(T))
 end
 
 function SU2(m::Matrix2x2)
@@ -546,7 +542,7 @@ function SU2(m::Matrix2x2)
     else
         alpha_t = zero(tabs2)
     end
-    SU2(uabs2, alpha_u / pi, alpha_t / pi)
+    SU2(uabs2, radtodar(alpha_u), radtodar(alpha_t))
 end
 
 Matrix2x2(rz::ZRot) = Matrix2x2(SU2(rz))
@@ -562,7 +558,7 @@ end
 function eigvals(u::SU2)
     (; uabs2, alpha_u, alpha_t) = u
     uabs = sqrt(uabs2)
-    (s, c) = sincospi(alpha_u)
+    (s, c) = sincos(alpha_u)
     re_u = c * uabs
     im_u2 = s^2 * uabs2
     tabs2 = 1 - uabs2
@@ -589,20 +585,20 @@ end
 function Unitary2x2(m::Matrix2x2{Complex{T}}) where {T <: AbstractFloat}
     phase_fac = sqrt(det(m))
     msu2 = map(x -> x / phase_fac, m)
-    Unitary2x2(SU2(msu2), angle(phase_fac) / pi)
+    Unitary2x2(SU2(msu2), radtodar(angle(phase_fac)))
 end
 
 function eigvals(U::Unitary2x2)
     (; su2, phi) = U
     (v1, v2) = eigvals(su2)
-    p = cispi(phi)
+    p = cis(phi)
     # Relatively inefficient to do ths.
     (p * v1, p * v2)
 end
 
 function Matrix2x2(U::Unitary2x2)
     (;su2, phi) = U
-    p = cispi(phi)
+    p = cis(phi)
     map(x -> p * x, Matrix2x2(su2))
 end
 

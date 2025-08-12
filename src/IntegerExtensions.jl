@@ -20,7 +20,7 @@ Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
 include("angles.jl")
-Reexport.@reexport import .Angles: Dar, rounddar, dartorad, radtodar
+Reexport.@reexport import .Angles: Dar, dartorad, radtodar, scalepi, unscalepi
 
 include("rings/root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne
@@ -40,7 +40,9 @@ Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagona
     tracenorm, unitary_compose, unitary_decompose,
     UnitaryParam1, UnitaryParam2,
      isSU2, random_unitary2x2, random_SU2,
-    SU2, Unitary2x2, elements, ZRot, zrot, zrotpi, zrothalfpi, get_theta, get_thetapi, get_thetahalfpi
+    SU2, Unitary2x2, elements, ZRot, zrot,
+    get_theta
+#    zrotpi, zrothalfpi, get_thetapi, get_thetahalfpi
 #    SU2Param1, SU2Param2, SU2Param3, SU2ParamScaled,
 
 include("ring_matrices.jl")

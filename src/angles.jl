@@ -13,17 +13,33 @@ struct Dar{T} #  <: Real I think I don't want this
     x::T
 end
 
+Base.AbstractFloat(::Type{Dar{T}}) where {T} = float(T)
+Base.AbstractFloat(a::Dar{T}) where {T} = unscalepi(float(a.x))
+Base.Float64(a::Dar) = unscalepi(float(a.x))
+
+Base.convert(::Type{Float64}, a::Dar) = Float64(a)
+
+Base.one(::Type{Dar{T}}) where {T} = one(T)
+Base.one(::Dar{T}) where {T} = one(T)
+
+Base.zero(::Type{Dar{T}}) where {T} = Dar(zero(T))
+Base.zero(::Dar{T}) where {T} = Dar(zero(T))
+
 Base.:+(d::Dar, x::Real) = Dar(d.x + x)
-Base.:-(d::Dar, x::Real) = Dar(d.x + x)
+Base.:-(d::Dar, x::Real) = Dar(d.x - x)
 Base.:+(x::Real, d::Dar) = d + x
 Base.:-(x::Real, d::Dar) = d - x
 Base.:+(d1::Dar, d2::Dar) = Dar(d1.x + d2.x)
 Base.:-(d1::Dar, d2::Dar) = Dar(d1.x - d2.x)
+Base.:-(a::Dar) = Dar(-a.x)
+Base.:(==)(a::Dar, b::Dar) = a.x == b.x
 
 # Note that we don't want ::Dar * ::Dar.
 # That would make no sense
 Base.:*(x::Real, d::Dar) = Dar(x * d.x)
 Base.:*(d::Dar, x::Real) = x * d
+
+Dar(d::Dar) = d
 
 function zero_to_two(x)
     if x >= 0  # There must be a Base function call for this.
@@ -69,16 +85,30 @@ function dartorad(dar::Dar)
     dar.x * pi
 end
 
-import Base: cos, sin, cis, tan
+scalepi(x::Real) = x / pi
+scalepi(x::Dar) = x
+unscalepi(x::Real) = x * pi
+unscalepi(x::Dar) = x
 
-for func in (:cos, :sin, :cis, :tan)
+intdiv(x::Real, n::Integer) = x / n
+intdiv(x::Rational, n::Integer) = x * 1//n
+intdiv(x::Dar, n::Integer) = Dar(intdiv(x.x, n))
+
+# function dartorad(x::Real)
+#     dar.x * pi
+# end
+
+import Base: cos, sin, cis, tan, sincos  # , cospi, sinpi, cispi, tanpi
+
+for func in (:cos, :sin, :cis, :tan, :sincos)
     funcpi = Symbol(func, :pi)
     @eval $func(dar::Dar) = $funcpi(dar.x)
+#    @eval $funcpi(dar::Dar) = $funcpi(dar.x)
 end
 
-function Base.isapprox(a::Dar, b::Dar)
-    isapprox(a.x, b.x)
-end
+Base.isapprox(a::Dar, b::Dar; kws...) = isapprox(a.x, b.x; kws...)
+Base.isapprox(a::Dar, x::Real; kws...) = isapprox(unscalepi(a.x), x; kws...)
+Base.isapprox(x::Real, a::Dar ; kws...) = isapprox(a, x; kws...)
 
 function sadcheck(x, y)
     if  !isapprox(Dar(x + y),  (Dar(x) + Dar(y)))
