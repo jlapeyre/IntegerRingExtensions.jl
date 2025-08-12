@@ -49,8 +49,23 @@ const Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 ```
 """
 struct CyclotomicRing{M, CoeffT}
+    # function CyclotomicRing{M}(tup) where M
+    #     length(tup) == M || throw(ArgumentError(lazy"Length of $tuple must be equal to $M"))
+    #     tup = promote(tup...)
+    #     new{M, typeof(first(tup))}(tup)
+    # end
+
+    # function CyclotomicRing{M, CoeffT}(tup) where {M, CoeffT}
+    #     length(tup) == M || throw(ArgumentError(lazy"Length of $tuple must be equal to $M"))
+    #     tup = map(x -> CoeffT(x), tup)
+    #     new{M, typeof(first(tup))}(tup)
+    # end
+
     coeffs::NTuple{M, CoeffT}
 end
+
+# function CyclotomicRing{<:Any, <:Number}
+# end
 
 """
     coeffs(cyc::CyclotomicRing)
@@ -473,29 +488,6 @@ function Base.:*(x::Droot2, c::CyclotomicRing)
     error("not implemented")
 end
 
-Zomega(r::RootOne{8}) = CyclotomicRing{4}(r)
-
-function CyclotomicRing{4}(r::RootOne{8})
-    k = r.k
-    coeffs = if k == 0
-        (1, 0, 0, 0)
-    elseif k == 1
-        (0, 1, 0, 0)
-    elseif k == 2
-        (0, 0, 1, 0)
-    elseif k == 3
-        (0, 0, 0, 1)
-    elseif k == 4
-        (-1, 0, 0, 0)
-    elseif k == 5
-        (0, -1, 0, 0)
-    elseif k == 6
-        (0, 0, -1, 0)
-    elseif k == 7
-        (0, 0, 0, -1)
-    end
-    CyclotomicRing{4}(coeffs...)
-end
 
 function Base.:*(r::RootOne{8}, cyc::CyclotomicRing{4})
     k = r.k
@@ -758,6 +750,8 @@ end
 #     convert(Complex, c)
 # end
 
+# Huh. I did this twice
+
 function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
     val = r.k == 4 ? -1 : sign(4 - r.k)
     pos = mod(r.k, 4)
@@ -772,6 +766,35 @@ function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
             (0,0,0,val)
         end
     CyclotomicRing{4, T}(coeffs)
+end
+
+Zomega(r::RootOne{8}) = CyclotomicRing{4}(r)
+
+function CyclotomicRing{4}(r::RootOne{8})
+    k = r.k
+    coeffs = if k == 0
+        (1, 0, 0, 0)
+    elseif k == 1
+        (0, 1, 0, 0)
+    elseif k == 2
+        (0, 0, 1, 0)
+    elseif k == 3
+        (0, 0, 0, 1)
+    elseif k == 4
+        (-1, 0, 0, 0)
+    elseif k == 5
+        (0, -1, 0, 0)
+    elseif k == 6
+        (0, 0, -1, 0)
+    elseif k == 7
+        (0, 0, 0, -1)
+    end
+    CyclotomicRing{4}(coeffs...)
+end
+
+# With respect to base sqrt(2)
+function smallest_denominator_exponent(cyc::CyclotomicRing{<:Any, <:Dyadic})
+    maximum(map(x -> x.k, canonical(cyc).coeffs))
 end
 
 end # module CyclotomicRings

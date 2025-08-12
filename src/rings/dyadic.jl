@@ -264,7 +264,17 @@ function convert(::Type{Rational{T}}, f::Dyadic) where {T}
     Rational{T}(convert(T, f.a), convert(T, 1) << f.k)
 end
 
-Dyadic(r::Rational) = convert(Dyadic, r)
+function Dyadic(r::Rational)
+    ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
+    Dyadic(r.num, ILog2.ilog2(r.den))
+end
+
+function Dyadic{T, V}(r::Rational) where {T<:Integer, V<:Integer}
+    ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
+    Dyadic{T,V}(r.num, ILog2.ilog2(r.den))
+end
+
+#Dyadic(r::Rational) = convert(Dyadic, r)
 Dyadic(n::Integer) = Dyadic(n, zero(n))
 Dyadic(x::Dyadic) = x
 Dyadic{T,V}(x::Dyadic{T,V}) where {T,V} = x

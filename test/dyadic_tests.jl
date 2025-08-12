@@ -26,4 +26,5 @@
 
     @test x === InvRootTwo * (RootTwo * x)
     @test x === RootTwo * (InvRootTwo * x)
+
 end

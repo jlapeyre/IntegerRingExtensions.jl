@@ -52,6 +52,12 @@ end
 
     @test isa(abs2(zd), QuadraticRing)
     @test float(abs2(zd)) == abs2(float(zd))
+
+    # Lengths 5 and 7 are not supported well, and may not make sense as rings.
+    # Might want to detect these and disallow
+    # @test isa(CyclotomicRing{5, Dyadic{Int,Int}}((1,2,3//8,4,5)), CyclotomicRing{5, Dyadic{Int,Int}})
+    # @test isa(CyclotomicRing{7, Dyadic}((1//16,2,3//8,4,5,6,7)), CyclotomicRing{7, Dyadic{Int,Int}})
+
 end
 
 @testset "cyclotomic D" begin
