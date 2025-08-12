@@ -451,16 +451,29 @@ function random_SU2(::Type{T}) where {T}
     return SU2(uabs2, Dar(alpha_u), Dar(alpha_t))
 end
 
-random_unitary2x2() = random_unitary2x2(ComplexF64)
+random_unitary2x2() = random_unitary2x2(Float64)
+
 function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
-    random_unitary2x2(Complex{T})
+    uabs2 = rand(T) # cos^2(gamma)
+    uabs = sqrt(uabs2)
+    tabs = sqrt(1 - uabs2)
+    alpha_u = T(2) * rand(T)
+    alpha_t = T(2) * rand(T)
+    gamma = T(2) * rand(T)
+    pu = cispi(alpha_u)
+    pt = cispi(alpha_t)
+    Matrix2x2(pu * uabs, pt * tabs, -conj(pt) * tabs,  conj(pu) * uabs)
 end
 
-function random_unitary2x2(::Type{Complex{T}}) where {T <: Real}
-    su2 = random_SU2(T)
-    phi = Dar(T(2) * rand(T))
-    return Unitary2x2(su2, phi)
-end
+# broken
+# function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
+#     random_unitary2x2(Complex{T})
+# end
+# function random_unitary2x2(::Type{Complex{T}}) where {T <: Real}
+#     su2 = random_SU2(T)
+#     phi = Dar(T(2) * rand(T))
+#     return Unitary2x2(su2, phi)
+# end
 
 # function random_SU2(::Type{T}) where {T <: AbstractFloat}
 #     random_SU2(Complex{T})

@@ -116,5 +116,14 @@ function small(x::Complex{BigFloat})
     ComplexF64(trunc(x; sigdigits=17))
 end
 
+# This also exists in StatsBase
+
+function countmap(itr)
+    d = Dict{typeof(first(itr)), Int}()
+    for x in itr
+        d[x] = get(d, x, 0) + 1
+    end
+    d
+end
 
 end # module Utils
