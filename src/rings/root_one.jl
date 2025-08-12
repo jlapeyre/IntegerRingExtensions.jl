@@ -222,6 +222,12 @@ end
 Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
 Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)
 
+function Base.sqrt(r::RootOne{N}) where N
+    k = r.k
+    iseven(k) || throw(ArgumentError(lazy"Inexact error: sqrt($r)"))
+    RootOne{N}(k >> 1)
+end
+
 Base.:^(r::RootOne{N}, n::Integer) where {N} = RootOne{N}(r.k * mod(n, N))
 Base.inv(r::RootOne{N}) where {N} = RootOne{N}(N - r.k)
 
