@@ -380,6 +380,11 @@ function Base.imag(cyc::Domega{<:Integer})
     Droot2(c, mul_half(b + d))
 end
 
+function Base.isreal(cyc::Domega{<:Integer})
+    (a, b , c, d) = coeffs(cyc)
+    iszero(c) && iszero(b + d)
+end
+
 function canonical(c::CyclotomicRing)
     CyclotomicRing(map(canonical,  c.coeffs))
 end
@@ -653,19 +658,23 @@ function Base.Complex(cyc::CyclotomicRing{4})
         float(d) * float(r8(3))
 end
 
-function Base.Complex(cyc::CyclotomicRing{4,BigInt})
-    (a, b, c, d) = cyc.coeffs
-    cfunc = big
-    r8 = RootOne{8}
-    float(a) + float(b) * big(r8(1)) + float(c) * big(r8(2)) +
-        float(d) * big(r8(3))
+function Base.Complex(cyc::CyclotomicRing{4,T}) where {T <: Union{Integer, Dyadic}}
+    Complex(real(cyc), imag(cyc))
 end
+
+# function Base.Complex(cyc::CyclotomicRing{4,BigInt})
+#     (a, b, c, d) = cyc.coeffs
+#     cfunc = big
+#     r8 = RootOne{8}
+#     float(a) + float(b) * big(r8(1)) + float(c) * big(r8(2)) +
+#         float(d) * big(r8(3))
+# end
 
 #Base.Complex(cyc::CyclotomicRing{4}) = convert(Complex, cyc)
 
 # This gives incorrect result for BigInt
 # Plan is to make Complex(cyc) return Complex{<:QuadraticRing} rather than a float type.
-Base.float(cyc::CyclotomicRing{4}) = Complex(cyc)
+Base.float(cyc::CyclotomicRing{4}) = Complex(float(real(cyc)), float(imag(cyc)))
 
 Base.complex(cyc::CyclotomicRing) = Complex(cyc)
 

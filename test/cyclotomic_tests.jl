@@ -37,7 +37,7 @@ end
 
     bigdiff = abs(big(zbig) - big(zbigc))
     floatdiff = abs(float(zbig) - float(zbigc))
-    @test iszero(bigdiff - floatdiff)
+    @test iszero(floatdiff)
     # This depends on precision(BigFloat). So it's fragile
     @test bigdiff < 1e-50
 
