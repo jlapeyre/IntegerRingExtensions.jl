@@ -3,6 +3,7 @@
     # float, and then extracting the angle.
     for i in 0:7
         root = RootOne{8}(i)
+        @test RootOne{8}(i) === Omega(i)
         @test isapprox(angle(root), angle(float(root)))
         @test isone(root * inv(root))
         @test isone(inv(root) * root)

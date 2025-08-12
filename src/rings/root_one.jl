@@ -191,13 +191,6 @@ function (::Type{Complex{T}})(r::RootOne{M}; maybe::Bool=false) where {M, T <: I
     return CT(z, -o)
 end
 
-# Base.Complex(r::RootOne{2}) = Complex{Int}(r)
-
-# Base.Int(r::RootOne{2}) = _integer_rootone2(Int, r)
-# function _integer_rootone2(::Type{T}, r::RootOne{2}) where {T<:Integer}
-#     iszero(r.k) ? T(1) : T(-1)
-# end
-
 Base.float(r::RootOne) = complex(r)
 Base.complex(r::RootOne) = Complex(r)
 Base.big(r::RootOne) = Complex{BigFloat}(r)
@@ -246,6 +239,8 @@ function Base.:-(r::RootOne{N}; maybe=false) where {N}
     end
     RootOne{N}(r.k + (N >> 1))
 end
+
+Base.Complex(r::RootOne{2}) = Complex{Int}(r)
 
 function Base.complex(r::RootOne{4})
     k = r.k
