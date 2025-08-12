@@ -60,7 +60,6 @@ struct CyclotomicRing{M, CoeffT}
     #     tup = map(x -> CoeffT(x), tup)
     #     new{M, typeof(first(tup))}(tup)
     # end
-
     coeffs::NTuple{M, CoeffT}
 end
 
@@ -124,6 +123,49 @@ function Domega(c1, c2, c3, c4)
     CyclotomicRing(cs)
 end
 
+function _mkomega(::Type{T}, a, b, c, d) where {T}
+    coeffs = promote(a, b, c, d)
+    coeffs1 = map(T, coeffs)
+    V = typeof(coeffs1[1])
+    CyclotomicRing{4, V}(coeffs)
+end
+
+#Domega(a, b, c, d) = Domega{Int}(a,b,c,d)
+
+Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(Dyadic{T,Int}, a,b,c,d)
+
+# Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
+Zomega(a::T, b::T, c::T, d::T) where {T <: Integer} = Zomega{Int}(a, b, c, d)
+Zomega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
+
+Zomega(a::Number) = Zomega{Int}(a)
+
+function Zomega(c::CyclotomicRing{4, CT}) where {CT}
+    coeffs = map(x -> convert(Integer, x), c.coeffs)
+    Zomega{typeof(first(coeffs))}(coeffs)
+end
+
+function Domega(c::CyclotomicRing{4, CT}) where {CT}
+    coeffs = map(x -> Dyadic(x), c.coeffs)
+    T = typeof(first(coeffs).a)
+    Domega{T}(coeffs)
+end
+
+function Domega(r::Rational)
+    d = Dyadic(r)
+    z = zero(d)
+    T = typeof(d.a)
+    Domega{T}(d, z, z, z)
+end
+
+Domega(a::T) where {T<:Integer} = Domega{T}(a)
+
+function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
+    coeffs = convert.(CT1, c.coeffs)
+    CyclotomicRing{M, CT1}(coeffs)
+end
+
+
 
 """
     coeffs(cyc::CyclotomicRing)
@@ -185,7 +227,6 @@ function Base.show(io::IO, ::PRETTY, tup::NTuple{<:Any, T}) where {T<:Cyclotomic
 end
 
 
-# FIX THIS! We want to agree with the rest of the world.
 """
     Base.getindex(cyc::CyclotomicRing, n::Integer)
 
@@ -324,52 +365,6 @@ function root_two(::Type{CyclotomicRing{4, Dyadic{T, Int}}}) where {T}
     CyclotomicRing(z, o, z, -o)
 end
 
-
-
-# Not using this. So comment out.
-# function CyclotomicRing{4, T}(a, b, c, d) where T
-#     cs = (T(a),T(b),T(c),T(d))
-#     CyclotomicRing(cs)
-# end
-
-function _mkomega(::Type{T}, a, b, c, d) where {T}
-    coeffs = promote(a, b, c, d)
-    coeffs1 = map(T, coeffs)
-    V = typeof(coeffs1[1])
-    CyclotomicRing{4, V}(coeffs)
-end
-
-#Domega(a, b, c, d) = Domega{Int}(a,b,c,d)
-
-Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(Dyadic{T,Int}, a,b,c,d)
-
-# Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
-Zomega(a::T, b::T, c::T, d::T) where {T <: Integer} = Zomega{Int}(a, b, c, d)
-Zomega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
-
-Zomega(a::Number) = Zomega{Int}(a)
-
-function Zomega(c::CyclotomicRing{4, CT}) where {CT}
-    coeffs = map(x -> convert(Integer, x), c.coeffs)
-    Zomega{typeof(first(coeffs))}(coeffs)
-end
-
-function Domega(c::CyclotomicRing{4, CT}) where {CT}
-    coeffs = map(x -> Dyadic(x), c.coeffs)
-    T = typeof(first(coeffs).a)
-    Domega{T}(coeffs)
-end
-
-function Domega(r::Rational)
-    d = Dyadic(r)
-    z = zero(d)
-    T = typeof(d.a)
-    Domega{T}(d, z, z, z)
-end
-
-Domega(a::T) where {T<:Integer} = Domega{T}(a)
-#Domega(a::Number) = Domega{Int}(a)
-
 function Base.real(cyc::Zomega{<:Integer})
     (a, b , c, d) = coeffs(cyc)
     Droot2(Dyadic(a, 0), Dyadic(b-d, 1))
@@ -415,19 +410,10 @@ function Base.:+(c1::CyclotomicRing{M}, c2::CyclotomicRing{M}) where {M}
     CyclotomicRing{M, T}(coeffs)
 end
 
-
-# function Base.:-(c1::CyclotomicRing{M, CoeffT}, c2::CyclotomicRing{M, CoeffT}) where {M, CoeffT}
-#     coeffs = promote((c1.coeffs .- c2.coeffs)...)
-#     T = typeof(first(coeffs))
-#     CyclotomicRing{M, T}(coeffs)
-# end
-
-
 function Base.:-(c::CyclotomicRing)
     CyclotomicRing(.- c.coeffs)
 end
 
-#function Base.:*(c1::CyclotomicRing{4, T1}, c2::CyclotomicRing{4, T2}) where {T1, T2}
 function Base.:*(c1::CyclotomicRing{4}, c2::CyclotomicRing{4})
     (a1, b1, c1, d1) = c1.coeffs
     (a2, b2, c2, d2) = c2.coeffs
@@ -451,13 +437,6 @@ function Base.:*(r::Real, c::CyclotomicRing)
     # cs = Tuple(r * x for x in c.coeffs) slow
     CyclotomicRing(cs)
 end
-
-# Specialized method does not help
-# function Base.:*(r::Real, c::CyclotomicRing{4})
-#     (a, b, c, d) = c.coeffs
-#     CyclotomicRing(r * a, r * b, r * c, r * d)
-# end
-
 
 @inline Base.:*(c::CyclotomicRing, r::Real) = r * c
 
@@ -485,7 +464,6 @@ end
 function Base.:*(x::Droot2, c::CyclotomicRing)
     error("not implemented")
 end
-
 
 function Base.:*(r::RootOne{8}, cyc::CyclotomicRing{4})
     k = r.k
@@ -641,27 +619,6 @@ function Base.big(c::CyclotomicRing)
     Complex{BigFloat}(c)
 end
 
-# function Base.convert(::Type{T}, c::CyclotomicRing) where {T}
-#     CyclotomicRing(map(x -> convert(T, x), c.coeffs))
-# end
-
-# We want less of convert
-# function Base.convert(::Type{Complex{Tc}}, c::CyclotomicRing) where Tc
-#     Complex{Tc}(c)
-# end
-
-function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1, CT2}
-    coeffs = convert.(CT1, c.coeffs)
-    CyclotomicRing{M, CT1}(coeffs)
-end
-
-# This is the right idea. But and it produces the right Complex.
-# But somehow errors are intrduced when converting to BigFloat.
-# The problem could be fixed.
-# function Base.Complex(cyc::CyclotomicRing{4})
-#     Complex(real(cyc), imag(cyc))
-# end
-
 function Base.Complex(cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
     r8 = RootOne{8}
@@ -673,39 +630,13 @@ function Base.Complex(cyc::CyclotomicRing{4,T}) where {T <: Union{Integer, Dyadi
     Complex(real(cyc), imag(cyc))
 end
 
-# function Base.Complex(cyc::CyclotomicRing{4,BigInt})
-#     (a, b, c, d) = cyc.coeffs
-#     cfunc = big
-#     r8 = RootOne{8}
-#     float(a) + float(b) * big(r8(1)) + float(c) * big(r8(2)) +
-#         float(d) * big(r8(3))
-# end
-
-#Base.Complex(cyc::CyclotomicRing{4}) = convert(Complex, cyc)
-
-# This gives incorrect result for BigInt
-# Plan is to make Complex(cyc) return Complex{<:QuadraticRing} rather than a float type.
 Base.float(cyc::CyclotomicRing{4}) = Complex(float(real(cyc)), float(imag(cyc)))
-
 Base.complex(cyc::CyclotomicRing) = Complex(cyc)
-
-#Base.Complex(cyc::CyclotomicRing{4}) = AbstractFloat(cyc)
-
-# @inline function Base.AbstractFloat(c::CyclotomicRing{D}) where {D}
-#     _convert_cyc(c, D, float)
-# end
-
-# @inline function Base.Complex(c::CyclotomicRing{D}) where {D}
-#     _convert_cyc(c, D, complex)
-# end
-
-#function Base.Complex{Tc}(cyc::CyclotomicRing{D}) where {D, Tc}
 
 function Base.Complex(cyc::CyclotomicRing{D, T}) where {D, T}
     Tc = float(T)
     _convert_cyc(cyc, D, Complex{Tc})
 end
-
 
 function Base.Complex{Tc}(cyc::CyclotomicRing{D}) where {D, Tc}
     _convert_cyc(cyc, D, Complex{Tc})
@@ -718,7 +649,6 @@ function (::Type{T})(cyc::CyclotomicRing{D}) where {T<:Real, D}
 end
 
 Base.float(cyc::CyclotomicRing) = complex(cyc)
-
 
 # Faster than using any kind of iterative or reduce scheme
 # This is only slightly slower 2.7 vs 3.5 ns than the explicit
@@ -743,10 +673,6 @@ function Base.Complex{Tc}(c::CyclotomicRing{4}) where Tc
     T(a) + T(b) * T(r8(1)) + T(c) * T(r8(2)) +
         T(d) * T(r8(3))
 end
-
-# function (::Type{Complex})(c::CyclotomicRing)
-#     convert(Complex, c)
-# end
 
 # Huh. I did this twice
 
