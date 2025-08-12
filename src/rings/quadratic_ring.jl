@@ -412,6 +412,10 @@ function canonical(qr::QuadraticRing)
     typeof(qr)(canonical(qr.a), canonical(qr.b))
 end
 
+function canonical(z::Complex{<:QuadraticRing})
+    Complex(canonical(real(z)), canonical(imag(z)))
+end
+
 promote_rule(::Type{V}, ::Type{T2})  where {V <: QuadraticRing{<:Any, T},T2} where T =
     promote_type(float(T), T2)
 
