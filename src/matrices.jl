@@ -496,22 +496,6 @@ function get_theta(rz::ZRot)
    - 2 * rz.minushalftheta
 end
 
-# function zrotpi(theta)
-#     ZRot(scalepi(
-# end
-
-# function zrothalfpi(thetahalfpi)
-#     ZRot(-(thetahalfpi))
-# end
-
-# function get_theta(rz::ZRot)
-#    - 2 * (rz.minushalftheta)
-# end
-
-# function get_thetahalfpi(rz::ZRot)
-#    - (rz.minushalftheta)
-# end
-
 function Base.:*(rz1::ZRot, rz2::ZRot)
     ZRot(rz1.minushalftheta + rz2.minushalftheta)
 end
@@ -519,6 +503,13 @@ end
 function Base.:/(rz1::ZRot, rz2::ZRot)
     ZRot(rz1.minushalftheta - rz2.minushalftheta)
 end
+
+function Base.inv(rz::ZRot)
+    ZRot(-rz.minushalftheta)
+end
+
+Base.isone(rz::ZRot) = iszero(rz.minushalftheta)
+Base.one(rz::ZRot) = ZRot(zero(rz.minushalftheta))
 
 Base.:+(rz1::ZRot, rz2::ZRot) = SU2(rz1) + SU2(rz2)
 
