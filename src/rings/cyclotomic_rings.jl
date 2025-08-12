@@ -204,12 +204,15 @@ LinearAlgebra.norm(cyc::CyclotomicRing) = abs(cyc)
 Base.abs(cyc::CyclotomicRing) = sqrt(abs2(cyc))
 
 function Base.abs2(cyc::CyclotomicRing)
-    (a, b, c, d) = cyc.coeffs
-    a1 = a^2 + b^2 + c^2 + d^2
-    b1 = a*(b-d) + c*(b+d)
-    c1 = zero(a)
-    d1 = -b1
-    CyclotomicRing((a1,b1,c1,d1))
+    r = real(cyc)
+    i = imag(cyc)
+    r * r + i * i
+    # (a, b, c, d) = cyc.coeffs
+    # a1 = a^2 + b^2 + c^2 + d^2
+    # b1 = a*(b-d) + c*(b+d)
+    # c1 = zero(a)
+    # d1 = -b1
+    # CyclotomicRing((a1,b1,c1,d1))
 end
 
 """

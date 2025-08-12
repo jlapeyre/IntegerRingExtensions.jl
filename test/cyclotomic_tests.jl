@@ -49,6 +49,9 @@ end
     @test zr === zr1
     @test zi === zi1
     @test zr != zi1
+
+    @test isa(abs2(zd), QuadraticRing)
+    @test float(abs2(zd)) == abs2(float(zd))
 end
 
 @testset "cyclotomic D" begin
