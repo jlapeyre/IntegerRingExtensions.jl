@@ -444,12 +444,26 @@ end
 
 random_SU2() = random_SU2(Float64)
 
+struct SU2{T, V} <: AbstractSU2{T}
+    uabs2::T
+    alpha_u::V
+    alpha_t::V
+end
+
 function random_SU2(::Type{T}) where {T}
     uabs2 = rand(T) # cos^2(gamma)
     alpha_u = T(2) * rand(T)
     alpha_t = T(2) * rand(T)
     return SU2(uabs2, Dar(alpha_u), Dar(alpha_t))
 end
+
+Base.:-(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) - b
+Base.:-(a::AbstractMatrix2x2, b::SU2) = b - a
+Base.:+(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) + b
+Base.:+(a::AbstractMatrix2x2, b::SU2) = b + a
+
+Base.:-(a::SU2, b::SU2) = Matrix2x2(a) - Matrix2x2(b)
+Base.:+(a::SU2, b::SU2) = Matrix2x2(a) + Matrix2x2(b)
 
 random_unitary2x2() = random_unitary2x2(Float64)
 
@@ -460,9 +474,11 @@ function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     alpha_u = T(2) * rand(T)
     alpha_t = T(2) * rand(T)
     gamma = T(2) * rand(T)
-    pu = cispi(alpha_u)
-    pt = cispi(alpha_t)
-    Matrix2x2(pu * uabs, pt * tabs, -conj(pt) * tabs,  conj(pu) * uabs)
+    pu = cispi(alpha_u + gamma)
+    pt = cispi(alpha_t + gamma)
+    pua = cispi(-alpha_u + gamma)
+    pta = cispi(-alpha_t + gamma)
+    Matrix2x2(pu * uabs, pt * tabs, -pta * tabs,  pua * uabs)
 end
 
 # broken
@@ -492,12 +508,6 @@ end
 #     d = conj(uphase) * uabs
 #     Matrix2x2(u, t, c, d)
 # end
-
-struct SU2{T, V} <: AbstractSU2{T}
-    uabs2::T
-    alpha_u::V
-    alpha_t::V
-end
 
 function Matrix2x2(su2::SU2)
     (; uabs2, alpha_u, alpha_t) = su2
@@ -586,8 +596,6 @@ function eigvals(u::SU2)
     discr = sqrt(im_u2 + tabs2)
     (Complex(re_u, discr), Complex(re_u, -discr))
 end
-
-Base.:+(u1::SU2, u2::SU2) = Matrix2x2(u1) + Matrix2x2(u2)
 
 # TODO:
 # function Base.:*(u1::SU2, u2::SU2)
