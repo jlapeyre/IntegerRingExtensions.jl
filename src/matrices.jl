@@ -63,11 +63,30 @@ elements(m::AbstractMatrix2x2) = elements(Matrix2x2(m))
 ##
 
 Base.convert(::Type{Matrix2x2{T}}, m::Matrix2x2) where {T} = Matrix2x2{T}(m)
-Base.float(m::Matrix2x2) = AbstractFloat(m)
-Base.complex(m::Matrix2x2) = float(m)
-# This is not conventional. Change this
 Base.AbstractFloat(m::Matrix2x2) = map(float, m)
-Base.big(m::Matrix2x2) = map(big, m)
+#Base.float(m::Matrix2x2) = AbstractFloat(m)
+#Base.complex(m::Matrix2x2) = map(complex, m)
+# This is not conventional. Change this
+# Base.big(m::Matrix2x2) = map(big, m)
+# Base.real(m::Matrix2x2) = map(real, m)
+# Base.imag(m::Matrix2x2) = map(imag, m)
+
+import Base: real, imag, big, complex, float
+
+for f in (:real, :imag, :float, :big, :complex, :canonical)
+    @eval ($f)(m::Matrix2x2) = map($f, m)
+end
+
+
+"""
+    canonical(m::Matrix2x2)
+
+Return a new matrix by calling `canonical` element-wise on `m`.
+
+This may reduce or canonicalize elements that implement `canonical`.
+"""
+canonical
+
 
 ##
 ## Display
@@ -179,15 +198,6 @@ function isunitary(m::Matrix2x2, app::Approx)
 
     isapprox(conj(a) * b, - d * conj(c); app.kw...)
 end
-
-"""
-    canonical(m::Matrix2x2)
-
-Return a new matrix by calling `canonical` element-wise on `m`.
-
-This may reduce or canonicalize elements that implement `canonical`.
-"""
-canonical(m::Matrix2x2) = map(canonical, m)
 
 ##
 ## Matrix arithmetic
@@ -599,12 +609,6 @@ function Matrix2x2(U::Unitary2x2)
     p = cis(phi)
     map(x -> p * x, Matrix2x2(su2))
 end
-
-# struct SU2ParamScaled{T}
-#     uabs2::T
-#     alpha_u_scaled::T
-#     alpha_t_scaled::T
-# end
 
 # struct SU2Param1{T}
 #     u::Complex{T}
