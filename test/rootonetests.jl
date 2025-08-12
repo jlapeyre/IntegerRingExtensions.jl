@@ -46,4 +46,9 @@
             @test isreal(r) == isreal(float(r))
         end
     end
+
+    @test Integer(RootOne{2}(0)) === 1
+    @test Integer(RootOne{2}(1)) === -1
+    @test Int32(RootOne{2}(0)) === Int32(1)
+    @test Int32(RootOne{2}(1)) === Int32(-1)
 end
