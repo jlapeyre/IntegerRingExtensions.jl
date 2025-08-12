@@ -23,7 +23,16 @@ export RootOne, Omega
 `N` should always be a literal or a `const`. Otherwise performance is severely degraded.
 
 `k` will be stored as `mod(k, N)`, which takes values in `(0,...,N-1)`.
+
+The following alias is defined:
+```julia
+const Omega = RootOne{8}
+```
+
 # Examples
+
+See also `Omega`.
+
 ```jldoctest
 
 julia> RootOne{8}(1)
@@ -181,6 +190,13 @@ function (::Type{Complex{T}})(r::RootOne{M}; maybe::Bool=false) where {M, T <: I
     n == 2 && return CT(-o, z)
     return CT(z, -o)
 end
+
+# Base.Complex(r::RootOne{2}) = Complex{Int}(r)
+
+# Base.Int(r::RootOne{2}) = _integer_rootone2(Int, r)
+# function _integer_rootone2(::Type{T}, r::RootOne{2}) where {T<:Integer}
+#     iszero(r.k) ? T(1) : T(-1)
+# end
 
 Base.float(r::RootOne) = complex(r)
 Base.complex(r::RootOne) = Complex(r)

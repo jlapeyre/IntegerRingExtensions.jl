@@ -136,11 +136,8 @@ function _mkomega(::Type{T}, a, b, c, d) where {T}
     CyclotomicRing{4, V}(coeffs)
 end
 
-#Domega(a, b, c, d) = Domega{Int}(a,b,c,d)
-
 Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(Dyadic{T,Int}, a,b,c,d)
 
-# Zomega(a, b, c, d) = Zomega{Int}(a,b,c,d)
 Zomega(a::T, b::T, c::T, d::T) where {T <: Integer} = Zomega{Int}(a, b, c, d)
 Zomega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
 
@@ -171,24 +168,13 @@ function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1 <: Numb
     CyclotomicRing{M, CT1}(coeffs)
 end
 
-"""
-    coeffs(cyc::CyclotomicRing)
+###
+### End constructors
+###
 
-Return a `Tuple` of the coeffients of `cyc`
-
-# Examples
-```jldoctest
-julia> coeffs(Zroot2(1,2))
-(1, 2)
-
-julia> coeffs(Droot2(3,4))
-(3, 4)
-
-julia> coeffs(Droot2(1,Dyadic(3,2)))
-(1, 3/2²)
-```
-"""
-@inline coeffs(cyc::CyclotomicRing) = cyc.coeffs
+###
+### Show
+###
 
 function Base.show(io::IO, ::PRETTY, cr::CyclotomicRing)
     c = cr.coeffs
@@ -230,6 +216,28 @@ function Base.show(io::IO, ::PRETTY, tup::NTuple{<:Any, T}) where {T<:Cyclotomic
     print(io, ")")
 end
 
+###
+### Accessors
+###
+
+"""
+    coeffs(cyc::CyclotomicRing)
+
+Return a `Tuple` of the coeffients of `cyc`
+
+# Examples
+```jldoctest
+julia> coeffs(Zroot2(1,2))
+(1, 2)
+
+julia> coeffs(Droot2(3,4))
+(3, 4)
+
+julia> coeffs(Droot2(1,Dyadic(3,2)))
+(1, 3/2²)
+```
+"""
+@inline coeffs(cyc::CyclotomicRing) = cyc.coeffs
 
 """
     Base.getindex(cyc::CyclotomicRing, n::Integer)
@@ -241,9 +249,7 @@ So, `cyc[0]` returns the term of order zero. We are assuming that the primitive
 root is an `N`th root of unity, with `N` even. A polynomial in such a primitive
 root has only `N ÷ 2` coefficients.
 """
-function Base.getindex(cyc::CyclotomicRing, n::Integer)
-    cyc.coeffs[n+1]
-end
+Base.getindex(cyc::CyclotomicRing, n::Integer) = cyc.coeffs[n+1]
 
 Base.iterate(cyc::CyclotomicRing, i::Integer=1) = iterate(cyc.coeffs, i)
 Base.eltype(cyc::CyclotomicRing{<:Any, T}) where {T} = T
@@ -325,7 +331,6 @@ The value of type `Domega{T}` that represents the principal square root of the i
 function sqrt_imaginary(::Type{CyclotomicRing{4, T}}) where {T}
     z = zero(T)
     o = one(T)
-#    CyclotomicRing(z, z, o, z)
     CyclotomicRing(z, o, z, z)
 end
 
