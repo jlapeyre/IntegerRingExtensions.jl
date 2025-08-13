@@ -112,6 +112,19 @@ function Base.show(io::IO, ::PRETTY, m::AbstractMatrix2x2)
     print(io, cpad(ds, w2))
 end
 
+function Base.show(io::IO, m::Matrix2x2)
+    print(io, typeof(m), "(")
+    i = 0
+    for x in m.data
+        i += 1
+        if i > 1
+            print(io, ", ")
+        end
+        print(io, x)
+    end
+    print(io, ")")
+end
+
 # function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
 #     summary(io, m)
 #     println(io, ":")

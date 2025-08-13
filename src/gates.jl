@@ -210,31 +210,6 @@ function random_RZ(::Type{T}=Float64) where {T}
     return RZ(theta)
 end
 
-"""
-    count_gates(gates::AbstractString)::Dict{Char,Int}
-
-Return a count `Dict` counting the number of each distinct gate in `gates`.
-
-More precisely, this returns counts for each distinct character in `gates`.
-
-# Example
-```jldoctest
-julia> count_gates("TSHTHTHTHT")
-Dict{Char, Int64} with 3 entries:
-  'H' => 4
-  'T' => 5
-  'S' => 1
-```
-"""
-function count_gates(gates::AbstractString)
-    counts = Dict{Char, Int}()
-    for g in gates
-        c = get(counts, g, 0)
-        counts[g] = c + 1
-    end
-    return counts
-end
-
 Base.:*(::Gate1{:W}, m::Matrix2x2) =  map(x-> RootImag * x, m)
 Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1(:W) * m
 

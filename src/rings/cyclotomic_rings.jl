@@ -399,6 +399,17 @@ function Base.isreal(cyc::Domega{<:Integer})
     iszero(c) && iszero(b + d)
 end
 
+function RootOne{8}(cyc::CyclotomicRing{4})
+    cs = coeffs(cyc)
+    if (count(x -> isone(abs2(x)), cs) == 1) &&
+        (count(iszero, cs) == 3)
+        ind = findfirst(!=(0), cs)
+        sgn = Int(cs[ind])
+        rt = RootOne{8}(ind  - 1)
+        return sgn == 1 ? rt : -rt
+    end
+end
+
 function canonical(c::CyclotomicRing)
     CyclotomicRing(map(canonical,  c.coeffs))
 end
