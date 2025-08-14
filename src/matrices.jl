@@ -728,16 +728,19 @@ function SU2(zr::ZRot)
     SU2(unitary_u(zr), unitary_t(zr))
 end
 
-struct Unitary2x2{T, V} <: AbstractUnitary2x2{T}
-    su2::SU2{T}
+struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
+    function Unitary2x2(su2::W, phi::V) where {V, W <: AbstractSU2{T}} where {T}
+        new{T, W, V}(su2, phi)
+    end
+
+    su2::SUT
     phi::V
 end
 
-function Unitary2x2(m::Matrix2x2{Complex{T}}) where {T <: AbstractFloat}
+function Unitary2x2(m::Matrix2x2{Complex{T}}, ::Type{SU2T} = SU2) where {T <: AbstractFloat, SU2T <: AbstractSU2}
     phase_fac = sqrt(det(m))
     msu2 = map(x -> x / phase_fac, m)
-#    Unitary2x2(SU2OLD(msu2), radtodar(angle(phase_fac)))
-    Unitary2x2(SU2(msu2), radtodar(angle(phase_fac)))
+    Unitary2x2(SU2T(msu2), radtodar(angle(phase_fac)))
 end
 
 function eigvals(U::Unitary2x2)

@@ -96,7 +96,7 @@ function random_angle(shape...)
 end
 
 function random_angle(::Type{T}, shape...) where {T}
-    2 * T(pi) * rand(shape...)
+    2 * T(pi) * (rand(shape...) .- T(1) / 2)
 end
 
 """
@@ -184,6 +184,10 @@ function random_special_unitary(n::Integer)
     prod_eigs = LinearAlgebra.det(u)
     phase = prod_eigs^(-1/n)
     phase * u
+end
+
+function random_phase(::Type{T}=Float64) where {T}
+    cis(random_angle(T))
 end
 
 end # module Utils
