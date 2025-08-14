@@ -2,7 +2,7 @@ module Matrices2x2
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
 import LinearAlgebra
 import ..Common: canonical
-import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
+import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring, random_angle
 import ..Angles: radtodar, dartorad, Dar, scalepi, unscalepi, intdiv
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
@@ -149,6 +149,14 @@ end
 end
 
 Base.getindex(m::AbstractMatrix2x2, i::Integer) = Matrix2x2(m)[i]
+
+function Base.getindex(m::AbstractSU2, i::Integer)
+    i == 1 && return unitary_u(m)
+    i == 2 && return unitary_t(m)
+    i == 3 && return -conj(unitary_t(m))
+    return conj(unitary_u(m))
+end
+
 Base.size(::AbstractMatrix2x2) = (2, 2)
 Base.eltype(::Type{<:AbstractMatrix2x2{T}}) where T = T
 Base.eltype(::Type{AbstractMatrix2x2{T}}) where T = T
@@ -265,8 +273,10 @@ end
 
 Base.adjoint(m::Matrix2x2) = permutedims(map(adjoint, m))
 Base.transpose(m::Matrix2x2) = permutedims(map(transpose, m))
-tr(m::Matrix2x2) = m[1] + m[4]
-det(m::Matrix2x2) = m[1] * m[4] - m[3] * m[2]
+@inline tr(m::Matrix2x2) = m[1] + m[4]
+@inline det(m::Matrix2x2) = m[1] * m[4] - m[3] * m[2]
+
+@inline tr(m::AbstractSU2) = 2*real(m[1])
 
 """
     eigvals(m::Matrix2x2)::NTuple{2}
@@ -585,6 +595,11 @@ struct ZRot{T, V} <: AbstractSU2{T}
     minushalftheta::T
 end
 
+function random_ZRot()
+    a = random_angle() / 2
+    ZRot(a)
+end
+
 unitary_u(z::ZRot) = cis(z.minushalftheta)
 unitary_t(z::ZRot{<:Any, V}) where {V} = zero(Complex{V})
 
@@ -657,6 +672,7 @@ Matrix2x2(rz::ZRot) = Matrix2x2(SU2OLD(rz))
 
 det(m::AbstractSU2{T}) where {T} = one(T)
 
+# This should not be faster than generic. but it is
 function tr(u::SU2OLD)
     (; uabs2, alpha_u, alpha_t) = u
     uabs = sqrt(uabs2)
