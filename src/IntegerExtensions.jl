@@ -21,7 +21,7 @@ Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
 include("angles.jl")
-Reexport.@reexport import .Angles: Dar, dartorad, radtodar, scalepi, unscalepi
+Reexport.@reexport import .Angles: Dar, dartorad, radtodar, scalepi, unscalepi, minus_one_to_one
 
 include("rings/root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, Omega

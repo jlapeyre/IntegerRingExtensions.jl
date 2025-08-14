@@ -44,6 +44,9 @@ Base.:*(d::Dar, x::Real) = x * d
 
 Dar(d::Dar) = d
 
+# The following functions work. But they are far
+# From optimal. I stopped when I finally go them
+# to pass some tests.
 function zero_to_two(x)
     if x >= 0  # There must be a Base function call for this.
         (q, r) = divrem(x, 2)
@@ -73,10 +76,23 @@ function _minus_one_to_one(x)
     return y - 2
 end
 
+"""
+    minus_one_to_one(x)
+
+Add an even integer to `x` such that the result is in `[-1, 1]` and return the result
+"""
 function minus_one_to_one(x)
     y = _minus_one_to_one(x)
     (-1 <= y <= 1) || error(lazy"Sad case of $y")
     return y
+end
+
+# I think this can replace what we have above
+function shift_minus_one_to_one(x)
+    (f, w) = modf(x) # fractional, whole
+    iszero(f) && return iseven(x) ? zero(x) : one(x)
+    isodd(w) && (w += sign(x))
+    return x - w
 end
 
 # Probably want a Base.convert
@@ -113,22 +129,19 @@ Base.isapprox(a::Dar, b::Dar; kws...) = isapprox(a.x, b.x; kws...)
 Base.isapprox(a::Dar, x::Real; kws...) = isapprox(unscalepi(a.x), x; kws...)
 Base.isapprox(x::Real, a::Dar ; kws...) = isapprox(a, x; kws...)
 
-function sadcheck(x, y)
-    if  !isapprox(Dar(x + y),  (Dar(x) + Dar(y)))
-#        @show (x, y)
-        return true
-    end
-    return false
-end
-
-mrand() = 20 * rand()
-#mrand() = 10 * rand()
-
-sadcheck() = sadcheck(mrand(), mrand())
-
-function runsad(N)
-    sum(sadcheck() for _ in 1:N)
-end
+# function sadcheck(x, y)
+#     if  !isapprox(Dar(x + y),  (Dar(x) + Dar(y)))
+# #        @show (x, y)
+#         return true
+#     end
+#     return false
+# end
+# mrand() = 20 * rand()
+# #mrand() = 10 * rand()
+# sadcheck() = sadcheck(mrand(), mrand())
+# function runsad(N)
+#     sum(sadcheck() for _ in 1:N)
+# end
 
 end # module Angles
 
