@@ -300,7 +300,10 @@ Return a tuple of the singular values of `m` in descending order.
 """
 function svdvals(m::Matrix2x2)
     ma = m * adjoint(m)
-    isone(ma) && return (one(eltype(m)), one(eltype(ma)))
+    if isone(ma)
+        ev = one(real(eltype(m)))
+        return (ev, ev)
+    end
     (v1, v2) = eigvals(ma)
     (s1, s2) = (sqrt(real(v1)), sqrt(real(v2)))
     s1 > s2 ? (s1,s2) : (s2, s1)
@@ -585,6 +588,11 @@ end
 
 unitary_u(z::ZRot) = cis(z.minushalftheta)
 unitary_t(z::ZRot{<:Any, V}) where {V} = zero(Complex{V})
+
+function eigvals(z::ZRot)
+    u = unitary_u(z)
+    (u, u')
+end
 
 LinearAlgebra.isdiag(::ZRot) = true
 
