@@ -1,6 +1,9 @@
 # Test that shift_minus_one_to_one(x)
 # gives the same results as the elaborate function in angles.jl
 
+# Tests show they are the same. Also, this one is about twice as fast.
+# much less complicated.
+
 function shift_minus_one_to_one(x)
     (f, w) = modf(x) # fractional, whole
     iszero(f) && return iseven(x) ? zero(x) : one(x)

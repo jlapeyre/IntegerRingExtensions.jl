@@ -44,37 +44,43 @@ Base.:*(d::Dar, x::Real) = x * d
 
 Dar(d::Dar) = d
 
-# The following functions work. But they are far
-# From optimal. I stopped when I finally go them
-# to pass some tests.
-function zero_to_two(x)
-    if x >= 0  # There must be a Base function call for this.
-        (q, r) = divrem(x, 2)
-        res =
-            if iszero(q)
-                r
-            elseif iszero(r)
-                2 * one(r)
-            else
-                r
-            end
-        (0 <= res <= 2) || error(lazy"sad outcome $ret")
-        return res
-    else
-        n = round(x)
-        y = x - 2 * n + 2
-        y > 0 || error(lazy"I dont know what to do with $x")
-        zero_to_two(y)
-    end
-end
+# # The following functions work. But they are far
+# # From optimal. I stopped when I finally go them
+# # to pass some tests.
+# function zero_to_two(x)
+#     if x >= 0  # There must be a Base function call for this.
+#         (q, r) = divrem(x, 2)
+#         res =
+#             if iszero(q)
+#                 r
+#             elseif iszero(r)
+#                 2 * one(r)
+#             else
+#                 r
+#             end
+#         (0 <= res <= 2) || error(lazy"sad outcome $ret")
+#         return res
+#     else
+#         n = round(x)
+#         y = x - 2 * n + 2
+#         y > 0 || error(lazy"I dont know what to do with $x")
+#         zero_to_two(y)
+#     end
+# end
 
-function _minus_one_to_one(x)
-    y = zero_to_two(x)
-    if 0 <= y <= 1
-        return y
-    end
-    return y - 2
-end
+# function _minus_one_to_one(x)
+#     y = zero_to_two(x)
+#     if 0 <= y <= 1
+#         return y
+#     end
+#     return y - 2
+# end
+
+# function old_minus_one_to_one(x)
+#     y = _minus_one_to_one(x)
+#     (-1 <= y <= 1) || error(lazy"Sad case of $y")
+#     return y
+# end
 
 """
     minus_one_to_one(x)
@@ -82,13 +88,6 @@ end
 Add an even integer to `x` such that the result is in `[-1, 1]` and return the result
 """
 function minus_one_to_one(x)
-    y = _minus_one_to_one(x)
-    (-1 <= y <= 1) || error(lazy"Sad case of $y")
-    return y
-end
-
-# I think this can replace what we have above
-function shift_minus_one_to_one(x)
     (f, w) = modf(x) # fractional, whole
     iszero(f) && return iseven(x) ? zero(x) : one(x)
     isodd(w) && (w += sign(x))
