@@ -1,5 +1,6 @@
 module Matrices2x2
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
+import LinearAlgebra
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, dartorad, Dar, scalepi, unscalepi, intdiv
@@ -461,14 +462,16 @@ end
 
 # It would be easier, if redundant to keep u and t
 
+LinearAlgebra.isdiag(U::AbstractSU2) = iszero(unitary_t(U))
+
 struct SU2{T, V} <: AbstractSU2{T}
     uabs2::T
     alpha_u::V
     alpha_t::V
 end
 
-@inline SU2_u(s::SU2) = sqrt(s.uabs2) * cis(s.alpha_u)
-@inline SU2_t(s::SU2) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
+@inline unitary_u(s::SU2) = sqrt(s.uabs2) * cis(s.alpha_u)
+@inline unitary_t(s::SU2) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
 
 @inline function SU2_from_u_t(u, t)
     abs2u = abs2(u)
@@ -481,7 +484,7 @@ function random_SU2(::Type{T}) where {T}
     uabs2 = rand(T) # cos^2(gamma)
     alpha_u = T(2) * rand(T)
     alpha_t = T(2) * rand(T)
-    return SU2(uabs2, Dar(alpha_u), Dar(alpha_t))
+    SU2b(SU2(uabs2, Dar(alpha_u), Dar(alpha_t)))
 end
 
 @inline Base.:-(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) - b
@@ -498,10 +501,10 @@ end
     # SU2(a2 * b2)
 
     # Following is slightly faster. I don't know why
-    ua = SU2_u(a)
-    ta = SU2_t(a)
-    ub = SU2_u(b)
-    tb = SU2_t(b)
+    ua = unitary_u(a)
+    ta = unitary_t(a)
+    ub = unitary_u(b)
+    tb = unitary_t(b)
     unew = ua * ub - ta' * tb
     newt = ub * ta + tb * ua'
     SU2_from_u_t(unew, newt)
@@ -568,6 +571,11 @@ struct ZRot{T, V} <: AbstractSU2{T}
     minushalftheta::T
 end
 
+unitary_u(z::ZRot) = cis(z.minushalftheta)
+unitary_t(z::ZRot{<:Any, V}) where {V} = zero(Complex{V})
+
+LinearAlgebra.isdiag(::ZRot) = true
+
 Base.:(==)(zr1::ZRot, zr2::ZRot) = zr1.minushalftheta == zr2.minushalftheta
 
 function zrot(theta)
@@ -590,14 +598,18 @@ function Base.inv(rz::ZRot)
     ZRot(-rz.minushalftheta)
 end
 
-for op in (:+, :-)
-    @eval Base.$op(a::ZRot, b::ZRot) = $op(Matrix2x2(a), Matrix2x2(b))
+function _add_ZRot(a::ZRot, b::ZRot, op)
+    ua = unitary_u(a)
+    ub = unitary_u(b)
+    u = op(ua, ub)
+    Matrix2x2(u, zero(u), zero(u), u')
 end
+
+Base.:+(a::ZRot, b::ZRot) = _add_ZRot(a, b, +)
+Base.:-(a::ZRot, b::ZRot) = _add_ZRot(a, b, -)
 
 Base.isone(rz::ZRot) = iszero(rz.minushalftheta)
 Base.one(rz::ZRot) = ZRot(zero(rz.minushalftheta))
-
-Base.:+(rz1::ZRot, rz2::ZRot) = SU2(rz1) + SU2(rz2)
 
 Base.adjoint(rz::ZRot) = ZRot(-rz.minushalftheta)
 
@@ -684,9 +696,9 @@ end
 
 Matrix2x2(U::SU2b) = Matrix2x2(U.u, U.t, -U.t', U.u')
 
-@inline SU2_u(U::SU2b) = U.u
-@inline SU2_t(U::SU2b) = U.t
-@inline SU2_from_u_t(u, t) = SU2(u, t)
+@inline unitary_u(U::SU2b) = U.u
+@inline unitary_t(U::SU2b) = U.t
+#@inline SU2b_from_u_t(u, t) = SU2(u, t)
 @inline SU2_alpha_u(U::SU2b) = angle(U.u/abs(U.u))
 @inline SU2_alpha_t(U::SU2b) = angle(U.t/abs(U.t))
 
@@ -695,46 +707,32 @@ Matrix2x2(U::SU2b) = Matrix2x2(U.u, U.t, -U.t', U.u')
 end
 
 @inline function SU2b(U::SU2)
-    SU2b(SU2_u(U), SU2_t(U))
+    SU2b(unitary_u(U), unitary_t(U))
+end
+
+# @inline function Base.:+(x::SU2b, y::SU2b)
+#     SU2b(x.u + y.u, x.t + y.t)
+# end
+
+@inline function Base.:-(x::SU2b, y::SU2b)
+    u = x.u - y.u
+    t = x.t - y.t
+    Matrix2x2(u, t, -t', u')
 end
 
 @inline function Base.:+(x::SU2b, y::SU2b)
-    SU2b(x.u + y.u, x.t + y.t)
+    u = x.u + y.u
+    t = x.t + y.t
+    Matrix2x2(u, t, -t', u')
 end
 
-@inline function Base.:-(x::SU2b, y::SU2b)
-    SU2b(x.u - y.u, x.t - y.t)
-end
 
 @inline function Base.:*(a::SU2b, b::SU2b)
     SU2b(a.u * b.u - a.t' * b.t, a.t * b.u + a.u' * b.t)
 end
 
-# struct SU2Param1{T}
-#     u::Complex{T}
-#     t::Complex{T}
-# end
-
-# struct SU2Param2{T}
-#     uabs::T
-#     alpha_u::T
-#     alpha_t::T
-# end
-
-# struct SU2Param3{T}
-#     alpha_u::T
-#     alpha_t::T
-#     gamma::T
-# end
-
-# function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:SU2Param1}
-#     T(U[1], U[2])
-# end
-
-# function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:SU2Param3}
-#     (; u, t) = unitary_decompose(U, SU2Param1)
-#     (gamma, alpha_u, alpha_t) = _unitary_decompose_special(u, t)
-#     T(alpha_u, alpha_t, gamma)
-# end
+function SU2b(zr::ZRot)
+    SU2b(unitary_u(zr), unitary_t(zr))
+end
 
 end # module Matrices2x2

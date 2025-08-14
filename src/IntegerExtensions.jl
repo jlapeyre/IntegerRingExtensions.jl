@@ -42,7 +42,7 @@ Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagona
     UnitaryParam1, UnitaryParam2,
      isSU2, random_unitary2x2, random_SU2,
     SU2, Unitary2x2, elements, ZRot, zrot,
-    get_theta
+    get_theta, SU2b
 #    zrotpi, zrothalfpi, get_thetapi, get_thetahalfpi
 #    SU2Param1, SU2Param2, SU2Param3, SU2ParamScaled,
 

@@ -1,7 +1,8 @@
 module GridSynth
 
 using ..Utils: PRETTY, superscript
-import ..Gates: Gates, compose, rotation_error, count_gates
+import ..Utils: countmap
+import ..Gates: Gates, compose, rotation_error
 
 # Parameters disables the default constructor :(
 # Also does not allow forwarding keywords args with (;kwargs...)
@@ -189,8 +190,8 @@ function rotation_error(gr::GridSynthResults)
     rotation_error(compose(gr), biggennum(gr.theta))
 end
 
-function count_gates(gr::GridSynthResults)
-    count_gates(gr.gates)
+function countmap(gr::GridSynthResults)
+    countmap(gr.gates)
 end
 
 struct GridSynthMatrix{T}
