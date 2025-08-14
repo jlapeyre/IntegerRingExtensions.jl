@@ -56,7 +56,6 @@ function Base.map(f, m::AbstractMatrix2x2)
 end
 
 elements(m::Matrix2x2) = m.data
-
 elements(m::AbstractMatrix2x2) = elements(Matrix2x2(m))
 
 ##
@@ -274,7 +273,7 @@ det(m::Matrix2x2) = m[1] * m[4] - m[3] * m[2]
 
 Return a tuple of the eigenvalues of `m`.
 """
-function eigvals(m::Matrix2x2)
+function eigvals(m::AbstractMatrix2x2)
     (a, b, c, d) = elements(m)
     discr = sqrt((a-d)^2 + 4*b*c)
     (
@@ -745,7 +744,6 @@ function eigvals(U::Unitary2x2)
     (; su2, phi) = U
     (v1, v2) = eigvals(su2)
     p = cis(phi)
-    # Relatively inefficient to do ths.
     (p * v1, p * v2)
 end
 
