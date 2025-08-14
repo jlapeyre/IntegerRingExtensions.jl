@@ -595,6 +595,8 @@ struct ZRot{T, V} <: AbstractSU2{T}
     minushalftheta::T
 end
 
+# This always gives "positive" rotation.
+# Tr(z) >= 0
 function random_ZRot()
     a = random_angle() / 2
     ZRot(a)
