@@ -276,11 +276,21 @@ Return a tuple of the eigenvalues of `m`.
 """
 function eigvals(m::Matrix2x2)
     (a, b, c, d) = m.data
-    discr = sqrt(a^2 + 4*b*c - 2*a*d + d^2)
+    discr = sqrt((a-d)^2 + 4*b*c)
     (
         (a + d + discr)/2,
         (a + d - discr)/2,
     )
+end
+
+function eigvals(U::AbstractUnitary2x2)
+    u = unitary_u(U)
+    ru = real(u)
+    ri = imag(u)
+    abs2t = unitary_abs2t(U)
+    rdiscr = sqrt(ri^2 + abs2t)
+    discr = Complex(zero(rdiscr), rdiscr)
+    (ru + discr, ru - discr)
 end
 
 """
@@ -470,6 +480,8 @@ struct SU2OLD{T, V} <: AbstractSU2{T}
     alpha_t::V
 end
 
+unitary_abs2t(U::SU2OLD) = 1 - U.uabs2
+unitary_abs2t(U::AbstractUnitary2x2) = abs2(unitary_t(U))
 @inline unitary_u(s::SU2OLD) = sqrt(s.uabs2) * cis(s.alpha_u)
 @inline unitary_t(s::SU2OLD) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
 
@@ -484,7 +496,7 @@ function random_SU2(::Type{T}) where {T}
     uabs2 = rand(T) # cos^2(gamma)
     alpha_u = T(2) * rand(T)
     alpha_t = T(2) * rand(T)
-    SU2b(SU2OLD(uabs2, Dar(alpha_u), Dar(alpha_t)))
+    SU2(SU2OLD(uabs2, Dar(alpha_u), Dar(alpha_t)))
 end
 
 @inline Base.:-(a::SU2OLD, b::AbstractMatrix2x2) = Matrix2x2(a) - b
@@ -496,8 +508,8 @@ end
 @inline Base.:+(a::SU2OLD, b::SU2OLD) = Matrix2x2(a) + Matrix2x2(b)
 
 @inline function Base.:*(a::SU2OLD, b::SU2OLD)
-    # a2 = SU2b(a)
-    # b2 = SU2b(b)
+    # a2 = SU2(a)
+    # b2 = SU2(b)
     # SU2(a2 * b2)
 
     # Following is slightly faster. I don't know why
@@ -689,50 +701,49 @@ function Matrix2x2(U::Unitary2x2)
     map(x -> p * x, Matrix2x2(su2))
 end
 
-struct SU2b{T} <: AbstractSU2{T}
+struct SU2{T} <: AbstractSU2{T}
     u::T
     t::T
 end
 
-Matrix2x2(U::SU2b) = Matrix2x2(U.u, U.t, -U.t', U.u')
+Matrix2x2(U::SU2) = Matrix2x2(U.u, U.t, -U.t', U.u')
 
-@inline unitary_u(U::SU2b) = U.u
-@inline unitary_t(U::SU2b) = U.t
-#@inline SU2b_from_u_t(u, t) = SU2(u, t)
-@inline SU2_alpha_u(U::SU2b) = angle(U.u/abs(U.u))
-@inline SU2_alpha_t(U::SU2b) = angle(U.t/abs(U.t))
+@inline unitary_u(U::SU2) = U.u
+@inline unitary_t(U::SU2) = U.t
+#@inline SU2_from_u_t(u, t) = SU2(u, t)
+@inline SU2_alpha_u(U::SU2) = angle(U.u/abs(U.u))
+@inline SU2_alpha_t(U::SU2) = angle(U.t/abs(U.t))
 
-@inline function SU2OLD(U::SU2b)
+@inline function SU2OLD(U::SU2)
     SU2OLD(abs2(U.u), SU2_alpha_u(U), SU2_alpha_t(U))
 end
 
-@inline function SU2b(U::SU2OLD)
-    SU2b(unitary_u(U), unitary_t(U))
+@inline function SU2(U::SU2OLD)
+    SU2(unitary_u(U), unitary_t(U))
 end
 
-# @inline function Base.:+(x::SU2b, y::SU2b)
-#     SU2b(x.u + y.u, x.t + y.t)
+# @inline function Base.:+(x::SU2, y::SU2)
+#     SU2(x.u + y.u, x.t + y.t)
 # end
 
-@inline function Base.:-(x::SU2b, y::SU2b)
+@inline function Base.:-(x::SU2, y::SU2)
     u = x.u - y.u
     t = x.t - y.t
     Matrix2x2(u, t, -t', u')
 end
 
-@inline function Base.:+(x::SU2b, y::SU2b)
+@inline function Base.:+(x::SU2, y::SU2)
     u = x.u + y.u
     t = x.t + y.t
     Matrix2x2(u, t, -t', u')
 end
 
-
-@inline function Base.:*(a::SU2b, b::SU2b)
-    SU2b(a.u * b.u - a.t' * b.t, a.t * b.u + a.u' * b.t)
+@inline function Base.:*(a::SU2, b::SU2)
+    SU2(a.u * b.u - a.t' * b.t, a.t * b.u + a.u' * b.t)
 end
 
-function SU2b(zr::ZRot)
-    SU2b(unitary_u(zr), unitary_t(zr))
+function SU2(zr::ZRot)
+    SU2(unitary_u(zr), unitary_t(zr))
 end
 
 end # module Matrices2x2
