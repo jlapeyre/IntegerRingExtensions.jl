@@ -199,7 +199,7 @@ end
 isunitary(m::Matrix2x2, ::Equal) = isunitary(m)
 
 isunitary(m::AbstractUnitary2x2) = true
-svdvals(::AbstractUnitary2x2{T}) where {T} = (one(T), one(T))
+svdvals(::AbstractUnitary2x2{T}) where {T} = (one(real(T)), one(real(T)))
 
 """
     isunitary(m::Matrix2x2, app::Approx)
@@ -318,9 +318,13 @@ function svdvals(m::Matrix2x2)
     s1 > s2 ? (s1,s2) : (s2, s1)
 end
 
-function opnorm(m::Matrix2x2)
+function opnorm(m::AbstractMatrix2x2)
     (v1, v2) = svdvals(m)
     max(v1, v2)
+end
+
+function opnormdistance(a::AbstractMatrix2x2, b::AbstractMatrix2x2)
+    opnorm(a - b)
 end
 
 """
@@ -328,9 +332,14 @@ end
 
 Return the trace norm of `m`.
 """
-function tracenorm(m::Matrix2x2)
+function tracenorm(m::AbstractMatrix2x2)
     (v1, v2) = svdvals(m)
     v1 + v2
+end
+
+function tracedistance(a::AbstractMatrix2x2, b::AbstractMatrix2x2)
+    tn = tracenorm(a - b)
+    tn / typeof(tn)(2)
 end
 
 """
