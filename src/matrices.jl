@@ -600,6 +600,8 @@ function random_ZRot()
     ZRot(a)
 end
 
+@inline tr(zr::ZRot) = 2 * cos(zr.minushalftheta)
+
 unitary_u(z::ZRot) = cis(z.minushalftheta)
 unitary_t(z::ZRot{<:Any, V}) where {V} = zero(Complex{V})
 
