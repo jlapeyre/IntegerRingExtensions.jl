@@ -116,7 +116,7 @@ end
 function Base.show(io::IO, m::Matrix2x2)
     print(io, typeof(m), "(")
     i = 0
-    for x in m.data
+    for x in element(m)
         i += 1
         if i > 1
             print(io, ", ")
@@ -160,12 +160,12 @@ Base.zero(::Type{Matrix2x2{T}}) where T = Matrix2x2(zero(T), zero(T), zero(T), z
 Base.zero(::Matrix2x2{T}) where {T} = zero(Matrix2x2{T})
 
 function Base.isone(m::Matrix2x2)
-    (a, b, c, d) = m.data
+    (a, b, c, d) = elements(m)
     isone(a) && isone(d) && iszero(b) && iszero(c)
 end
 
 function Base.iszero(m::Matrix2x2)
-    (a, b, c, d) = m.data
+    (a, b, c, d) = elements(m)
     iszero(a) && iszero(d) && iszero(b) && iszero(c)
 end
 
@@ -206,7 +206,7 @@ for example, `Approx(rtol=1e-6)` for `app`. But, this tolerance will apply
 """
 function isunitary(m::Matrix2x2, app::Approx)
     app == Equal() && return isunitary(m)
-    (a, b, c, d) = m.data
+    (a, b, c, d) = elements(m)
     isapprox(abs2(a) + abs2(c), one(a); app.kw...) || return false
     isapprox(abs2(b) + abs2(d), one(a); app.kw...) || return false
 
@@ -218,21 +218,21 @@ end
 ##
 
 @inline function _mul2(m1, m2)
-    (a1, b1, c1, d1) = m1.data
-    (a2, b2, c2, d2) = m2.data
+    (a1, b1, c1, d1) = elements(m1)
+    (a2, b2, c2, d2) = elements(m2)
     Matrix2x2(a1*a2 + c1*b2, a2*b1 + d1*b2, a1*c2 + c1*d2, b1*c2 + d1*d2)
 end
 
 @inline function Base.:*(m::Matrix2x2, x::Number)
-    (a, b, c, d) = m.data
+    (a, b, c, d) = elements(m)
     Matrix2x2(x * a, x * b, x * c, x * d)
 end
 
 @inline Base.:*(x::Number, m::Matrix2x2) = m * x
 
 @inline function _pair_op(op, m1, m2)
-    (a1, b1, c1, d1) = m1.data
-    (a2, b2, c2, d2) = m2.data
+    (a1, b1, c1, d1) = elements(m1)
+    (a2, b2, c2, d2) = elements(m2)
     Matrix2x2(op(a1, a2), op(b1, b2), op(c1, c2), op(d1,d2))
 end
 
@@ -260,7 +260,7 @@ Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{4}) = (m * m) * (m * m)
 ##
 
 function Base.permutedims(m::Matrix2x2)
-    (a, b, c, d) = m.data
+    (a, b, c, d) = elements(m)
     Matrix2x2(a, c, b, d)
 end
 
@@ -275,7 +275,7 @@ det(m::Matrix2x2) = m[1] * m[4] - m[3] * m[2]
 Return a tuple of the eigenvalues of `m`.
 """
 function eigvals(m::Matrix2x2)
-    (a, b, c, d) = m.data
+    (a, b, c, d) = elements(m)
     discr = sqrt((a-d)^2 + 4*b*c)
     (
         (a + d + discr)/2,
@@ -283,7 +283,7 @@ function eigvals(m::Matrix2x2)
     )
 end
 
-function eigvals(U::AbstractUnitary2x2)
+function eigvals(U::AbstractSU2)
     u = unitary_u(U)
     ru = real(u)
     ri = imag(u)
@@ -332,8 +332,8 @@ Compute the global phase invariant distance between `A` and `B`.
 (See Mukhopadhyay 2021)
 """
 function GPID(A::Matrix2x2, B::Matrix2x2)
-    (a, b, c, d) = map(conj, A.data)
-    (w, x, y, z) = B.data
+    (a, b, c, d) = map(conj, elements(A))
+    (w, x, y, z) = elements(B)
     trprod = a*w + b*x + c*y + d*z
     return sqrt(1 - abs(trprod) / 2)
 end
@@ -365,8 +365,8 @@ end
 Base.float(v::Vector2) = map(float, v)
 
 function Base.:*(m::Matrix2x2, v::Vector2)
-    (a,b,c,d) = m.data
-    (x, y) = v.data
+    (a,b,c,d) = elements(m)
+    (x, y) = elements(v)
     Vector2(a*x + c*y, b*x + d*y)
 end
 
@@ -432,7 +432,7 @@ function unitary_compose(U::UnitaryParam2)
 end
 
 function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam1}
-    (u, t, c, d) = U.data
+    (u, t, c, d) = elements(U)
     if !iszero(u)
         ua = abs2(u)
         u_d = u * d # |u|^2 cis(phi)
@@ -684,30 +684,6 @@ end
 #     uabs23 = saq
 # end
 
-struct Unitary2x2{T} <: AbstractUnitary2x2{T}
-    su2::SU2OLD{T}
-    phi::T
-end
-
-function Unitary2x2(m::Matrix2x2{Complex{T}}) where {T <: AbstractFloat}
-    phase_fac = sqrt(det(m))
-    msu2 = map(x -> x / phase_fac, m)
-    Unitary2x2(SU2OLD(msu2), radtodar(angle(phase_fac)))
-end
-
-function eigvals(U::Unitary2x2)
-    (; su2, phi) = U
-    (v1, v2) = eigvals(su2)
-    p = cis(phi)
-    # Relatively inefficient to do ths.
-    (p * v1, p * v2)
-end
-
-function Matrix2x2(U::Unitary2x2)
-    (;su2, phi) = U
-    p = cis(phi)
-    map(x -> p * x, Matrix2x2(su2))
-end
 
 struct SU2{T} <: AbstractSU2{T}
     u::T
@@ -715,6 +691,9 @@ struct SU2{T} <: AbstractSU2{T}
 end
 
 Matrix2x2(U::SU2) = Matrix2x2(U.u, U.t, -U.t', U.u')
+
+SU2(u::SU2) = u
+SU2(m::AbstractMatrix) = SU2(m[1,1], m[2,1])
 
 @inline unitary_u(U::SU2) = U.u
 @inline unitary_t(U::SU2) = U.t
@@ -729,10 +708,6 @@ end
 @inline function SU2(U::SU2OLD)
     SU2(unitary_u(U), unitary_t(U))
 end
-
-# @inline function Base.:+(x::SU2, y::SU2)
-#     SU2(x.u + y.u, x.t + y.t)
-# end
 
 @inline function Base.:-(x::SU2, y::SU2)
     u = x.u - y.u
@@ -752,6 +727,32 @@ end
 
 function SU2(zr::ZRot)
     SU2(unitary_u(zr), unitary_t(zr))
+end
+
+struct Unitary2x2{T, V} <: AbstractUnitary2x2{T}
+    su2::SU2{T}
+    phi::V
+end
+
+function Unitary2x2(m::Matrix2x2{Complex{T}}) where {T <: AbstractFloat}
+    phase_fac = sqrt(det(m))
+    msu2 = map(x -> x / phase_fac, m)
+#    Unitary2x2(SU2OLD(msu2), radtodar(angle(phase_fac)))
+    Unitary2x2(SU2(msu2), radtodar(angle(phase_fac)))
+end
+
+function eigvals(U::Unitary2x2)
+    (; su2, phi) = U
+    (v1, v2) = eigvals(su2)
+    p = cis(phi)
+    # Relatively inefficient to do ths.
+    (p * v1, p * v2)
+end
+
+function Matrix2x2(U::Unitary2x2)
+    (;su2, phi) = U
+    p = cis(phi)
+    map(x -> p * x, Matrix2x2(su2))
 end
 
 end # module Matrices2x2
