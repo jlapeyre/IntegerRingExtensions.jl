@@ -451,17 +451,31 @@ end
 
 isSU2(m::AbstractMatrix2x2) = isone(det(m))
 
-function isSU2(m::AbstractMatrix2x2, approx::AbstractApprox)
+function isSU2(m::AbstractMatrix, approx::AbstractApprox)
     isone(det(m), approx)
 end
 
-random_SU2() = random_SU2(Float64)
+###
+### SU2
+###
+
+# It would be easier, if redundant to keep u and t
 
 struct SU2{T, V} <: AbstractSU2{T}
     uabs2::T
     alpha_u::V
     alpha_t::V
 end
+
+@inline SU2_u(s::SU2) = sqrt(s.uabs2) * cis(s.alpha_u)
+@inline SU2_t(s::SU2) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
+
+@inline function SU2_from_u_t(u, t)
+    abs2u = abs2(u)
+    SU2(abs2u, angle(u/sqrt(abs2u)), angle(t/sqrt(1-abs2u)))
+end
+
+random_SU2() = random_SU2(Float64)
 
 function random_SU2(::Type{T}) where {T}
     uabs2 = rand(T) # cos^2(gamma)
@@ -470,13 +484,28 @@ function random_SU2(::Type{T}) where {T}
     return SU2(uabs2, Dar(alpha_u), Dar(alpha_t))
 end
 
-Base.:-(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) - b
-Base.:-(a::AbstractMatrix2x2, b::SU2) = b - a
-Base.:+(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) + b
-Base.:+(a::AbstractMatrix2x2, b::SU2) = b + a
+@inline Base.:-(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) - b
+@inline Base.:-(a::AbstractMatrix2x2, b::SU2) = b - a
+@inline Base.:+(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) + b
+@inline Base.:+(a::AbstractMatrix2x2, b::SU2) = b + a
 
-Base.:-(a::SU2, b::SU2) = Matrix2x2(a) - Matrix2x2(b)
-Base.:+(a::SU2, b::SU2) = Matrix2x2(a) + Matrix2x2(b)
+@inline Base.:-(a::SU2, b::SU2) = Matrix2x2(a) - Matrix2x2(b)
+@inline Base.:+(a::SU2, b::SU2) = Matrix2x2(a) + Matrix2x2(b)
+
+@inline function Base.:*(a::SU2, b::SU2)
+    # a2 = SU2b(a)
+    # b2 = SU2b(b)
+    # SU2(a2 * b2)
+
+    # Following is slightly faster. I don't know why
+    ua = SU2_u(a)
+    ta = SU2_t(a)
+    ub = SU2_u(b)
+    tb = SU2_t(b)
+    unew = ua * ub - ta' * tb
+    newt = ub * ta + tb * ua'
+    SU2_from_u_t(unew, newt)
+end
 
 random_unitary2x2() = random_unitary2x2(Float64)
 
@@ -561,6 +590,10 @@ function Base.inv(rz::ZRot)
     ZRot(-rz.minushalftheta)
 end
 
+for op in (:+, :-)
+    @eval Base.$op(a::ZRot, b::ZRot) = $op(Matrix2x2(a), Matrix2x2(b))
+end
+
 Base.isone(rz::ZRot) = iszero(rz.minushalftheta)
 Base.one(rz::ZRot) = ZRot(zero(rz.minushalftheta))
 
@@ -642,6 +675,39 @@ function Matrix2x2(U::Unitary2x2)
     (;su2, phi) = U
     p = cis(phi)
     map(x -> p * x, Matrix2x2(su2))
+end
+
+struct SU2b{T} <: AbstractSU2{T}
+    u::T
+    t::T
+end
+
+Matrix2x2(U::SU2b) = Matrix2x2(U.u, U.t, -U.t', U.u')
+
+@inline SU2_u(U::SU2b) = U.u
+@inline SU2_t(U::SU2b) = U.t
+@inline SU2_from_u_t(u, t) = SU2(u, t)
+@inline SU2_alpha_u(U::SU2b) = angle(U.u/abs(U.u))
+@inline SU2_alpha_t(U::SU2b) = angle(U.t/abs(U.t))
+
+@inline function SU2(U::SU2b)
+    SU2(abs2(U.u), SU2_alpha_u(U), SU2_alpha_t(U))
+end
+
+@inline function SU2b(U::SU2)
+    SU2b(SU2_u(U), SU2_t(U))
+end
+
+@inline function Base.:+(x::SU2b, y::SU2b)
+    SU2b(x.u + y.u, x.t + y.t)
+end
+
+@inline function Base.:-(x::SU2b, y::SU2b)
+    SU2b(x.u - y.u, x.t - y.t)
+end
+
+@inline function Base.:*(a::SU2b, b::SU2b)
+    SU2b(a.u * b.u - a.t' * b.t, a.t * b.u + a.u' * b.t)
 end
 
 # struct SU2Param1{T}

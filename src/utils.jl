@@ -1,5 +1,6 @@
 module Utils
 
+import LinearAlgebra
 import ILog2: ilog2
 
 export subscript, superscript
@@ -156,6 +157,33 @@ function _power_by_squaring(x_, p::Integer; mul=*)
         y = mul(y, x)
     end
     return y
+end
+
+"""
+    random_unitary(n::Integer)::Matrix{ComplexF64}
+
+Best for `n>3`.
+"""
+function random_unitary(n::Integer)
+    z = randn(ComplexF64, n, n)
+    qr_fac = LinearAlgebra.qr(z)
+    ph = LinearAlgebra.diagm([x / abs(x) for x in LinearAlgebra.diag(qr_fac.R)])
+    return LinearAlgebra.mul!(z, qr_fac.Q, ph) # reuse storage in z for result
+end
+
+# This seems to work, but it's slow
+"""
+    random_special_unitary(n::Integer)
+
+Return an `n`x`n` random special unitary matrix.
+
+This is computed by scaling the eigenvalues of a Haar-random unitary matrix.
+"""
+function random_special_unitary(n::Integer)
+    u = random_unitary(n)
+    prod_eigs = LinearAlgebra.det(u)
+    phase = prod_eigs^(-1/n)
+    phase * u
 end
 
 end # module Utils
