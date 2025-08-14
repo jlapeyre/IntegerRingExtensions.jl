@@ -464,18 +464,18 @@ end
 
 LinearAlgebra.isdiag(U::AbstractSU2) = iszero(unitary_t(U))
 
-struct SU2{T, V} <: AbstractSU2{T}
+struct SU2OLD{T, V} <: AbstractSU2{T}
     uabs2::T
     alpha_u::V
     alpha_t::V
 end
 
-@inline unitary_u(s::SU2) = sqrt(s.uabs2) * cis(s.alpha_u)
-@inline unitary_t(s::SU2) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
+@inline unitary_u(s::SU2OLD) = sqrt(s.uabs2) * cis(s.alpha_u)
+@inline unitary_t(s::SU2OLD) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
 
-@inline function SU2_from_u_t(u, t)
+@inline function SU2OLD_from_u_t(u, t)
     abs2u = abs2(u)
-    SU2(abs2u, angle(u/sqrt(abs2u)), angle(t/sqrt(1-abs2u)))
+    SU2OLD(abs2u, angle(u/sqrt(abs2u)), angle(t/sqrt(1-abs2u)))
 end
 
 random_SU2() = random_SU2(Float64)
@@ -484,18 +484,18 @@ function random_SU2(::Type{T}) where {T}
     uabs2 = rand(T) # cos^2(gamma)
     alpha_u = T(2) * rand(T)
     alpha_t = T(2) * rand(T)
-    SU2b(SU2(uabs2, Dar(alpha_u), Dar(alpha_t)))
+    SU2b(SU2OLD(uabs2, Dar(alpha_u), Dar(alpha_t)))
 end
 
-@inline Base.:-(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) - b
-@inline Base.:-(a::AbstractMatrix2x2, b::SU2) = b - a
-@inline Base.:+(a::SU2, b::AbstractMatrix2x2) = Matrix2x2(a) + b
-@inline Base.:+(a::AbstractMatrix2x2, b::SU2) = b + a
+@inline Base.:-(a::SU2OLD, b::AbstractMatrix2x2) = Matrix2x2(a) - b
+@inline Base.:-(a::AbstractMatrix2x2, b::SU2OLD) = b - a
+@inline Base.:+(a::SU2OLD, b::AbstractMatrix2x2) = Matrix2x2(a) + b
+@inline Base.:+(a::AbstractMatrix2x2, b::SU2OLD) = b + a
 
-@inline Base.:-(a::SU2, b::SU2) = Matrix2x2(a) - Matrix2x2(b)
-@inline Base.:+(a::SU2, b::SU2) = Matrix2x2(a) + Matrix2x2(b)
+@inline Base.:-(a::SU2OLD, b::SU2OLD) = Matrix2x2(a) - Matrix2x2(b)
+@inline Base.:+(a::SU2OLD, b::SU2OLD) = Matrix2x2(a) + Matrix2x2(b)
 
-@inline function Base.:*(a::SU2, b::SU2)
+@inline function Base.:*(a::SU2OLD, b::SU2OLD)
     # a2 = SU2b(a)
     # b2 = SU2b(b)
     # SU2(a2 * b2)
@@ -507,7 +507,7 @@ end
     tb = unitary_t(b)
     unew = ua * ub - ta' * tb
     newt = ub * ta + tb * ua'
-    SU2_from_u_t(unew, newt)
+    SU2OLD_from_u_t(unew, newt)
 end
 
 random_unitary2x2() = random_unitary2x2(Float64)
@@ -554,7 +554,7 @@ end
 #     Matrix2x2(u, t, c, d)
 # end
 
-function Matrix2x2(su2::SU2)
+function Matrix2x2(su2::SU2OLD)
     (; uabs2, alpha_u, alpha_t) = su2
     uabs = sqrt(uabs2)
     tabs = sqrt(one(uabs2) - uabs2)
@@ -613,11 +613,11 @@ Base.one(rz::ZRot) = ZRot(zero(rz.minushalftheta))
 
 Base.adjoint(rz::ZRot) = ZRot(-rz.minushalftheta)
 
-function SU2(rz::ZRot{T}) where {T}
-    SU2(one(float(T)), rz.minushalftheta, zero(T))
+function SU2OLD(rz::ZRot{T}) where {T}
+    SU2OLD(one(float(T)), rz.minushalftheta, zero(T))
 end
 
-function SU2(m::Matrix2x2)
+function SU2OLD(m::Matrix2x2)
     (u, t, c, d) = elements(m)
     uabs2 = abs2(u)
     tabs2 = 1 - uabs2
@@ -631,20 +631,20 @@ function SU2(m::Matrix2x2)
     else
         alpha_t = zero(tabs2)
     end
-    SU2(uabs2, radtodar(alpha_u), radtodar(alpha_t))
+    SU2OLD(uabs2, radtodar(alpha_u), radtodar(alpha_t))
 end
 
-Matrix2x2(rz::ZRot) = Matrix2x2(SU2(rz))
+Matrix2x2(rz::ZRot) = Matrix2x2(SU2OLD(rz))
 
 det(m::AbstractSU2{T}) where {T} = one(T)
 
-function tr(u::SU2)
+function tr(u::SU2OLD)
     (; uabs2, alpha_u, alpha_t) = u
     uabs = sqrt(uabs2)
     2 * uabs * cos(alpha_u)
 end
 
-function eigvals(u::SU2)
+function eigvals(u::SU2OLD)
     (; uabs2, alpha_u, alpha_t) = u
     uabs = sqrt(uabs2)
     (s, c) = sincos(alpha_u)
@@ -656,7 +656,7 @@ function eigvals(u::SU2)
 end
 
 # TODO:
-# function Base.:*(u1::SU2, u2::SU2)
+# function Base.:*(u1::SU2OLD, u2::SU2OLD)
 #     (;uabs, alpha_u, alpha_t) = u1
 #     (uabs21, alpha_u1, alpha_t1) = (uabs, alpha_u, alpha_t)
 #     (;uabs, alpha_u, alpha_t) = u1
@@ -665,14 +665,14 @@ end
 # end
 
 struct Unitary2x2{T} <: AbstractUnitary2x2{T}
-    su2::SU2{T}
+    su2::SU2OLD{T}
     phi::T
 end
 
 function Unitary2x2(m::Matrix2x2{Complex{T}}) where {T <: AbstractFloat}
     phase_fac = sqrt(det(m))
     msu2 = map(x -> x / phase_fac, m)
-    Unitary2x2(SU2(msu2), radtodar(angle(phase_fac)))
+    Unitary2x2(SU2OLD(msu2), radtodar(angle(phase_fac)))
 end
 
 function eigvals(U::Unitary2x2)
@@ -702,11 +702,11 @@ Matrix2x2(U::SU2b) = Matrix2x2(U.u, U.t, -U.t', U.u')
 @inline SU2_alpha_u(U::SU2b) = angle(U.u/abs(U.u))
 @inline SU2_alpha_t(U::SU2b) = angle(U.t/abs(U.t))
 
-@inline function SU2(U::SU2b)
-    SU2(abs2(U.u), SU2_alpha_u(U), SU2_alpha_t(U))
+@inline function SU2OLD(U::SU2b)
+    SU2OLD(abs2(U.u), SU2_alpha_u(U), SU2_alpha_t(U))
 end
 
-@inline function SU2b(U::SU2)
+@inline function SU2b(U::SU2OLD)
     SU2b(unitary_u(U), unitary_t(U))
 end
 
