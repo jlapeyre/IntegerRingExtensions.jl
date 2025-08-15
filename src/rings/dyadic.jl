@@ -1,6 +1,7 @@
 module Dyadics
 
 import Base: zero, iszero, one, convert, promote_rule, show
+import Random
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
     PRETTY, lobit
 import ..Common: canonical, mul_half, mul_two, params, conj_root_two
@@ -344,6 +345,37 @@ Base.:-(f1::Dyadic, f2::Dyadic) = _plus(f1, f2, -)
 function _plus(f1::Dyadic, f2::Dyadic, op)
     (minex, maxex) = minmax(f1.k, f2.k)
     Dyadic(op(1 << (f2.k - minex) * f1.a,  1 << (f1.k - minex) * f2.a), maxex)
+end
+
+"""
+    struct DyadicSample{T,V}
+
+# Example
+
+```julia-repl
+julia> rand(DyadicSample(1:10^3, 1:10))
+509/2⁷
+
+julia> rand(DyadicSample(-3:3, 1:5), 3)
+3-element Vector{Dyadic{Int64, Int64}}:
+  2/2²
+ -3/2⁵
+ -3/2
+```
+"""
+struct DyadicSample{T,V}
+    asamp::T
+    ksamp::V
+end
+
+function Base.eltype(::Type{DyadicSample{T,V}}) where {T <: AbstractArray, V <: AbstractArray}
+    tt = eltype(T)
+    vv = eltype(V)
+    Dyadic{tt, vv}
+end
+
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerTrivial{<:DyadicSample})
+    Dyadic(rand(rng, s[].asamp), rand(rng, s[].ksamp))
 end
 
 # This is really backward.

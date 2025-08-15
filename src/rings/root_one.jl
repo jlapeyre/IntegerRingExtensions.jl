@@ -3,6 +3,7 @@ module RootOnes
 import ..Utils: subscript, superscript
 import ..Common: sqrt_imaginary, imaginary
 import Base: convert, show
+import Random
 
 export RootOne, Omega
 
@@ -89,7 +90,7 @@ The eighth roots of unity.
 
 # Examples
 
-```julia
+```julia-repl
 julia> Omega()
 ω₈
 
@@ -261,6 +262,27 @@ function Base.complex(r::RootOne{4})
             (0, -1)
         end
     Complex(tup...)
+end
+
+"""
+    rand([rng=default_rng()], RootOne{N}, [dims...]) where {N}
+
+Return a random element or array of `RootOne{N}`.
+
+# Example
+```julia-repl
+julia> rand(Omega)
+ω₈³
+
+julia> rand(Omega, 3)
+3-element Vector{Omega}:
+ ω₈⁵
+ ω₈²
+ ω₈⁵
+```
+"""
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{RootOne{N}}) where {N}
+    RootOne{N}(rand(rng, 0:N-1))
 end
 
 end # module RootOnes

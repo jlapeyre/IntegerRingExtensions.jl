@@ -132,7 +132,7 @@ coeffs(q::QuadraticRing) = (q.a, q.b)
 Represents the ring `ℤ[√D]`, provided `D` is a valid integer (See `QuadraticRing`).
 
 `ZrootD` is an alias defined by
-```
+```julia
 ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
 ```
 

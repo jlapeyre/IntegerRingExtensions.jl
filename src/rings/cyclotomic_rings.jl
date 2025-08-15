@@ -39,12 +39,12 @@ The symbol `ω` is used when displaying values. It is understood to be the prini
 Aliases for particular rings are:
 
 The ring of cyclotomic integers `ℤ[ω]`:
-```
+```julia
 const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 ```
 
 The ring `𝔻[ω] = ℤ[1/√2, i]`:
-```
+```julia
 const Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 ```
 """
@@ -77,7 +77,8 @@ The type `T<:Integer` is the type of the numerator in the dyadic fractions.
 Here, `𝔻 = ℤ[½]` is the ring of dyadic fractions, implemented by `Dyadic`.
 
 `Domega{T}` is defined as the alias
-```
+
+```julia
 Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 ```
 """
@@ -91,7 +92,7 @@ Represents the ring `ℤ[ω]`.
 The type `T<:Integer` is the type of coefficients of powers of ω.
 
 `Zomega{T}` is defined as the alias
-```
+```julia
 Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
 ```
 """
