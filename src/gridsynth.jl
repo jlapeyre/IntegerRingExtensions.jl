@@ -2,7 +2,7 @@ module GridSynth
 
 using ..Utils: PRETTY, superscript
 import ..Utils: countmap
-import ..Gates: Gates, compose, rotation_error
+import ..Compose: Compose, compose, rotation_error
 
 # Parameters disables the default constructor :(
 # Also does not allow forwarding keywords args with (;kwargs...)

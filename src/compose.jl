@@ -1,4 +1,4 @@
-module Gates
+module Compose
 
 using ..Matrices2x2: Matrix2x2, GPID
 import ..Matrices2x2: get_theta
@@ -372,4 +372,5 @@ end
 #     Matrix2x2(ab, ab, c, d)
 # end
 
-end # module Gates
+end # module Compose
+

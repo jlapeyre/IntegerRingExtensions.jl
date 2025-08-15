@@ -248,6 +248,8 @@ Base.:+(m1::Matrix2x2, m2::Matrix2x2) = _pair_op(+, m1, m2)
 Base.:-(m1::Matrix2x2, m2::Matrix2x2) = _pair_op(-, m1, m2)
 Base.:-(m::Matrix2x2) = map(-, m) # Unary minus
 
+Base.:-(a::AbstractMatrix2x2, b::AbstractMatrix2x2) = Matrix2x2(a) - Matrix2x2(b)
+
 # This is only called if `n` is not literal at the call site.
 function Base.:^(m::Matrix2x2, n::Integer)
     n == 0 && return one(m)
@@ -603,6 +605,19 @@ struct ZRot{T, V} <: AbstractSU2{T}
     end
     minushalftheta::T
 end
+
+# TODO: organize an interface
+# function mulphase(phase, zr::ZRot)
+#     u = phase * unitary_u(zr)
+#     SU2(u, zero(u))
+# end
+
+function Base.:*(x::Number, z::ZRot)
+    u = unitary_u(z)
+    Matrix2x2(x*u, zero(0), zero(0), x * conj(u))
+end
+
+Base.:*(z::ZRot, x::Number) = x * z
 
 # This always gives "positive" rotation.
 # Tr(z) >= 0
