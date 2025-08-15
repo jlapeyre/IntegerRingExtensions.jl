@@ -1,7 +1,7 @@
 module Gates
 
 using ..Utils: PRETTY
-using ..Matrices2x2: Matrix2x2
+import ..Matrices2x2: Matrix2x2, SU2
 using ..Singletons: Imag, RootImag, InvRootTwo
 
 export Gate1
@@ -125,5 +125,19 @@ function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V
     throw(ArgumentError(lazy"Attempted matrix multiplication with a matrix type $(T), not a matrix value $(T)()"))
 end
 
+function SU2(::Type{Gate1{:V1}}, ::Type{T}=Float64) where {T}
+    d = T(1)/sqrt(T(5))
+    SU2(complex(d), Complex(0, T(2)) * d)
+end
+
+function SU2(::Type{Gate1{:V2}}, ::Type{T}=Float64) where {T}
+    d = T(1)/sqrt(T(5))
+    SU2(complex(d), complex(0, T(2)) * d)
+end
+
+function SU2(::Type{Gate1{:V3}}, ::Type{T}=Float64) where {T}
+    d = T(1)/sqrt(T(5))
+    SU2(Complex(d, 2*d), complex(zero(d)))
+end
 
 end # module Gates

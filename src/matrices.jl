@@ -772,6 +772,8 @@ function SU2(zr::ZRot)
     SU2(unitary_u(zr), unitary_t(zr))
 end
 
+Base.adjoint(u::SU2) = SU2(conj(u.u), -u.t)
+
 struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
     function Unitary2x2(su2::W, phi::V) where {V, W <: AbstractSU2{T}} where {T}
         new{T, W, V}(su2, phi)
