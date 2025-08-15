@@ -1,4 +1,6 @@
 module Matrices2x2
+
+import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
 import LinearAlgebra
 import ..Common: canonical
@@ -510,40 +512,37 @@ end
 
 LinearAlgebra.isdiag(U::AbstractSU2) = iszero(unitary_t(U))
 
-struct SU2OLD{T, V} <: AbstractSU2{T}
+struct SU2{T} <: AbstractSU2{T}
+    u::T
+    t::T
+end
+
+struct SU2B{T, V} <: AbstractSU2{T}
     uabs2::T
     alpha_u::V
     alpha_t::V
 end
 
-unitary_abs2t(U::SU2OLD) = 1 - U.uabs2
+unitary_abs2t(U::SU2B) = 1 - U.uabs2
 unitary_abs2t(U::AbstractUnitary2x2) = abs2(unitary_t(U))
-@inline unitary_u(s::SU2OLD) = sqrt(s.uabs2) * cis(s.alpha_u)
-@inline unitary_t(s::SU2OLD) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
+@inline unitary_u(s::SU2B) = sqrt(s.uabs2) * cis(s.alpha_u)
+@inline unitary_t(s::SU2B) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
 
-@inline function SU2OLD_from_u_t(u, t)
+@inline function SU2B_from_u_t(u, t)
     abs2u = abs2(u)
-    SU2OLD(abs2u, angle(u/sqrt(abs2u)), angle(t/sqrt(1-abs2u)))
+    SU2B(abs2u, angle(u/sqrt(abs2u)), angle(t/sqrt(1-abs2u)))
 end
 
-random_SU2() = random_SU2(Float64)
 
-function random_SU2(::Type{T}) where {T}
-    uabs2 = rand(T) # cos^2(gamma)
-    alpha_u = T(2) * rand(T)
-    alpha_t = T(2) * rand(T)
-    SU2(SU2OLD(uabs2, Dar(alpha_u), Dar(alpha_t)))
-end
+@inline Base.:-(a::SU2B, b::AbstractMatrix2x2) = Matrix2x2(a) - b
+@inline Base.:-(a::AbstractMatrix2x2, b::SU2B) = b - a
+@inline Base.:+(a::SU2B, b::AbstractMatrix2x2) = Matrix2x2(a) + b
+@inline Base.:+(a::AbstractMatrix2x2, b::SU2B) = b + a
 
-@inline Base.:-(a::SU2OLD, b::AbstractMatrix2x2) = Matrix2x2(a) - b
-@inline Base.:-(a::AbstractMatrix2x2, b::SU2OLD) = b - a
-@inline Base.:+(a::SU2OLD, b::AbstractMatrix2x2) = Matrix2x2(a) + b
-@inline Base.:+(a::AbstractMatrix2x2, b::SU2OLD) = b + a
+@inline Base.:-(a::SU2B, b::SU2B) = Matrix2x2(a) - Matrix2x2(b)
+@inline Base.:+(a::SU2B, b::SU2B) = Matrix2x2(a) + Matrix2x2(b)
 
-@inline Base.:-(a::SU2OLD, b::SU2OLD) = Matrix2x2(a) - Matrix2x2(b)
-@inline Base.:+(a::SU2OLD, b::SU2OLD) = Matrix2x2(a) + Matrix2x2(b)
-
-@inline function Base.:*(a::SU2OLD, b::SU2OLD)
+@inline function Base.:*(a::SU2B, b::SU2B)
     # a2 = SU2(a)
     # b2 = SU2(b)
     # SU2(a2 * b2)
@@ -555,7 +554,7 @@ end
     tb = unitary_t(b)
     unew = ua * ub - ta' * tb
     newt = ub * ta + tb * ua'
-    SU2OLD_from_u_t(unew, newt)
+    SU2B_from_u_t(unew, newt)
 end
 
 random_unitary2x2() = random_unitary2x2(Float64)
@@ -602,7 +601,7 @@ end
 #     Matrix2x2(u, t, c, d)
 # end
 
-function Matrix2x2(su2::SU2OLD)
+function Matrix2x2(su2::SU2B)
     (; uabs2, alpha_u, alpha_t) = su2
     uabs = sqrt(uabs2)
     tabs = sqrt(one(uabs2) - uabs2)
@@ -688,11 +687,11 @@ Base.one(rz::ZRot) = ZRot(zero(rz.minushalftheta))
 
 Base.adjoint(rz::ZRot) = ZRot(-rz.minushalftheta)
 
-function SU2OLD(rz::ZRot{T}) where {T}
-    SU2OLD(one(float(T)), rz.minushalftheta, zero(T))
+function SU2B(rz::ZRot{T}) where {T}
+    SU2B(one(float(T)), rz.minushalftheta, zero(T))
 end
 
-function SU2OLD(m::Matrix2x2)
+function SU2B(m::Matrix2x2)
     (u, t, c, d) = elements(m)
     uabs2 = abs2(u)
     tabs2 = 1 - uabs2
@@ -706,21 +705,21 @@ function SU2OLD(m::Matrix2x2)
     else
         alpha_t = zero(tabs2)
     end
-    SU2OLD(uabs2, radtodar(alpha_u), radtodar(alpha_t))
+    SU2B(uabs2, radtodar(alpha_u), radtodar(alpha_t))
 end
 
-Matrix2x2(rz::ZRot) = Matrix2x2(SU2OLD(rz))
+Matrix2x2(rz::ZRot) = Matrix2x2(SU2B(rz))
 
 det(m::AbstractSU2{T}) where {T} = one(T)
 
 # This should not be faster than generic. but it is
-function tr(u::SU2OLD)
+function tr(u::SU2B)
     (; uabs2, alpha_u, alpha_t) = u
     uabs = sqrt(uabs2)
     2 * uabs * cos(alpha_u)
 end
 
-function eigvals(u::SU2OLD)
+function eigvals(u::SU2B)
     (; uabs2, alpha_u, alpha_t) = u
     uabs = sqrt(uabs2)
     (s, c) = sincos(alpha_u)
@@ -731,19 +730,23 @@ function eigvals(u::SU2OLD)
     (Complex(re_u, discr), Complex(re_u, -discr))
 end
 
-# TODO:
-# function Base.:*(u1::SU2OLD, u2::SU2OLD)
-#     (;uabs, alpha_u, alpha_t) = u1
-#     (uabs21, alpha_u1, alpha_t1) = (uabs, alpha_u, alpha_t)
-#     (;uabs, alpha_u, alpha_t) = u1
-#     (uabs22, alpha_u2, alpha_t2) = (uabs, alpha_u, alpha_t)
-#     uabs23 = saq
-# end
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2B})
+    rand(rng, Random.SamplerType{SU2B{ComplexF64}}())
+end
 
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2})
+    rand(rng, Random.SamplerType{SU2{ComplexF64}}())
+end
 
-struct SU2{T} <: AbstractSU2{T}
-    u::T
-    t::T
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{Complex{T}}}) where {T}
+    uabs2 = rand(T) # cos^2(gamma)
+    alpha_u = T(2) * rand(T)
+    alpha_t = T(2) * rand(T)
+    SU2B(uabs2, Dar(alpha_u), Dar(alpha_t))
+end
+
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2{Complex{T}}}) where {T}
+    SU2(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
 end
 
 Matrix2x2(U::SU2) = Matrix2x2(U.u, U.t, -U.t', U.u')
@@ -757,11 +760,11 @@ SU2(m::AbstractMatrix) = SU2(m[1,1], m[2,1])
 @inline SU2_alpha_u(U::SU2) = angle(U.u/abs(U.u))
 @inline SU2_alpha_t(U::SU2) = angle(U.t/abs(U.t))
 
-@inline function SU2OLD(U::SU2)
-    SU2OLD(abs2(U.u), SU2_alpha_u(U), SU2_alpha_t(U))
+@inline function SU2B(U::SU2)
+    SU2B(abs2(U.u), SU2_alpha_u(U), SU2_alpha_t(U))
 end
 
-@inline function SU2(U::SU2OLD)
+@inline function SU2(U::SU2B)
     SU2(unitary_u(U), unitary_t(U))
 end
 
@@ -794,6 +797,12 @@ struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
 
     su2::SUT
     phi::V
+end
+
+det(U::Unitary2x2) = cis(2 * U.phi)
+
+function Unitary2x2(su::AbstractSU2{T}) where T
+    Unitary2x2(su, zero(T))
 end
 
 function Unitary2x2(m::Matrix2x2{Complex{T}}, ::Type{SU2T} = SU2) where {T <: AbstractFloat, SU2T <: AbstractSU2}
