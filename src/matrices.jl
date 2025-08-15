@@ -344,6 +344,9 @@ function tracedistance(a::AbstractMatrix2x2, b::AbstractMatrix2x2)
     tn / typeof(tn)(2)
 end
 
+# This paper calls this the trace distance.
+# Authors: Alex Bocharov, Yuri Gurevich, Krysta M. Svore
+# http://arxiv.org/abs/1303.1411v1
 """
     GPID(A::Matrix2x2, B::Matrix2x2)
 
@@ -351,11 +354,21 @@ Compute the global phase invariant distance between `A` and `B`.
 
 (See Mukhopadhyay 2021)
 """
-function GPID(A::Matrix2x2, B::Matrix2x2)
+function GPID(A::AbstractMatrix2x2, B::AbstractMatrix2x2)
+    return sqrt(1 - abs(trace_product(A, B)) / 2)
+end
+
+"""
+    trace_product(A, B)
+
+Compute tr(AB').
+
+This is the dot product of the matrices as vectors.
+"""
+function trace_product(A::AbstractMatrix2x2, B::AbstractMatrix2x2)
     (a, b, c, d) = map(conj, elements(A))
     (w, x, y, z) = elements(B)
-    trprod = a*w + b*x + c*y + d*z
-    return sqrt(1 - abs(trprod) / 2)
+    return a*w + b*x + c*y + d*z
 end
 
 ##

@@ -140,4 +140,13 @@ function SU2(::Type{Gate1{:V3}}, ::Type{T}=Float64) where {T}
     SU2(Complex(d, 2*d), complex(zero(d)))
 end
 
+function Matrix2x2(::Type{Gate1{:H}}, ::Type{T}=Float64) where {T}
+    d = T(1)/sqrt(T(2))
+    Matrix2x2(d, d, d, -d)
+end
+
+function Matrix2x2(::Type{Gate1{:S}}, ::Type{T}=Float64) where {T}
+    Matrix2x2(complex(one(T)), zero(T), zero(T), Complex(zero(T), one(T)))
+end
+
 end # module Gates

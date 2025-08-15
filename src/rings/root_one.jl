@@ -191,7 +191,7 @@ function (::Type{Complex{T}})(r::RootOne{M}; maybe::Bool=false) where {M, T <: I
     return CT(z, -o)
 end
 
-Base.float(r::RootOne) = complex(r)
+Base.float(r::RootOne) = float(complex(r))
 Base.complex(r::RootOne) = Complex(r)
 Base.big(r::RootOne) = Complex{BigFloat}(r)
 convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N} = Complex{T}(r)
