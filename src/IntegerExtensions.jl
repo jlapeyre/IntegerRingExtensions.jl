@@ -51,9 +51,12 @@ Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagona
 include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor
 
+include("gates.jl")
+Reexport.@reexport import .Gates: Gate1, RZ, random_RZ
+
 include("compose.jl")
-Reexport.@reexport import .Compose: compose, compose_one, RZ, Gate1, get_global_phase,
-    correct_global_phase, rotation_error, rotation_error_GPID, Uapprox, random_Uapprox, random_RZ,
+Reexport.@reexport import .Compose: compose, compose_one, get_global_phase,
+    correct_global_phase, rotation_error, rotation_error_GPID, Uapprox, random_Uapprox,
     isUapprox
 
 include("benchmark.jl")
