@@ -713,6 +713,7 @@ function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
 end
 
 Zomega(r::RootOne{8}) = CyclotomicRing{4}(r)
+Domega(r::RootOne{8}) = Domega{Int}(r)
 
 function CyclotomicRing{4}(r::RootOne{8})
     k = r.k
