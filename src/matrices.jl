@@ -277,8 +277,16 @@ end
 
 Base.adjoint(m::Matrix2x2) = permutedims(map(adjoint, m))
 Base.transpose(m::Matrix2x2) = permutedims(map(transpose, m))
-@inline tr(m::Matrix2x2) = m[1] + m[4]
-@inline det(m::Matrix2x2) = m[1] * m[4] - m[3] * m[2]
+
+@inline function tr(m::AbstractMatrix2x2)
+    (a, _b, _c, d) = elements(m)
+    a + d
+end
+
+@inline function det(m::AbstractMatrix2x2)
+    (a, b, c, d) = elements(m)
+    a * d - c * d
+end
 
 @inline tr(m::AbstractSU2) = 2*real(m[1])
 
