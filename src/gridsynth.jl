@@ -24,12 +24,14 @@ end
 
 function makecommand(opts::GridSynthOpts)
     (;theta, epsilon, uptophase, effort, hexoutput, stats, latex, seed) = opts
-    command = `gridsynth $theta -e $epsilon -f $effort`
+    command = `gridsynth -e $epsilon -f $effort`
     uptophase && push!(command.exec, "-p")
     hexoutput && push!(command.exec, "-h")
     stats && push!(command.exec, "-s")
     latex && push!(command.exec, "-l")
     seed > 0 && push!(command.exec, "-s", seed)
+    push!(command.exec, "--")
+    push!(command.exec, "$theta")
     return command
 end
 
