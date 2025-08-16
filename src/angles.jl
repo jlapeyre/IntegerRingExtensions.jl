@@ -1,5 +1,6 @@
 module Angles
 
+import Random
 using ..Utils: PRETTY
 
 """
@@ -178,6 +179,15 @@ end
 function Base.show(io::IO, ::PRETTY, a::Ang)
     print(io, Float64(a), " π")
 end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Ang})
+    Ang(rand(Int))
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Ang{T}}) where {T}
+    Ang(rand(T))
+end
+
 
 for func in (:cos, :sin, :cis, :tan, :sincos)
     funcpi = Symbol(func, :pi)
