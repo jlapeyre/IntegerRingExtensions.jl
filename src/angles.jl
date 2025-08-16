@@ -188,15 +188,7 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Ang{T}}) wher
     Ang(rand(T))
 end
 
-struct AngleSample{T}
-end
-
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{AngleSample{T}}) where {T}
-    2 * T(pi) * rand(float(T)) .- T(1) / 2
-end
-
-
-function random_angle()
+function random_angle(args...)
     random_angle(Float64, args...)
 end
 
@@ -206,7 +198,12 @@ end
 Return a random angle in `[-pi, pi]`
 """
 function random_angle(::Type{T}, args...) where {T}
-    rand(AngleSample{T}, args...)
+    flts = rand(T, args...)
+    f = x -> 2 * T(pi) * (x - T(1)/2)
+    if isempty(args)
+        return f(flts)
+    end
+    map!(f, flts, flts)
 end
 
 # function random_angle(::Type{T}, shape...) where {T}
