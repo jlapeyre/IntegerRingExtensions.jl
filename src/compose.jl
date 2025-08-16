@@ -5,7 +5,8 @@ import ..Matrices2x2: get_theta
 import ..Gates: Gate1, RZ, random_RZ
 using ..Common: canonical
 using ..CyclotomicRings: Domega
-using ..Utils: PRETTY, random_angle
+using ..Utils: PRETTY
+using ..Angles: random_angle
 
 export benchmark_compose
 

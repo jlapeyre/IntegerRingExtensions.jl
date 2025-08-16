@@ -91,19 +91,6 @@ function lobit(z)
     ilog2(z & -z)
 end
 
-function random_angle(shape...)
-    random_angle(Float64, shape...)
-end
-
-"""
-    random_angle(::Type{T}=Float64, shape...) where {T}
-
-Return a random angle in `[-pi, pi]`
-"""
-function random_angle(::Type{T}, shape...) where {T}
-    2 * T(pi) * (rand(shape...) .- T(1) / 2)
-end
-
 """
     small(x::BigFloat)::Float64
 

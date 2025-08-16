@@ -5,7 +5,7 @@ import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, n
     dot
 import LinearAlgebra
 import ..Common: canonical
-import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring, random_angle
+import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, Dar, scalepi, unscalepi, intdiv
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 

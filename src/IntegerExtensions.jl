@@ -8,8 +8,8 @@ export Zroot2
 export ZrootD
 
 include("utils.jl")
-Reexport.@reexport import .Utils: subscript, superscript, lobit, random_angle, small, countmap, random_unitary,
-    random_special_unitary, random_phase
+Reexport.@reexport import .Utils: subscript, superscript, lobit, small, countmap, random_unitary,
+    random_special_unitary
 
 include("common.jl")
 Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
@@ -21,7 +21,8 @@ Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
 include("angles.jl")
-Reexport.@reexport import .Angles: Dar, radtodar, scalepi, unscalepi, minus_one_to_one, radians
+Reexport.@reexport import .Angles: Dar, radtodar, scalepi, unscalepi, minus_one_to_one, radians, Ang,
+    random_angle, AngleSample
 
 include("rings/root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, Omega
@@ -40,7 +41,7 @@ include("matrices.jl")
 Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagonal_unitary,
     tracenorm, tracedistance, unitary_compose, unitary_decompose,
     UnitaryParam1, UnitaryParam2,
-     isSU2, random_unitary2x2, random_SU2,
+     isSU2, random_unitary2x2,
     SU2B, Unitary2x2, elements, ZRot, zrot,
     get_theta, SU2, unitary_u, unitary_t,
     AbstractUnitary2x2, AbstractSU2, AbstractMatrix2x2,
