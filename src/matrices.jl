@@ -296,7 +296,7 @@ end
 
 @inline function det(m::AbstractMatrix2x2)
     (a, b, c, d) = elements(m)
-    a * d - c * d
+    canonical(a * d - c * b)
 end
 
 @inline tr(m::AbstractSU2) = 2*real(m[1])
