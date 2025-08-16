@@ -101,7 +101,7 @@ function radtodar(theta)
     Dar(theta / pi)
 end
 
-function dartorad(dar::Dar)
+function radians(dar::Dar)
     dar.x * pi
 end
 
@@ -133,14 +133,16 @@ struct Ang{T<:Integer}
     x::T
 end
 
-function Ang(z::Float64)
+Ang(z::Float64) = Ang{Int}(z)
+
+function Ang{T}(z::Float64) where {T<:Integer}
     zp = minus_one_to_one(z)
     if zp == 1
-        Ang(typemax(Int))
+        Ang(typemax(T))
     elseif zp == -1
-        Ang(-typemax(Int))
+        Ang(-typemax(T))
     else
-        Ang(Int(zp * typemax(Int)))
+        Ang(T(zp * typemax(T)))
     end
 end
 
@@ -156,11 +158,21 @@ Base.:+(a::Ang{T}, b::Ang{T}) where {T} = Ang(a.x + b.x)
 Base.:-(a::Ang{T}, b::Ang{T}) where {T} = Ang(a.x - b.x)
 Base.:*(n::Integer, a::Ang{T}) where {T} = Ang(n * a.x)
 Base.:*(a::Ang{T}, n::Integer) where {T} = Ang(a.x * n)
+Base.:-(a::Ang) = Ang(-a.x)
+
+radians(a::Ang{T}) where {T} = pi * float(T)(a)
 
 for FT in (:Float64, :Float32)
  @eval function $FT(a::Ang{T}) where {T}
      $FT(a.x / typemax(T))
  end
+end
+
+function Base.:/(a::Ang, n::Integer)
+    (q, r) = divrem(a.x, n)
+    iszero(r) && return Ang(q)
+    x = typeof(q)(q + r/n)
+    Ang(x)
 end
 
 function Base.show(io::IO, ::PRETTY, a::Ang)

@@ -6,7 +6,7 @@ import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, n
 import LinearAlgebra
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring, random_angle
-import ..Angles: radtodar, dartorad, Dar, scalepi, unscalepi, intdiv
+import ..Angles: radtodar, Dar, scalepi, unscalepi, intdiv
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
 abstract type AbstractMatrix2x2{T} <: AbstractMatrix{T} end
