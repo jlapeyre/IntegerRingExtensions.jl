@@ -1,3 +1,6 @@
+using LinearAlgebra: eigvecs, norm, dot
+using IsApprox: Approx, isunitary
+
 @testset "matrices" begin
     m1 = Matrix2x2(0.6233153827930635, 0.3551957329357007, 0.7085367960647345, 0.9084760155714717)
     m2 = Matrix2x2(0.04167333132967199, 0.6027145396563633, 0.42901908897608376, 0.7682825359251977)
@@ -15,6 +18,15 @@
     for p in (0, 1, 2, 3, 10, 11, 20, 21)
         @test m^p == mm^p
     end
+end
+
+@testset "some matrix integraton tests" begin
+    mh = Matrix2x2(Gate1{:H})
+    @test isunitary(mh, Approx())
+    (v1, v2) = columns(eigvecs(mh))
+    @test isone(norm(v1), Approx())
+    @test isone(norm(v2), Approx())
+    @test abs(dot(v1, v2)) < 1e-14
 end
 
 # FIXME. Y and Z are not implemented anymore

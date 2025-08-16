@@ -1,7 +1,8 @@
 module Matrices2x2
 
 import Random
-import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm
+import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, norm, normalize,
+    dot
 import LinearAlgebra
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring, random_angle
@@ -12,6 +13,8 @@ abstract type AbstractMatrix2x2{T} <: AbstractMatrix{T} end
 abstract type Normal2x2{T} <: AbstractMatrix2x2{T} end
 abstract type AbstractUnitary2x2{T} <: Normal2x2{T} end
 abstract type AbstractSU2{T} <: AbstractUnitary2x2{T} end
+
+abstract type AbstractVector2{T} <: AbstractVector{T} end
 
 """
     Matrix2x2{T} <: AbstractMatrix{T}
@@ -25,6 +28,15 @@ addition, subtraction, and unary minus.
 """
 struct Matrix2x2{T} <: AbstractMatrix2x2{T}
     data::NTuple{4, T}
+end
+
+struct Vector2{T} <: AbstractVector2{T}
+    data::NTuple{2, T}
+end
+
+function columns(m::AbstractMatrix2x2)
+    (a, b, c, d) = elements(m)
+    (Vector2(a, b), Vector2(c, d))
 end
 
 ##
@@ -88,7 +100,6 @@ Return a new matrix by calling `canonical` element-wise on `m`.
 This may reduce or canonicalize elements that implement `canonical`.
 """
 canonical
-
 
 ##
 ## Display
@@ -303,6 +314,34 @@ function eigvals(m::AbstractMatrix2x2)
         (a + d - discr)/2,
     )
 end
+function LinearAlgebra.norm(v::AbstractVector2)
+    (x, y) = elements(v)
+    sqrt(abs2(x) + abs2(y))
+end
+
+# This fails if the element type changes.
+# Typical issue. Workaround is... a bit of work
+function LinearAlgebra.normalize(v::AbstractVector2{T}) where {T}
+    (x, y) = elements(v)
+    n = norm(v)
+    (x1, y1) = (x/n, y/n)
+    typeof(v)(x/n, y/n)
+end
+
+function LinearAlgebra.normalize(v::Vector2{T}) where {T}
+    (x, y) = elements(v)
+    n = norm(v)
+    (x1, y1) = (x/n, y/n)
+    Vector2{typeof(x1)}(x1, y1)
+end
+
+function eigvecs(m::AbstractMatrix2x2)
+    (v1, v2) = eigvals(m)
+    (a, b, c, d) = elements(m)
+    vec1 = normalize(Vector2(c, v1 - a))
+    vec2 = normalize(Vector2(v2 - d, b))
+    Matrix2x2(vec1[1], vec1[2], vec2[1], vec2[2])
+end
 
 function eigvals(U::AbstractSU2)
     u = unitary_u(U)
@@ -312,6 +351,18 @@ function eigvals(U::AbstractSU2)
     rdiscr = sqrt(ri^2 + abs2t)
     discr = Complex(zero(rdiscr), rdiscr)
     (ru + discr, ru - discr)
+end
+
+Base.:*(v::AbstractVector2, z::Number) = z * b
+function Base.:*(z::Number, v::AbstractVector2)
+    (x, y) = elements(v)
+    Vector2(z * x, z * y)
+end
+
+function LinearAlgebra.dot(A::AbstractVector2, B::AbstractVector2)
+    (x, y) = elements(A)
+    (v, w) = elements(B)
+    x * v' + y * w'
 end
 
 """
@@ -384,10 +435,6 @@ end
 ##
 ## Vector2
 ##
-
-struct Vector2{T} <: AbstractVector{T}
-    data::NTuple{2, T}
-end
 
 Vector2(a, b) = Vector2(promote(a, b))
 Vector2{T}(a, b) where {T} = Vector2(T(a), T(b))
