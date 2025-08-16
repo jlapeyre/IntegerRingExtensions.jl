@@ -138,6 +138,17 @@ function Base.show(io::IO, m::Matrix2x2)
     print(io, ")")
 end
 
+function Base.show(io::IO, ::PRETTY, v::AbstractVector2)
+    (v1, v2) = elements(v)
+#    summary(io, v)
+#    println(io, ":")
+    show(io, PRETTY(), v1)
+#    println(io)
+    println(io)
+    show(io, PRETTY(), v2)
+end
+
+
 # function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
 #     summary(io, m)
 #     println(io, ":")
@@ -578,8 +589,26 @@ struct SU2B{T, V} <: AbstractSU2{T}
     alpha_t::V
 end
 
-unitary_abs2t(U::SU2B) = 1 - U.uabs2
-unitary_abs2t(U::AbstractUnitary2x2) = abs2(unitary_t(U))
+# gamma is the angle giving the magnitude.
+# It is usually called theta.
+# But that's also used for z-rotation angle
+struct SU2C{T, V, W} <: AbstractSU2{T}
+    function SU2C(gamma, alpha_u::W, alpha_t::W) where {W}
+        V = typeof(gamma)
+        T = float(V)
+        new{T, V, W}(gamma, alpha_u, alpha_t)
+    end
+
+    gamma::V
+    alpha_u::W
+    alpha_t::W
+end
+
+@inline SU2C(U::SU2B) = SU2C(acos(sqrt(U.uabs2)), U.alpha_u, U.alpha_t)
+@inline unitary_u(su::SU2C) = cos(su.gamma) * cis(su.alpha_u)
+@inline unitary_t(su::SU2C) = sin(su.gamma) * cis(su.alpha_t)
+@inline unitary_abs2t(U::SU2B) = 1 - U.uabs2
+@inline unitary_abs2t(U::AbstractUnitary2x2) = abs2(unitary_t(U))
 @inline unitary_u(s::SU2B) = sqrt(s.uabs2) * cis(s.alpha_u)
 @inline unitary_t(s::SU2B) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
 
@@ -628,41 +657,8 @@ function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     Matrix2x2(pu * uabs, pt * tabs, -pta * tabs,  pua * uabs)
 end
 
-# broken
-# function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
-#     random_unitary2x2(Complex{T})
-# end
-# function random_unitary2x2(::Type{Complex{T}}) where {T <: Real}
-#     su2 = random_SU2(T)
-#     phi = Dar(T(2) * rand(T))
-#     return Unitary2x2(su2, phi)
-# end
-
-# function random_SU2(::Type{T}) where {T <: AbstractFloat}
-#     random_SU2(Complex{T})
-# end
-
-# random_SU2() = random_SU2(ComplexF64)
-# function random_SU2(::Type{Complex{T}}) where {T <: Real}
-#     (; uabs2, alpha_u_scaled, alpha_t_scaled) = _random_SU2(T)
-#     uabs = sqrt(uabs2)
-#     tabs = sqrt(one(uabs2) - uabs2)
-#     uphase = cispi(alpha_u_scaled)
-#     tphase = cispi(alpha_t_scaled)
-#     u = uphase * uabs
-#     t = tphase * tabs
-#     c = -conj(tphase) * tabs
-#     d = conj(uphase) * uabs
-#     Matrix2x2(u, t, c, d)
-# end
-
-function Matrix2x2(su2::SU2B)
-    (; uabs2, alpha_u, alpha_t) = su2
-    uabs = sqrt(uabs2)
-    tabs = sqrt(one(uabs2) - uabs2)
-    pu = cis(alpha_u)
-    pt = cis(alpha_t)
-    Matrix2x2(uabs * pu, tabs * pt, - tabs * conj(pt), uabs * conj(pu))
+@inline function Matrix2x2(U::AbstractSU2)
+    Matrix2x2(SU2(unitary_u(U), unitary_t(U)))
 end
 
 struct ZRot{T, V} <: AbstractSU2{T}
@@ -761,7 +757,10 @@ function SU2B(m::Matrix2x2)
         alpha_t = zero(tabs2)
     end
     SU2B(uabs2, radtodar(alpha_u), radtodar(alpha_t))
+#    SU2B(uabs2, alpha_u, alpha_t)
 end
+
+SU2C(m::Matrix2x2) = SU2C(SU2B(m))
 
 Matrix2x2(rz::ZRot) = Matrix2x2(SU2B(rz))
 
@@ -785,12 +784,16 @@ function eigvals(u::SU2B)
     (Complex(re_u, discr), Complex(re_u, -discr))
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2B})
-    rand(rng, Random.SamplerType{SU2B{ComplexF64}}())
-end
-
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2})
     rand(rng, Random.SamplerType{SU2{ComplexF64}}())
+end
+
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2{Complex{T}}}) where {T}
+    SU2(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2B})
+    rand(rng, Random.SamplerType{SU2B{ComplexF64}}())
 end
 
 function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{Complex{T}}}) where {T}
@@ -800,9 +803,14 @@ function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{Complex
     SU2B(uabs2, Dar(alpha_u), Dar(alpha_t))
 end
 
-function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2{Complex{T}}}) where {T}
-    SU2(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2C})
+    rand(rng, Random.SamplerType{SU2C{ComplexF64}}())
 end
+
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2C{Complex{T}}}) where {T}
+    SU2C(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
+end
+
 
 Matrix2x2(U::SU2) = Matrix2x2(U.u, U.t, -U.t', U.u')
 

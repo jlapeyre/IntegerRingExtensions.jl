@@ -188,9 +188,7 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Ang{T}}) wher
     Ang(rand(T))
 end
 
-function random_angle(args...)
-    random_angle(Float64, args...)
-end
+random_angle(args...) = random_angle(Float64, args...)
 
 """
     random_angle(::Type{T}=Float64, shape...) where {T}
@@ -205,10 +203,6 @@ function random_angle(::Type{T}, args...) where {T}
     end
     map!(f, flts, flts)
 end
-
-# function random_angle(::Type{T}, shape...) where {T}
-#     2 * T(pi) * (rand(shape...) .- T(1) / 2)
-# end
 
 for func in (:cos, :sin, :cis, :tan, :sincos)
     funcpi = Symbol(func, :pi)
