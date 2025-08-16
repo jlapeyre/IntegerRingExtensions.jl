@@ -1,5 +1,7 @@
 module Angles
 
+using ..Utils: PRETTY
+
 """
     Dar{T}
 
@@ -121,26 +123,55 @@ import Base: cos, sin, cis, tan, sincos  # , cospi, sinpi, cispi, tanpi
 for func in (:cos, :sin, :cis, :tan, :sincos)
     funcpi = Symbol(func, :pi)
     @eval $func(dar::Dar) = $funcpi(dar.x)
-#    @eval $funcpi(dar::Dar) = $funcpi(dar.x)
 end
 
 Base.isapprox(a::Dar, b::Dar; kws...) = isapprox(a.x, b.x; kws...)
 Base.isapprox(a::Dar, x::Real; kws...) = isapprox(unscalepi(a.x), x; kws...)
 Base.isapprox(x::Real, a::Dar ; kws...) = isapprox(a, x; kws...)
 
-# function sadcheck(x, y)
-#     if  !isapprox(Dar(x + y),  (Dar(x) + Dar(y)))
-# #        @show (x, y)
-#         return true
-#     end
-#     return false
+struct Ang{T<:Integer}
+    x::T
+end
+
+function Ang(z::Float64)
+    zp = minus_one_to_one(z)
+    if zp == 1
+        Ang(typemax(Int))
+    elseif zp == -1
+        Ang(-typemax(Int))
+    else
+        Ang(Int(zp * typemax(Int)))
+    end
+end
+
+# function Ang{T}(z::Float64) where {T<:Integer}
+#     Ang(T(minus_one_to_one(z) * typemax(T)))
 # end
-# mrand() = 20 * rand()
-# #mrand() = 10 * rand()
-# sadcheck() = sadcheck(mrand(), mrand())
-# function runsad(N)
-#     sum(sadcheck() for _ in 1:N)
-# end
+
+function Base.:(==)(a::Ang{T},  b::Ang{T}) where {T}
+    a.x == b.x
+end
+
+Base.:+(a::Ang{T}, b::Ang{T}) where {T} = Ang(a.x + b.x)
+Base.:-(a::Ang{T}, b::Ang{T}) where {T} = Ang(a.x - b.x)
+Base.:*(n::Integer, a::Ang{T}) where {T} = Ang(n * a.x)
+Base.:*(a::Ang{T}, n::Integer) where {T} = Ang(a.x * n)
+
+for FT in (:Float64, :Float32)
+ @eval function $FT(a::Ang{T}) where {T}
+     $FT(a.x / typemax(T))
+ end
+end
+
+function Base.show(io::IO, ::PRETTY, a::Ang)
+    print(io, Float64(a), " π")
+end
+
+for func in (:cos, :sin, :cis, :tan, :sincos)
+    funcpi = Symbol(func, :pi)
+    @eval $func(a::Ang) = $funcpi(Float64(a))
+end
+
 
 end # module Angles
 
