@@ -29,6 +29,17 @@ end
     @test abs(dot(v1, v2)) < 1e-14
 end
 
+@testset "SU2" begin
+    ub = rand(SU2B)
+    uc = SU2C(ub)
+    ua = SU2(ub)
+    mb = Matrix2x2(ub)
+    mc = Matrix2x2(uc)
+    ma = Matrix2x2(ua)
+    @test mb == mc
+    @test mb == ma
+end
+
 # FIXME. Y and Z are not implemented anymore
 # @testset "gates" begin
 #     T = Int

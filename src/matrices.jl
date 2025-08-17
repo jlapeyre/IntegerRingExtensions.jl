@@ -78,12 +78,6 @@ elements(m::AbstractMatrix2x2) = elements(Matrix2x2(m))
 
 Base.convert(::Type{Matrix2x2{T}}, m::Matrix2x2) where {T} = Matrix2x2{T}(m)
 Base.AbstractFloat(m::Matrix2x2) = map(float, m)
-#Base.float(m::Matrix2x2) = AbstractFloat(m)
-#Base.complex(m::Matrix2x2) = map(complex, m)
-# This is not conventional. Change this
-# Base.big(m::Matrix2x2) = map(big, m)
-# Base.real(m::Matrix2x2) = map(real, m)
-# Base.imag(m::Matrix2x2) = map(imag, m)
 
 import Base: real, imag, big, complex, float
 
@@ -128,7 +122,7 @@ end
 function Base.show(io::IO, m::Matrix2x2)
     print(io, typeof(m), "(")
     i = 0
-    for x in element(m)
+    for x in elements(m)
         i += 1
         if i > 1
             print(io, ", ")
@@ -140,28 +134,10 @@ end
 
 function Base.show(io::IO, ::PRETTY, v::AbstractVector2)
     (v1, v2) = elements(v)
-#    summary(io, v)
-#    println(io, ":")
     show(io, PRETTY(), v1)
-#    println(io)
     println(io)
     show(io, PRETTY(), v2)
 end
-
-
-# function Base.show(io::IO, ::PRETTY, m::Matrix2x2)
-#     summary(io, m)
-#     println(io, ":")
-#     spc = "  "
-#     (as, bs, cs, ds)  = map(_showstr, m.data)
-#     (al, bl, cl, dl) = map(length, (as, bs, cs, ds))
-#     w1 = max(al, bl)
-#     w2 = max(cl, dl)
-#     print(io, cpad(as, w1), spc)
-#     println(io, cpad(cs, w2))
-#     print(io, cpad(bs, w1), spc)
-#     print(io, cpad(ds, w2))
-# end
 
 ##
 ## Required, and standard, `Base` properties
@@ -208,20 +184,11 @@ end
 ## IsApprox.isunitary
 ##
 
-# function isunitary(m::Matrix2x2)
-#     (a, b, c, d) = m.data
-#     (abs2(a) + abs2(c) == one(a)) &&
-#         (abs2(b) + abs2(d) == one(a)) &&
-#         ((conj(a) * b + d * conj(c)) == zero(a))
-# end
-
 function isunitary(m::Matrix2x2)
     isone(m * m')
 end
 
-
 isunitary(m::Matrix2x2, ::Equal) = isunitary(m)
-
 isunitary(m::AbstractUnitary2x2) = true
 svdvals(::AbstractUnitary2x2{T}) where {T} = (one(real(T)), one(real(T)))
 
@@ -494,75 +461,6 @@ function random_diagonal_unitary(::Type{T}=Float64) where T
     diagm(Vector2(cispi(rand(T)), cispi(rand(T))))
 end
 
-###
-### Parameterizations of unitaries
-###
-
-# struct UnitaryParam1{T}
-#     u::Complex{T}
-#     t::Complex{T}
-#     phi::T
-# end
-
-# struct UnitaryParam2{T}
-#     gamma::T
-#     alpha_u::T
-#     alpha_t::T
-#     phi::T
-# end
-
-# function Base.show(io::IO, ::PRETTY, U::UnitaryParam1)
-#     _show_with_fieldnames(io, U)
-# end
-
-# function Base.show(io::IO, ::PRETTY, U::UnitaryParam2)
-#     _show_with_fieldnames(io, U)
-# end
-
-# function unitary_compose(U::UnitaryParam1)
-#     (;u, t, phi) = U
-#     cp = cis(phi)
-#     Matrix2x2(u, t, -conj(t)*cp, conj(u)*cp)
-# end
-
-# function unitary_compose(U::UnitaryParam2)
-#     (;gamma, alpha_u, alpha_t, phi) = U
-#     u = cis(alpha_u) * cos(gamma)
-#     t = cis(alpha_t) * sin(gamma)
-#     unitary_compose(UnitaryParam1(u, t, phi))
-# end
-
-# function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam1}
-#     (u, t, c, d) = elements(U)
-#     if !iszero(u)
-#         ua = abs2(u)
-#         u_d = u * d # |u|^2 cis(phi)
-#         cp = u_d / ua # |u|^2/|u|^2 cis(phi) == cis(phi)
-#         phi = angle(cp) # angle(cis(phi)) == phi
-#     else
-#         phi = zero(u)
-#     end
-#     return T(u, t, phi)
-# end
-
-# function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam2}
-#     (;u, t, phi) = unitary_decompose(U, UnitaryParam1)
-#     (gamma, alpha_u, alpha_t) = _unitary_decompose_special(u, t)
-#     return T(gamma, alpha_u, alpha_t, phi)
-# end
-
-# function _unitary_decompose_special(u, t)
-#     uabs = abs(u)
-#     tabs = abs(t)
-#     if uabs > tabs
-#         gamma = acos(uabs)
-#     else
-#         gamma = asin(tabs)
-#     end
-#     alpha_u = iszero(uabs) ? zero(uabs) : angle(u/uabs)
-#     alpha_t = iszero(tabs) ? zero(tabs) : angle(t/tabs)
-#     return (gamma, alpha_u, alpha_t)
-# end
 
 isSU2(m::AbstractMatrix2x2) = isone(det(m))
 
@@ -616,7 +514,6 @@ end
     abs2u = abs2(u)
     SU2B(abs2u, angle(u/sqrt(abs2u)), angle(t/sqrt(1-abs2u)))
 end
-
 
 @inline Base.:-(a::SU2B, b::AbstractMatrix2x2) = Matrix2x2(a) - b
 @inline Base.:-(a::AbstractMatrix2x2, b::SU2B) = b - a
