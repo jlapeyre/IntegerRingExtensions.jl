@@ -509,6 +509,8 @@ end
 @inline unitary_abs2t(U::AbstractUnitary2x2) = abs2(unitary_t(U))
 @inline unitary_u(s::SU2B) = sqrt(s.uabs2) * cis(s.alpha_u)
 @inline unitary_t(s::SU2B) = sqrt(1 - s.uabs2) * cis(s.alpha_t)
+@inline unitary_abs2u(U::SU2C) = cos(U.gamma)^2
+@inline unitary_abs2t(U::SU2C) = sin(U.gamma)^2
 
 @inline function SU2B_from_u_t(u, t)
     abs2u = abs2(u)
@@ -722,6 +724,10 @@ SU2(m::AbstractMatrix) = SU2(m[1,1], m[2,1])
 
 @inline function SU2B(U::SU2)
     SU2B(abs2(U.u), SU2_alpha_u(U), SU2_alpha_t(U))
+end
+
+@inline function SU2B(U::SU2C)
+    SU2B(unitary_abs2u(U), U.alpha_u, U.alpha_t)
 end
 
 @inline function SU2(U::AbstractSU2)
