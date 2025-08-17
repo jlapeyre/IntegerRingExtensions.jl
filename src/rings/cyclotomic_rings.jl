@@ -107,9 +107,15 @@ function CyclotomicRing{4, T}(x::Number) where {T}
     return CyclotomicRing{4, T}((T(x), z, z, z))
 end
 
-CyclotomicRing(coeffs::T...) where T = CyclotomicRing{length(coeffs), T}(coeffs)
+function CyclotomicRing(coeffs::T...) where {T}
+    CyclotomicRing{length(coeffs), T}(coeffs)
+end
 
-function CyclotomicRing(c1, coeffs...)
+# function CyclotomicRing(coeffs::NTuple{N, <:Number}) where {N}
+#     CyclotomicRing{N}(coeffs)
+# end
+
+function CyclotomicRing(c1::Dyadic, coeffs::Dyadic...)
     cs = promote(c1, coeffs...)
     CyclotomicRing(cs)
 end
@@ -124,9 +130,29 @@ function CyclotomicRing{4}(a::Number,b,c,d)
     CyclotomicRing{4, typeof(cs[1])}(cs)
 end
 
+function Domega(cs::NTuple{4, <:Dyadic})
+    CyclotomicRing(cs)
+end
+
+# function Domega(c1::T1, c2::T2, c3::T3, c4::T4) where {
+#     T1 <: Union{Integer, Rational},
+#     T2 <: Union{Integer, Rational},
+#     T3 <: Union{Integer, Rational},
+#     T4 <: Union{Integer, Rational},
+#     }
+# #    c1a = Dyadic{typeof(c1), Int}(c1)
+#     #    c1a = Dyadic(c1)
+#     # promote givess bad results
+#     cs = map(Dyadic, (c1, c2, c3, c4))
+#     @show typeof(cs)
+#     CyclotomicRing(cs)
+# end
+
 function Domega(c1, c2, c3, c4)
-    c1a = Dyadic{typeof(c1), Int}(c1)
-    cs = promote(c1a, c2, c3, c4)
+    cs0 = (c1, c2, c3, c4)
+    cs1 = promote(cs0...)
+    cs = map(Dyadic, cs1)
+    @show typeof(cs)
     CyclotomicRing(cs)
 end
 
