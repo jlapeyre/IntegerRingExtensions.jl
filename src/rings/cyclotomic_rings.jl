@@ -134,20 +134,6 @@ function Domega(cs::NTuple{4, <:Dyadic})
     CyclotomicRing(cs)
 end
 
-# function Domega(c1::T1, c2::T2, c3::T3, c4::T4) where {
-#     T1 <: Union{Integer, Rational},
-#     T2 <: Union{Integer, Rational},
-#     T3 <: Union{Integer, Rational},
-#     T4 <: Union{Integer, Rational},
-#     }
-# #    c1a = Dyadic{typeof(c1), Int}(c1)
-#     #    c1a = Dyadic(c1)
-#     # promote givess bad results
-#     cs = map(Dyadic, (c1, c2, c3, c4))
-#     @show typeof(cs)
-#     CyclotomicRing(cs)
-# end
-
 function Domega(c1, c2, c3, c4)
     cs0 = (c1, c2, c3, c4)
     cs1 = promote(cs0...)

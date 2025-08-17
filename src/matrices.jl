@@ -827,7 +827,7 @@ SU2(m::AbstractMatrix) = SU2(m[1,1], m[2,1])
     SU2B(abs2(U.u), SU2_alpha_u(U), SU2_alpha_t(U))
 end
 
-@inline function SU2(U::SU2B)
+@inline function SU2(U::AbstractSU2)
     SU2(unitary_u(U), unitary_t(U))
 end
 

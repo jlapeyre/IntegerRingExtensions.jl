@@ -22,7 +22,7 @@ Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag,
 
 include("angles.jl")
 Reexport.@reexport import .Angles: Dar, radtodar, scalepi, unscalepi, minus_one_to_one, radians, Ang,
-    random_angle, AngleSample
+    random_angle
 
 include("rings/root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, Omega
@@ -42,8 +42,8 @@ Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagona
     tracenorm, tracedistance, unitary_compose, unitary_decompose,
     UnitaryParam1, UnitaryParam2,
      isSU2, random_unitary2x2,
-    SU2B, Unitary2x2, elements, ZRot, zrot,
-    get_theta, SU2, unitary_u, unitary_t,
+    SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
+    get_theta, unitary_u, unitary_t,
     AbstractUnitary2x2, AbstractSU2, AbstractMatrix2x2,
     random_ZRot, columns
 #    zrotpi, zrothalfpi, get_thetapi, get_thetahalfpi
