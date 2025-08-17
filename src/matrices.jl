@@ -498,71 +498,71 @@ end
 ### Parameterizations of unitaries
 ###
 
-struct UnitaryParam1{T}
-    u::Complex{T}
-    t::Complex{T}
-    phi::T
-end
+# struct UnitaryParam1{T}
+#     u::Complex{T}
+#     t::Complex{T}
+#     phi::T
+# end
 
-struct UnitaryParam2{T}
-    gamma::T
-    alpha_u::T
-    alpha_t::T
-    phi::T
-end
+# struct UnitaryParam2{T}
+#     gamma::T
+#     alpha_u::T
+#     alpha_t::T
+#     phi::T
+# end
 
-function Base.show(io::IO, ::PRETTY, U::UnitaryParam1)
-    _show_with_fieldnames(io, U)
-end
+# function Base.show(io::IO, ::PRETTY, U::UnitaryParam1)
+#     _show_with_fieldnames(io, U)
+# end
 
-function Base.show(io::IO, ::PRETTY, U::UnitaryParam2)
-    _show_with_fieldnames(io, U)
-end
+# function Base.show(io::IO, ::PRETTY, U::UnitaryParam2)
+#     _show_with_fieldnames(io, U)
+# end
 
-function unitary_compose(U::UnitaryParam1)
-    (;u, t, phi) = U
-    cp = cis(phi)
-    Matrix2x2(u, t, -conj(t)*cp, conj(u)*cp)
-end
+# function unitary_compose(U::UnitaryParam1)
+#     (;u, t, phi) = U
+#     cp = cis(phi)
+#     Matrix2x2(u, t, -conj(t)*cp, conj(u)*cp)
+# end
 
-function unitary_compose(U::UnitaryParam2)
-    (;gamma, alpha_u, alpha_t, phi) = U
-    u = cis(alpha_u) * cos(gamma)
-    t = cis(alpha_t) * sin(gamma)
-    unitary_compose(UnitaryParam1(u, t, phi))
-end
+# function unitary_compose(U::UnitaryParam2)
+#     (;gamma, alpha_u, alpha_t, phi) = U
+#     u = cis(alpha_u) * cos(gamma)
+#     t = cis(alpha_t) * sin(gamma)
+#     unitary_compose(UnitaryParam1(u, t, phi))
+# end
 
-function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam1}
-    (u, t, c, d) = elements(U)
-    if !iszero(u)
-        ua = abs2(u)
-        u_d = u * d # |u|^2 cis(phi)
-        cp = u_d / ua # |u|^2/|u|^2 cis(phi) == cis(phi)
-        phi = angle(cp) # angle(cis(phi)) == phi
-    else
-        phi = zero(u)
-    end
-    return T(u, t, phi)
-end
+# function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam1}
+#     (u, t, c, d) = elements(U)
+#     if !iszero(u)
+#         ua = abs2(u)
+#         u_d = u * d # |u|^2 cis(phi)
+#         cp = u_d / ua # |u|^2/|u|^2 cis(phi) == cis(phi)
+#         phi = angle(cp) # angle(cis(phi)) == phi
+#     else
+#         phi = zero(u)
+#     end
+#     return T(u, t, phi)
+# end
 
-function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam2}
-    (;u, t, phi) = unitary_decompose(U, UnitaryParam1)
-    (gamma, alpha_u, alpha_t) = _unitary_decompose_special(u, t)
-    return T(gamma, alpha_u, alpha_t, phi)
-end
+# function unitary_decompose(U::Matrix2x2, ::Type{T}) where {T<:UnitaryParam2}
+#     (;u, t, phi) = unitary_decompose(U, UnitaryParam1)
+#     (gamma, alpha_u, alpha_t) = _unitary_decompose_special(u, t)
+#     return T(gamma, alpha_u, alpha_t, phi)
+# end
 
-function _unitary_decompose_special(u, t)
-    uabs = abs(u)
-    tabs = abs(t)
-    if uabs > tabs
-        gamma = acos(uabs)
-    else
-        gamma = asin(tabs)
-    end
-    alpha_u = iszero(uabs) ? zero(uabs) : angle(u/uabs)
-    alpha_t = iszero(tabs) ? zero(tabs) : angle(t/tabs)
-    return (gamma, alpha_u, alpha_t)
-end
+# function _unitary_decompose_special(u, t)
+#     uabs = abs(u)
+#     tabs = abs(t)
+#     if uabs > tabs
+#         gamma = acos(uabs)
+#     else
+#         gamma = asin(tabs)
+#     end
+#     alpha_u = iszero(uabs) ? zero(uabs) : angle(u/uabs)
+#     alpha_t = iszero(tabs) ? zero(tabs) : angle(t/tabs)
+#     return (gamma, alpha_u, alpha_t)
+# end
 
 isSU2(m::AbstractMatrix2x2) = isone(det(m))
 

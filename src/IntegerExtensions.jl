@@ -39,8 +39,7 @@ Reexport.@reexport import .CyclotomicRings: CyclotomicRing, Domega, Zomega, smal
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagonal_unitary,
-    tracenorm, tracedistance, unitary_compose, unitary_decompose,
-    UnitaryParam1, UnitaryParam2,
+    tracenorm, tracedistance,
      isSU2, random_unitary2x2,
     SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
     get_theta, unitary_u, unitary_t,
