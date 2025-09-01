@@ -45,6 +45,7 @@
             r = RootOne{N}(i)
             @test isreal(r) == isreal(float(r))
             @test isinteger(r) == isinteger(float(r))
+            @test isunit(r)
         end
     end
 

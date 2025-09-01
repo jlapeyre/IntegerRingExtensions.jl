@@ -1,7 +1,7 @@
 module RootOnes
 
 import ..Utils: subscript, superscript
-import ..Common: sqrt_imaginary, imaginary
+import ..Common: sqrt_imaginary, imaginary, isunit
 import Base: convert, show
 import Random
 
@@ -233,6 +233,7 @@ end
 
 Base.:^(r::RootOne{N}, n::Integer) where {N} = RootOne{N}(r.k * mod(n, N))
 Base.inv(r::RootOne{N}) where {N} = RootOne{N}(N - r.k)
+isunit(r::RootOne) = true
 
 Base.literal_pow(::typeof(Base.:^), r::RootOne{N}, ::Val{n}) where {n, N} = RootOne{N}(r.k * mod(n, N))
 
