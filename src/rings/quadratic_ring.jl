@@ -317,11 +317,11 @@ Base.one(::Type{QuadraticRing{D, CoeffT}}) where {D, CoeffT} = QuadraticRing{D, 
 Base.one(q::QuadraticRing) = one(typeof(q))
 
 """
-    isunit(q::QuadraticRing)
+    isunit(q::QuadraticRing{<:Any, <:Integer})
 
 Return `true` if `norm_root_two(q)` is either `1` or `-1`.
 """
-function isunit(q::QuadraticRing)
+function isunit(q::QuadraticRing{<:Any, <:Integer})
     nq = norm_root_two(q)
     nq == one(q) || nq == -one(q)
 end
