@@ -44,6 +44,7 @@
         for i in 0:(N-1)
             r = RootOne{N}(i)
             @test isreal(r) == isreal(float(r))
+            @test isinteger(r) == isinteger(float(r))
         end
     end
 

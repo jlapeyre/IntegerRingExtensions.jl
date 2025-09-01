@@ -216,9 +216,11 @@ Base.imag(r::RootOne{N}) where {N} = imag(Int, r)
 Base.imag(::Type{T}, r::RootOne{N}) where {T, N} = sinpi(T(2 * r.k) / N)
 
 function Base.isreal(r::RootOne{N}) where {N}
-    r.k == 0 && return true
-    iszero(mod(r.k << 1, N))
+    r.k == 0 && return true  # r == 1
+    iszero(mod(r.k << 1, N))  # r == -1
 end
+
+Base.isinteger(r::RootOne) = isreal(r)
 
 Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
 Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)

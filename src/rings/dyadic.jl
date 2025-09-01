@@ -5,7 +5,7 @@ import Random
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
     PRETTY, lobit
 import ..Common: canonical, mul_half, mul_two, params, conj_root_two
-import ..Singletons: InvTwo, InvTwoT, TwoT, Pow, isinteger
+import ..Singletons: InvTwo, InvTwoT, TwoT, Pow
 import ILog2
 
 ########################
@@ -215,7 +215,7 @@ function Base.isone(df::Dyadic{aT, kT}) where {aT, kT}
     isone_strong(df.a) && iszero_strong(df.k)
 end
 
-function isinteger(df::Dyadic)
+function Base.isinteger(df::Dyadic)
     return df.k <= 0
 end
 
