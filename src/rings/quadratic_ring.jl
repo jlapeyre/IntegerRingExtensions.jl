@@ -335,7 +335,7 @@ Return `p`, of the same type as `q`, such that `p * q` equals `1`.
 
 If no such `p` exists, throw an error.
 """
-function Base.inv(q::QuadraticRing)
+function Base.inv(q::QuadraticRing{<:Any, <:Integer})
     nr = norm_root_two(q)
     isone(nr) && return typeof(q)(q.a, -q.b)
     isone(-nr) && return typeof(q)(-q.a, q.b)
