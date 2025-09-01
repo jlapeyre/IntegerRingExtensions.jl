@@ -4,7 +4,7 @@ import Base: zero, iszero, one, convert, promote_rule, show
 import Random
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
     PRETTY, lobit
-import ..Common: canonical, mul_half, mul_two, params, conj_root_two
+import ..Common: canonical, mul_half, mul_two, params, conj_root_two, isunit, invstrict
 import ..Singletons: InvTwo, InvTwoT, TwoT, Pow
 import ILog2
 
@@ -210,13 +210,22 @@ end
 
 one(::Dyadic{aT, kT}) where {aT, kT} = one(Dyadic{aT, kT})
 
-# Hmmm, assume it is reduced (canonical) for the moment
 function Base.isone(df::Dyadic{aT, kT}) where {aT, kT}
-    isone_strong(df.a) && iszero_strong(df.k)
+    df1 = canonical(df)
+    isone_strong(df1.a) && iszero_strong(df1.k)
 end
 
 function Base.isinteger(df::Dyadic)
     return df.k <= 0
+end
+
+function isunit(df::Dyadic)
+    return ispow2(df.a)
+end
+
+function invstrict(df::Dyadic)
+    isunit(df) || throw(ArgumentError(lazy"$df has no inverse of type $(typeof(df))"))
+    return typeof(df)(1, ILog2.ilog2(df.a) - df.k)
 end
 
 Base.abs(df::Dyadic) = Dyadic(abs(df.a), df.k)

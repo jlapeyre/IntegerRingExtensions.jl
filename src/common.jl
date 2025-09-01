@@ -149,13 +149,36 @@ isrational(x::AbstractIrrational) = false
    isunit(x::T)::Bool where {T}
 
 Return `true` if there exists a `y::T` such that `x * y == one(T)`.
+
+# Examples
+
+```jldoctest
+julia> isunit(1)
+true
+
+julia> isunit(-1)
+true
+
+julia> isunit(2)
+false
+
+julia> isunit(2.0)
+true
+```jldoctest
 """
 function isunit end
 
 isunit(r::Rational) = !iszero(r)
 isunit(x::AbstractFloat) = !iszero(x)
-isunit(c::Complex{T}) where {T<:AbstractFloat} = !iszero(c)
 isunit(n::Integer) = isone(n) || isone(-n)
+isunit(c::Complex{T}) where {T<:AbstractFloat} = !iszero(c)
+
+function isunit(z::Complex{<:Integer})
+    r = abs2(z)
+    return r == 1 || r == -1
+end
+
+isunit(z::Complex{<:Rational}) = !iszero(z)
 
 """
     invstrict(x::T)

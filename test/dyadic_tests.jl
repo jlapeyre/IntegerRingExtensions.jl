@@ -29,4 +29,18 @@
 
     @test isinteger(Dyadic(3, 0))
     @test !isinteger(Dyadic(3, 1))
+
+    @test !isunit(Dyadic(3//1))
+    @test !isunit(Dyadic(5, 3))
+
+    for d in (Dyadic(1, 0), Dyadic(2, 0), Dyadic(2, 1), Dyadic(2, 2),
+              Dyadic(32, 0), Dyadic(32, 1), Dyadic(32, 5))
+        @test isunit(d)
+        @test isone(invstrict(d) * d)
+    end
+
+    for d in (Dyadic(3//1), Dyadic(5, 3))
+        @test !isunit(d)
+        @test_throws ArgumentError invstrict(d)
+    end
 end
