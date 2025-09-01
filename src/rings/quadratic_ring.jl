@@ -342,6 +342,14 @@ function Base.inv(q::QuadraticRing{<:Any, <:Integer})
     throw(ArgumentError(lazy"Inexact error: $q has no inverse"))
 end
 
+function Base.inv(q::QuadraticRing{<:Any, <:Dyadic})
+    nr = norm_root_two(q)
+    @show nr
+    isone(nr) && return typeof(q)(q.a, -q.b)
+    isone(-nr) && return typeof(q)(-q.a, q.b)
+    throw(ArgumentError(lazy"Inexact error: $q has no inverse"))
+end
+
 function Base.big(q::QuadraticRing{D}) where D
     QuadraticRing{2}(big(q.a), big(q.b))
 end

@@ -27,4 +27,6 @@
     @test x === InvRootTwo * (RootTwo * x)
     @test x === RootTwo * (InvRootTwo * x)
 
+    @test isinteger(Dyadic(3, 0))
+    @test !isinteger(Dyadic(3, 1))
 end

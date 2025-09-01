@@ -5,7 +5,7 @@ import Random
 import ..Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
     PRETTY, lobit
 import ..Common: canonical, mul_half, mul_two, params, conj_root_two
-import ..Singletons: InvTwo, InvTwoT, TwoT, Pow
+import ..Singletons: InvTwo, InvTwoT, TwoT, Pow, isinteger
 import ILog2
 
 ########################
@@ -15,7 +15,7 @@ import ILog2
 ########################
 
 """
-    struct Dyadic{aT, kT}
+    struct Dyadic{aT<:Integer, kT<:Integer} <: Real
         a::aT
         k::kT
     end
@@ -213,6 +213,10 @@ one(::Dyadic{aT, kT}) where {aT, kT} = one(Dyadic{aT, kT})
 # Hmmm, assume it is reduced (canonical) for the moment
 function Base.isone(df::Dyadic{aT, kT}) where {aT, kT}
     isone_strong(df.a) && iszero_strong(df.k)
+end
+
+function isinteger(df::Dyadic)
+    return df.k <= 0
 end
 
 Base.abs(df::Dyadic) = Dyadic(abs(df.a), df.k)
