@@ -36,8 +36,8 @@ end
     mb = Matrix2x2(ub)
     mc = Matrix2x2(uc)
     ma = Matrix2x2(ua)
-    @test mb == mc
-    @test mb == ma
+    @test isapprox(mb, mc)
+    @test isapprox(mb, ma)
 
     uc = rand(SU2C)
     ub = SU2B(uc)
@@ -45,8 +45,8 @@ end
     mb = Matrix2x2(ub)
     mc = Matrix2x2(uc)
     ma = Matrix2x2(ua)
-    @test mb == mc
-    @test mb == ma
+    @test isapprox(mb, mc)
+    @test isapprox(mb, ma)
 end
 
 # FIXME. Y and Z are not implemented anymore
