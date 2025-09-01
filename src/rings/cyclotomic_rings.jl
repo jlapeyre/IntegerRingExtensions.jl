@@ -138,7 +138,7 @@ function Domega(c1, c2, c3, c4)
     cs0 = (c1, c2, c3, c4)
     cs1 = promote(cs0...)
     cs = map(Dyadic, cs1)
-    @show typeof(cs)
+#    @show typeof(cs)
     CyclotomicRing(cs)
 end
 
@@ -304,9 +304,7 @@ LinearAlgebra.norm(cyc::CyclotomicRing) = abs(cyc)
 Base.abs(cyc::CyclotomicRing) = sqrt(abs2(cyc))
 
 function Base.abs2(cyc::CyclotomicRing)
-    r = real(cyc)
-    i = imag(cyc)
-    canonical(r * r + i * i)
+    canonical(abs2(complex(cyc)))
 end
 
 """
