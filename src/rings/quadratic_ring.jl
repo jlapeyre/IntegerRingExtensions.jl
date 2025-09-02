@@ -219,17 +219,15 @@ julia> root_two(Zroot2{Int})
 """
 root_two(::Type{Zroot2{T}}) where T = Zroot2(zero(T), one(T))
 
-
 function show(io::IO, ::MIME"text/plain", qr::QuadraticRing{D}) where {D}
     if isone(qr.b)
         show(io, MIME"text/plain"(), qr.a)
-        print(io, "+ √", D)
+        print(io, " + √", D)
     else
         show(io, MIME"text/plain"(), qr.a)
         print(io, " + ")
         show(io, MIME"text/plain"(), qr.b)
         print(io, "√", D)
-#        print(io, qr.a, " + ", qr.b, "√", D)
     end
 end
 

@@ -410,6 +410,19 @@ function Base.isreal(cyc::Domega{<:Integer})
     iszero(c) && iszero(b + d)
 end
 
+Domega(zz::Complex{<:Droot2}) = CyclotomicRing{4}(zz)
+CyclotomicRing(zz::Complex{<:Droot2}) = CyclotomicRing{4}(zz)
+function CyclotomicRing{4}(zz::Complex{<:Droot2})
+    (r, i) = (real(zz), imag(zz))
+    (w, x) = (r.a, r.b)
+    (y, z) = (i.a, i.b)
+    a = w
+    c = y
+    b = canonical(x + z)
+    d = canonical(z - x)
+    return Domega((a,b,c,d))
+end
+
 function RootOne{8}(cyc::CyclotomicRing{4})
     cs = coeffs(cyc)
     if (count(x -> isone(abs2(x)), cs) == 1) &&

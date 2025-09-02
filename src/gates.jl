@@ -105,6 +105,11 @@ function Base.:*(::Gate1{:S}, m::Matrix2x2)
     Matrix2x2(a, Imag * b, c, Imag * d)
 end
 
+function Base.:*(::Gate1{:Sdg}, m::Matrix2x2)
+    (a,b,c,d) = m.data
+    Matrix2x2(a, -(Imag * b), c, -(Imag * d))
+end
+
 function Base.:*(::Gate1{:H}, m::Matrix2x2)
     (a,b,c,d) = m.data
     s = InvRootTwo

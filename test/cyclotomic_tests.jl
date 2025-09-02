@@ -53,6 +53,8 @@ end
     @test isa(abs2(zd), QuadraticRing)
     @test float(abs2(zd)) == abs2(float(zd))
 
+    zd2 = Domega{Int64}((Dyadic{Int64, Int64}(3, 3), Dyadic{Int64, Int64}(1, 3), Dyadic{Int64, Int64}(3, 2), Dyadic{Int64, Int64}(5, 5)))
+    @test Domega(complex(zd2)) === zd2
     # Lengths 5 and 7 are not supported well, and may not make sense as rings.
     # Might want to detect these and disallow
     # @test isa(CyclotomicRing{5, Dyadic{Int,Int}}((1,2,3//8,4,5)), CyclotomicRing{5, Dyadic{Int,Int}})
