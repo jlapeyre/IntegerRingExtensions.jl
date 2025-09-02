@@ -205,9 +205,9 @@ function Base.show(io::IO, ::PRETTY, cr::CyclotomicRing)
             show(io, PRETTY(), c[i])
         end
         if isone_strong(i-1)
-            print(io, " ω")
+            print(io, "ω")
         else
-            print(io, " ω", superscript(i-1))
+            print(io, "ω", superscript(i-1))
         end
     end
     if showcount == 0
@@ -420,6 +420,17 @@ function CyclotomicRing{4}(zz::Complex{<:Droot2})
     c = y
     b = canonical(x + z)
     d = canonical(z - x)
+    return Domega((a,b,c,d))
+end
+
+Domega(zz::Droot2) = CyclotomicRing{4}(zz)
+CyclotomicRing(zz::Droot2) = CyclotomicRing{4}(zz)
+function CyclotomicRing{4}(zz::Droot2)
+    (w, x) = (zz.a, zz.b)
+    a = w
+    c = zero(typeof(w))
+    b = canonical(x)
+    d = canonical(- x)
     return Domega((a,b,c,d))
 end
 
