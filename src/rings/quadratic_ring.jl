@@ -8,8 +8,9 @@ import ..Dyadics: Dyadic
 
 import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
 import ..RootOnes: RootOne
-export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
 import ..Utils: PRETTY
+
+export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
 
 ########################
 ####
@@ -144,7 +145,8 @@ julia> ZrootD{3}(2, 3)
 2 + 3√3
 ```
 """
-const ZrootD{D, T2} = QuadraticRing{D, T2} where {D, T2<:Integer}
+const ZrootD{T, V} = QuadraticRing{T, V} where {T, V<:Integer}
+#const ZrootD{D, T2} = QuadraticRing{D, T2} where {D, T2<:Integer}
 
 function ZrootD{D}(a, b=zero(a)) where D
     (a, b) = promote(a, b)
@@ -181,7 +183,9 @@ julia> Zroot2{Dyadic{Int, Int}}(1, 2)  # Enforces ℤ as base ring.
 ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{Dyadic{Int64, Int64}}
 ```
 """
-const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
+const Zroot2{T} = ZrootD{2, T}
+# Defining in terms of ZrootD may help printing alias type.
+#const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
 
 ##
 ## Constructors
@@ -447,8 +451,9 @@ julia> Droot2(4, 5)
 julia> repr(Droot2(4, 5))
 "QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(4, 0), Dyadic{Int64, Int64}(5, 0))"
 ```
-"""
-const Droot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
+    """
+const Droot2{T, V} = QuadraticRing{2, Dyadic{T, V}}
+#const Droot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
 
 function Droot2(a, b)
     a1 = Dyadic(a)

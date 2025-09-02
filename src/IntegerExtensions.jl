@@ -1,9 +1,9 @@
 module IntegerExtensions
 import Reexport
 
-export imaginary, sqrt_imaginary, Droot2
-export Domega
+export imaginary, sqrt_imaginary
 export Droot2
+export Domega
 export Zroot2
 export ZrootD
 
