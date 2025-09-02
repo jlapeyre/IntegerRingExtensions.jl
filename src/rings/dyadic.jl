@@ -239,9 +239,20 @@ function Base.ispow2(df::Dyadic)
 end
 
 function isunit(z::Complex{<:Dyadic})
+    ispow2(abs2(z))
+end
+
+function invstrict(z::Complex{<:Dyadic})
+    isunit(z) || throw(ArgumentError(lazy"$z has no inverse of type $(typeof(z))"))
+    r = abs2(z)
+    k = ILog2.ilog2(Integer(r))
     r = real(z)
     i = imag(z)
-    ispow2(r * r + i * i)
+    return typeof(z)(Dyadic(r.a, r.k + k), -Dyadic(i.a, i.k + k))
+end
+
+function canonical(z::Complex{<:Dyadic})
+    return typeof(z)(canonical(real(z)), canonical(imag(z)))
 end
 
 ## According to the Julia manual, we are doing this backward.

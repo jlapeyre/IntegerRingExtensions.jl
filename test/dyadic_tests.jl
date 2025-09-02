@@ -50,4 +50,8 @@
     @test !ispow2(Dyadic(4, 3))
     @test !ispow2(Dyadic(5, 0))
     @test !ispow2(Dyadic(5, 1))
+
+    d = Dyadic{Int64, Int64}(2, 0) + Dyadic{Int64, Int64}(0, 0)*im
+    @test isunit(d)
+    @test isone(invstrict(d) * d)
 end
