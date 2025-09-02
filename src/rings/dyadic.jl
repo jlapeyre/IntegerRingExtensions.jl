@@ -178,6 +178,7 @@ function show(io::IO, ::MIME"text/plain", x::Complex{<:Dyadic})
     show(io, PRETTY(), x.re)
     print(io, " + ")
     show(io, PRETTY(), x.im)
+    print(io, " * im")
 end
 
 """
@@ -231,6 +232,17 @@ end
 Base.abs(df::Dyadic) = Dyadic(abs(df.a), df.k)
 Base.abs2(df::Dyadic) = df * df
 Base.sign(df::Dyadic) = sign(df.a)
+
+function Base.ispow2(df::Dyadic)
+    dfc = canonical(df)
+    iszero(dfc.k) && ispow2(dfc.a)
+end
+
+function isunit(z::Complex{<:Dyadic})
+    r = real(z)
+    i = imag(z)
+    ispow2(r * r + i * i)
+end
 
 ## According to the Julia manual, we are doing this backward.
 ## We should define the constructors. And then the convert methods when
@@ -391,10 +403,11 @@ function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerTrivial{<:DyadicS
     Dyadic(rand(rng, s[].asamp), rand(rng, s[].ksamp))
 end
 
-# This is really backward.
+# Julia docs recommend:
 # We should define the constructor functions.
 # Then, when neccessary, define the convert functions.
-for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
+# But it's easier to write the methods like this:
+for Ti in (:Integer, :Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
     @eval function (::Type{Base.$Ti})(df::Dyadic)
         convert($Ti, df)
     end

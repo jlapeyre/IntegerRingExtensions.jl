@@ -43,4 +43,11 @@
         @test !isunit(d)
         @test_throws ArgumentError invstrict(d)
     end
+
+    @test ispow2(Dyadic(4, 0))
+    @test ispow2(Dyadic(4, 1))
+    @test ispow2(Dyadic(4, 2))
+    @test !ispow2(Dyadic(4, 3))
+    @test !ispow2(Dyadic(5, 0))
+    @test !ispow2(Dyadic(5, 1))
 end
