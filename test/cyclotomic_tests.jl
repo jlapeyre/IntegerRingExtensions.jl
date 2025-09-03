@@ -1,11 +1,11 @@
 import IntegerExtensions.CyclotomicRings: mul_root_two
 
 @testset "cyclotomic" begin
-    d = Domega(1,2,3,4)
+    d = DOmega(1,2,3,4)
     z = ZOmega(1,2,3,4)
     for i in 0:7
         r = RootOne{8}(i)
-        romega = Domega{Int}(r)
+        romega = DOmega{Int}(r)
         @test r * d == romega * d
         @test r * z == romega * z
     end
@@ -15,17 +15,17 @@ import IntegerExtensions.CyclotomicRings: mul_root_two
 end
 
 @testset "cyclotomic conversion" begin
-    d = Domega(1,2,3,4)
-    @test isa(d, Domega)
+    d = DOmega(1,2,3,4)
+    @test isa(d, DOmega)
     @test !isa(d, ZOmega)
 
     z = ZOmega(d)
     @test isa(z, ZOmega)
-    @test !isa(z, Domega)
+    @test !isa(z, DOmega)
 
-    dd = Domega(z)
+    dd = DOmega(z)
     @test !isa(dd, ZOmega)
-    @test isa(dd, Domega)
+    @test isa(dd, DOmega)
 
     @test real(z) isa QuadraticRing
     @test imag(z) isa QuadraticRing
@@ -41,7 +41,7 @@ end
     # This depends on precision(BigFloat). So it's fragile
     @test bigdiff < 1e-50
 
-    zd = Domega{Int64}((Dyadic{Int64, Int64}(3, 3), Dyadic{Int64, Int64}(1, 3), Dyadic{Int64, Int64}(3, 2), Dyadic{Int64, Int64}(0, 0)))
+    zd = DOmega{Int64}((Dyadic{Int64, Int64}(3, 3), Dyadic{Int64, Int64}(1, 3), Dyadic{Int64, Int64}(3, 2), Dyadic{Int64, Int64}(0, 0)))
     zr = real(zd)
     zi = imag(zd)
     zr1 = QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(3, 3), Dyadic{Int64, Int64}(1, 4))
@@ -53,8 +53,8 @@ end
     @test isa(abs2(zd), QuadraticRing)
     @test float(abs2(zd)) == abs2(float(zd))
 
-    zd2 = Domega{Int64}((Dyadic{Int64, Int64}(3, 3), Dyadic{Int64, Int64}(1, 3), Dyadic{Int64, Int64}(3, 2), Dyadic{Int64, Int64}(5, 5)))
-    @test Domega(complex(zd2)) === zd2
+    zd2 = DOmega{Int64}((Dyadic{Int64, Int64}(3, 3), Dyadic{Int64, Int64}(1, 3), Dyadic{Int64, Int64}(3, 2), Dyadic{Int64, Int64}(5, 5)))
+    @test DOmega(complex(zd2)) === zd2
     # Lengths 5 and 7 are not supported well, and may not make sense as rings.
     # Might want to detect these and disallow
     # @test isa(CyclotomicRing{5, Dyadic{Int,Int}}((1,2,3//8,4,5)), CyclotomicRing{5, Dyadic{Int,Int}})
@@ -77,28 +77,28 @@ end
 end
 
 @testset "cyclotomic storage" begin
-    z = Domega(1,2,3,Dyadic(5,2))
+    z = DOmega(1,2,3,Dyadic(5,2))
     @test isbits(z)
-    @test isa(z, Domega{Int})
+    @test isa(z, DOmega{Int})
     zb = CyclotomicRing{4}(1,2,3,Dyadic(big(5),2))
     @test !isbits(zb)
-    @test isa(zb, Domega{BigInt})
+    @test isa(zb, DOmega{BigInt})
 
-    z2 = Domega(Int128(1),2,3,Dyadic(5,2))
+    z2 = DOmega(Int128(1),2,3,Dyadic(5,2))
     @test isbits(z2)
     @test isa(z2, CyclotomicRing{4, Dyadic{Int128,Int}})
 end
 
 @testset "CyclotomicRing construction" begin
     @test ZOmega(3) isa ZOmega{Int}
-    @test Domega(10) isa Domega{Int}
-    @test Domega{Int32}(10) isa Domega{Int32}
+    @test DOmega(10) isa DOmega{Int}
+    @test DOmega{Int32}(10) isa DOmega{Int32}
     # These test both construction and conversion
     @test Int(ZOmega(3)) === 3
-    @test Int(Domega(3)) === 3
+    @test Int(DOmega(3)) === 3
 
-    @test typeof(Domega(3//8)) == Domega{Int}
+    @test typeof(DOmega(3//8)) == DOmega{Int}
 
-    @test_throws MethodError Domega(1,2,3)
+    @test_throws MethodError DOmega(1,2,3)
     @test_throws MethodError ZOmega(1,2,3)
 end

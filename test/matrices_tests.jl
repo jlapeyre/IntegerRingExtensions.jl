@@ -54,7 +54,7 @@ end
 #     T = Int
 #     (x, y, z) = map(Gate1{gatename}(Matrix2x2{T})(), (:X, :Y, :Z))
 #     (Xgate(T), Ygate(T), Zgate(T))
-#     T = Domega{Int}
+#     T = DOmega{Int}
 #     (xd, yd, zd) = (Xgate(T), Ygate(T), Zgate(T))
 #     @test x * y == im * z
 #     @test y * x == -im * z

@@ -6,7 +6,7 @@
 
     # Use ordinary Int64 as the base type.
     m = compose(str)
-    m_float = big(m) # Convert from Domega{Int} to BigFloat
+    m_float = big(m) # Convert from DOmega{Int} to BigFloat
     theta = get_theta(m_float) # Extract theta. There will be a global phase
     theta_diff = abs(theta - big(pi) / 16) # Expected theta is pi/16
     @test det(m) == Omega(2)

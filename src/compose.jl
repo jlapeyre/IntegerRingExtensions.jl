@@ -4,7 +4,7 @@ using ..Matrices2x2: Matrix2x2, GPID
 import ..Matrices2x2: get_theta
 import ..Gates: Gate1, RZ, random_RZ
 using ..Common: canonical
-using ..CyclotomicRings: Domega
+using ..CyclotomicRings: DOmega
 using ..Utils: PRETTY
 using ..Angles: random_angle
 
@@ -23,7 +23,7 @@ This function is not type-stable. If the length of `gates` is less than or equal
 # Examples
 ```jldoctest
 julia> compose("TSHTHTHTHT")
-2×2 Matrix2x2{Domega{Int}}:
+2×2 Matrix2x2{DOmega{Int}}:
 1/2² ω³ + -1/2² ω² + 3/2² ω + 1/2² ω⁰   -1/2² ω³ + 1/2² ω² + 1/2² ω + 1/2² ω⁰
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
@@ -32,7 +32,7 @@ function compose(gates::AbstractString; chunklen=300)
     gates = reverse(gates)
     length(codeunits(gates)) <= chunklen && return compose_one(gates, false)
     chunks = reverse(chunkstring(gates, chunklen))
-    mats = [map(Domega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
+    mats = [map(DOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
     canonical(prod(mats))
 end
 
@@ -80,7 +80,7 @@ of longer compositions with smaller data types.
 """
 function compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=true)
     gates = rev ? reverse(gates) : gates
-    result = one(Matrix2x2{Domega{Int}})
+    result = one(Matrix2x2{DOmega{Int}})
     reduce_func = reduce_fractions ? canonical : identity
     for gate in codeunits(gates)
         new_result = _apply_gate(Symbol(Char(gate)), result)
@@ -93,7 +93,7 @@ end
 # Not used at the moment
 # # `map_func` allows supplying gates that are not "built in"
 # function compose_one(gates::AbstractString, map_func; reduce_fractions=true)
-#     result = one(Matrix2x2{Domega{Int}})
+#     result = one(Matrix2x2{DOmega{Int}})
 #     reduce_func = reduce_fractions ? canonical : identity
 #     for gate in codeunits(gates)
 #         sgate = Symbol(Char(gate))
@@ -148,7 +148,7 @@ function get_theta(m::Matrix2x2)
 #    angle(sqrt(zsq)) * 2
 end
 
-get_theta(m::Matrix2x2{<:Domega}) = get_theta(big(m))
+get_theta(m::Matrix2x2{<:DOmega}) = get_theta(big(m))
 
 """
     get_global_phase(m::Matrix2x2)
@@ -161,7 +161,7 @@ It's not possible to distinguish global phases that differ by addition of π. Th
 2α is extracted, and 2(α + π) will give the same argument of the phase factor.
 """
 get_global_phase(m::Matrix2x2) = angle(m[4] * m[1]) / 2
-get_global_phase(m::Matrix2x2{<:Domega}) = get_global_phase(big(m))
+get_global_phase(m::Matrix2x2{<:DOmega}) = get_global_phase(big(m))
 
 """
     correct_global_phase(m::Matrix2x2)
@@ -238,7 +238,7 @@ end
 # using ..Dyadics: Dyadic
 # function TSH()
 #     T = Dyadic{Int64, Int64}
-#     DT = Domega{Int64}
+#     DT = DOmega{Int64}
 #     ab = DT((T(0, 0), T(1, 1), T(0, 0), T(-1, 1)))
 #     c = DT((T(-1, 1), T(0, 0), T(1, 1), T(0, 0)))
 #     d = DT((T(1, 1), T(0, 0), T(-1, 1), T(0, 0)))

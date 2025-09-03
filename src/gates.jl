@@ -19,13 +19,13 @@ huge performance hit.
 julia> map(name -> Gate1(name), (:H, :S, :T, :X, :W))
 (Gate1(:H), Gate1(:S), Gate1(:T), Gate1(:X), Gate1(:W))
 
-julia> Gate1(:H) * one(Matrix2x2{Domega{Int}})
-2×2 Matrix2x2{Domega{Int64}}:
+julia> Gate1(:H) * one(Matrix2x2{DOmega{Int}})
+2×2 Matrix2x2{DOmega{Int64}}:
 1/2 ω + -1/2 ω³  1/2 ω + -1/2 ω³
 1/2 ω + -1/2 ω³  -1/2 ω + 1/2 ω³
 
-julia> Matrix2x2{Domega{Int}}(Gate1(:H))
-2×2 Matrix2x2{Domega{Int64}}:
+julia> Matrix2x2{DOmega{Int}}(Gate1(:H))
+2×2 Matrix2x2{DOmega{Int64}}:
 1/2 ω + -1/2 ω³  1/2 ω + -1/2 ω³
 1/2 ω + -1/2 ω³  -1/2 ω + 1/2 ω³
 
@@ -34,8 +34,8 @@ julia> Matrix2x2{Float64}(Gate1(:H))
 0.707107   0.707107
 0.707107  -0.707107
 
-julia> Matrix2x2{Domega{Int}}(Gate1(:T))
-2×2 Matrix2x2{Domega{Int64}}:
+julia> Matrix2x2{DOmega{Int}}(Gate1(:T))
+2×2 Matrix2x2{DOmega{Int64}}:
  ω⁰   0
  0    ω
 ```

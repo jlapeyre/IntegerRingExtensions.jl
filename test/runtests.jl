@@ -42,20 +42,20 @@ include("quadratic_ring_tests.jl")
 end
 
 
-@testset "Domega" begin
+@testset "DOmega" begin
     cr = CyclotomicRing(1,2,3,4)
     @test typeof(cr) === CyclotomicRing{4, Int64}
-    cromega = Domega{Int}((1,2,3,4))
-    @test cromega === Domega{Int}(1,2,3,4)
-    @test typeof(cromega) === Domega{Int}
-    @test cromega === Domega{Int}(cr)
-    z = Domega{Int}(1,2,3,Dyadic(1,1))
-    @test typeof(z) === Domega{Int}
-    @test typeof(Domega(1,2,3,4)) === Domega{Int}
+    cromega = DOmega{Int}((1,2,3,4))
+    @test cromega === DOmega{Int}(1,2,3,4)
+    @test typeof(cromega) === DOmega{Int}
+    @test cromega === DOmega{Int}(cr)
+    z = DOmega{Int}(1,2,3,Dyadic(1,1))
+    @test typeof(z) === DOmega{Int}
+    @test typeof(DOmega(1,2,3,4)) === DOmega{Int}
 
     @test cromega == cromega
-#    @test Domega{Int}(0,0,0,1) == one(cromega)
-    @test Domega{Int}(1,0,0,0) == one(cromega)
+#    @test DOmega{Int}(0,0,0,1) == one(cromega)
+    @test DOmega{Int}(1,0,0,0) == one(cromega)
     @test isone(one(cr))
     @test isone(one(cromega))
 
