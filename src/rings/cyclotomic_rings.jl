@@ -16,7 +16,7 @@ import ..Singletons: InvTwo, InvTwoT,
     RootImag, RootImagT,
     Pow
 
-export CyclotomicRing, Zomega, Domega
+export CyclotomicRing, ZOmega, Domega
 
 ########################
 ####
@@ -40,7 +40,7 @@ Aliases for particular rings are:
 
 The ring of cyclotomic integers `ℤ[ω]`:
 ```julia
-const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
+const ZOmega{T} = CyclotomicRing{4, T} where {T <: Integer}
 ```
 
 The ring `𝔻[ω] = ℤ[1/√2, i]`:
@@ -64,7 +64,7 @@ struct CyclotomicRing{M, CoeffT <: Number}
 end
 
 ###
-### Aliases for special cases: Domega, Zomega
+### Aliases for special cases: Domega, ZOmega
 ###
 
 """
@@ -85,18 +85,18 @@ Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 const Domega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 
 """
-    Zomega{T <: Integer}
+    ZOmega{T <: Integer}
 
 Represents the ring `ℤ[ω]`.
 
 The type `T<:Integer` is the type of coefficients of powers of ω.
 
-`Zomega{T}` is defined as the alias
+`ZOmega{T}` is defined as the alias
 ```julia
-Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
+ZOmega{T} = CyclotomicRing{4, T} where {T <: Integer}
 ```
 """
-const Zomega{T} = CyclotomicRing{4, T} where {T <: Integer}
+const ZOmega{T} = CyclotomicRing{4, T} where {T <: Integer}
 
 ###
 ### Constructors
@@ -151,14 +151,14 @@ end
 
 Domega{T}(a, b, c, d) where {T <: Integer} = _mkomega(Dyadic{T,Int}, a,b,c,d)
 
-Zomega(a::T, b::T, c::T, d::T) where {T <: Integer} = Zomega{Int}(a, b, c, d)
-Zomega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
+ZOmega(a::T, b::T, c::T, d::T) where {T <: Integer} = ZOmega{Int}(a, b, c, d)
+ZOmega{T}(a, b, c, d) where {T <: Integer} = _mkomega(T, a,b,c,d)
 
-Zomega(a::Number) = Zomega{Int}(a)
+ZOmega(a::Number) = ZOmega{Int}(a)
 
-function Zomega(c::CyclotomicRing{4, CT}) where {CT}
+function ZOmega(c::CyclotomicRing{4, CT}) where {CT}
     coeffs = map(x -> convert(Integer, x), c.coeffs)
-    Zomega{typeof(first(coeffs))}(coeffs)
+    ZOmega{typeof(first(coeffs))}(coeffs)
 end
 
 function Domega(c::CyclotomicRing{4, CT}) where {CT}
@@ -283,9 +283,9 @@ function Base.conj(cyc::Domega{T}) where T
 end
 
 Base.one(::Type{Domega}) = one(Domega{Int})
-Base.one(::Type{Zomega}) = one(Zomega{Int})
+Base.one(::Type{ZOmega}) = one(ZOmega{Int})
 Base.zero(::Type{Domega}) = zero(Domega{Int})
-Base.zero(::Type{Zomega}) = zero(Zomega{Int})
+Base.zero(::Type{ZOmega}) = zero(ZOmega{Int})
 
 """
     conj(cyc::CyclotomicRing{4})
@@ -310,7 +310,7 @@ end
 """
     conj_root_two(cyc::CyclotomicRing{4})
     conj_root_two(cyc::Domega)
-    conj_root_two(cyc::Zomega)
+    conj_root_two(cyc::ZOmega)
 
 Maps `a + b√2` to `a - b√2` in all coefficients in `cyc`.
 
@@ -385,7 +385,7 @@ function root_two(::Type{CyclotomicRing{4, Dyadic{T, Int}}}) where {T}
     CyclotomicRing(z, o, z, -o)
 end
 
-function Base.real(cyc::Zomega{<:Integer})
+function Base.real(cyc::ZOmega{<:Integer})
     (a, b , c, d) = coeffs(cyc)
     Droot2(Dyadic(a, 0), Dyadic(b-d, 1))
 end
@@ -395,7 +395,7 @@ function Base.real(cyc::Domega{<:Integer})
     Droot2(a, mul_half(b - d))
 end
 
-function Base.imag(cyc::Zomega{T}) where T
+function Base.imag(cyc::ZOmega{T}) where T
     (a, b , c, d) = coeffs(cyc)
     Droot2(Dyadic(c, 0), Dyadic(b+d, 1))
 end
@@ -747,7 +747,7 @@ function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
     CyclotomicRing{4, T}(coeffs)
 end
 
-Zomega(r::RootOne{8}) = CyclotomicRing{4}(r)
+ZOmega(r::RootOne{8}) = CyclotomicRing{4}(r)
 Domega(r::RootOne{8}) = Domega{Int}(r)
 
 function CyclotomicRing{4}(r::RootOne{8})

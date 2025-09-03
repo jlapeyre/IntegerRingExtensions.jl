@@ -2,7 +2,7 @@ import IntegerExtensions.CyclotomicRings: mul_root_two
 
 @testset "cyclotomic" begin
     d = Domega(1,2,3,4)
-    z = Zomega(1,2,3,4)
+    z = ZOmega(1,2,3,4)
     for i in 0:7
         r = RootOne{8}(i)
         romega = Domega{Int}(r)
@@ -17,22 +17,22 @@ end
 @testset "cyclotomic conversion" begin
     d = Domega(1,2,3,4)
     @test isa(d, Domega)
-    @test !isa(d, Zomega)
+    @test !isa(d, ZOmega)
 
-    z = Zomega(d)
-    @test isa(z, Zomega)
+    z = ZOmega(d)
+    @test isa(z, ZOmega)
     @test !isa(z, Domega)
 
     dd = Domega(z)
-    @test !isa(dd, Zomega)
+    @test !isa(dd, ZOmega)
     @test isa(dd, Domega)
 
     @test real(z) isa QuadraticRing
     @test imag(z) isa QuadraticRing
     @test isapprox(float(z), float(real(z)) + im * float(imag(z)))
 
-    z = Zomega(1,2,3,4)
-    zbig = Zomega{BigInt}(z)
+    z = ZOmega(1,2,3,4)
+    zbig = ZOmega{BigInt}(z)
     zbigc = Complex(real(zbig) , imag(zbig))
 
     bigdiff = abs(big(zbig) - big(zbigc))
@@ -90,15 +90,15 @@ end
 end
 
 @testset "CyclotomicRing construction" begin
-    @test Zomega(3) isa Zomega{Int}
+    @test ZOmega(3) isa ZOmega{Int}
     @test Domega(10) isa Domega{Int}
     @test Domega{Int32}(10) isa Domega{Int32}
     # These test both construction and conversion
-    @test Int(Zomega(3)) === 3
+    @test Int(ZOmega(3)) === 3
     @test Int(Domega(3)) === 3
 
     @test typeof(Domega(3//8)) == Domega{Int}
 
     @test_throws MethodError Domega(1,2,3)
-    @test_throws MethodError Zomega(1,2,3)
+    @test_throws MethodError ZOmega(1,2,3)
 end
