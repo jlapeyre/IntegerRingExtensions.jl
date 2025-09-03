@@ -210,9 +210,10 @@ Base.big(r::RootOne) = Complex{BigFloat}(r)
 
 # Base.Complex(r::RootOne) = Complex{Float64}(r)
 
-# Method for `Base.complex` defined in quadratic_ring.jl.
 Base.Complex(r::RootOne) = complex(r)
 Base.Complex{T}(r::RootOne{N}) where {T, N} = cispi((T(2) * T(r.k)) / T(N))
+
+# Method for `Base.complex(r::RootOne{8})` defined in quadratic_ring.jl.
 Base.complex(r::RootOne) = Complex{Float64}(r)
 
 Base.angle(r::RootOne) = angle(Float64, r)
