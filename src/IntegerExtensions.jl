@@ -25,7 +25,7 @@ Reexport.@reexport import .Angles: Dar, radtodar, scalepi, unscalepi, minus_one_
     random_angle
 
 include("rings/root_one.jl")
-Reexport.@reexport import .RootOnes: RootOne, Omega
+Reexport.@reexport import .RootOnes: RootOne, Omega, omega
 
 include("rings/dyadic.jl")
 Reexport.@reexport import .Dyadics: Dyadic

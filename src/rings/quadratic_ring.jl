@@ -103,7 +103,7 @@ end
 
 # Avoid temptation to do D = an integer, QuadraticRing2{D, CoeffT}.
 # That kills performance
-const QuadraticRing2{CoeffT} = QuadraticRing{2}
+const QuadraticRing2{CoeffT} = QuadraticRing{2} where CoeffT
 
 """
     coeffs(q::QuadraticRing)
@@ -184,8 +184,14 @@ ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{Dyadic{I
 ```
 """
 const Zroot2{T} = ZrootD{2, T}
-# Defining in terms of ZrootD may help printing alias type.
+# Defining in terms of ZrootD may help printing alias type. (Nope)
 #const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
+
+# This has the effect of printing Zroot2 as we want.
+# But it no longer prints: (alias for ...)
+function Base.show(io::IO, ::Type{Zroot2{T}}) where {T <: Integer}
+    print(io, "Zroot2{$T}")
+end
 
 ##
 ## Constructors

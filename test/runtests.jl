@@ -1,10 +1,10 @@
 using IntegerExtensions
 using Test
 
+include("cyclotomic_tests.jl")
 include("dyadic_tests.jl")
 include("common_tests.jl")
 include("matrices_tests.jl")
-include("cyclotomic_tests.jl")
 include("composition_tests.jl")
 include("zrot_tests.jl")
 include("ringmatrices_tests.jl")
