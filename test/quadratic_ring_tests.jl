@@ -17,6 +17,10 @@
         end
     end
     @test cnt == 0
+
+    res = QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(1, 0), Dyadic{Int64, Int64}(1, 1)) - QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(0, 0), Dyadic{Int64, Int64}(1, 1))*im
+
+    @test 1 - complex(omega^3) === res
 end
 
 @testset "Quadratic Construction" begin
