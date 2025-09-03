@@ -307,6 +307,21 @@ function Base.abs2(cyc::CyclotomicRing)
     canonical(abs2(complex(cyc)))
 end
 
+    # def norm(self):
+    #     return (self._a**2 + self._b**2 + self._c**2 + self._d**2) ** 2 - 2 * (
+    #         self._a * self._b
+    #         + self._b * self._c
+    #         + self._c * self._d
+    #         - self._d * self._a
+    #     ) ** 2
+
+function rnorm(cyc::CyclotomicRing{4})
+    (a, b, c, d) = cyc.coeffs
+    x = a^2 + b^2 + c^2 + d^2
+    y = a * b + b * c + c * d - a * d
+    x*x - 2 * y * y
+end
+
 """
     conj_root_two(cyc::CyclotomicRing{4})
     conj_root_two(cyc::DOmega)
@@ -330,7 +345,6 @@ The value of type `DOmega{T}` that represents the imaginary unit.
 function imaginary(::Type{CyclotomicRing{4, T}}) where {T}
     z = zero(T)
     o = one(T)
-#    CyclotomicRing(z, o, z, z)
     CyclotomicRing(z, z, o, z)
 end
 

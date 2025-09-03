@@ -130,7 +130,8 @@ coeffs(q::QuadraticRing) = (q.a, q.b)
 """
     ZrootD{D, CoeffT} where {D, CoeffT<:Integer}
 
-Represents the ring `ℤ[√D]`, provided `D` is a valid integer (See `QuadraticRing`).
+Represents the ring `ℤ[√D]` of quadratic integers of radix `D`,
+provided `D` is a valid integer (See `QuadraticRing`).
 
 `ZrootD` is an alias defined by
 ```julia
@@ -156,7 +157,7 @@ end
 """
     Zroot2{CoeffT} where {CoeffT<:Integer}
 
-Represents the ring `ℤ[√2]`
+Represents the ring `ℤ[√2]` of quadratic integers of radix `2`.
 
 `Zroot2` is an alias defined by
 ```
@@ -403,8 +404,9 @@ end
 
 Base.:+(n::Integer, q::QuadraticRing) = q + n
 
-Base.:-(q::QuadraticRing, n::Integer) = typeof(q)(q.a - typeof(q.a)(n), q.b)
-Base.:-(n::Integer, q::QuadraticRing) = q + n
+Base.:-(q::QuadraticRing, n::Integer) = typeof(q)(q.a - typeof(q.a)(n), -q.b)
+Base.:-(n::Integer, q::QuadraticRing) = typeof(q)(typeof(q.a)(n) - q.a, -q.b)
+#Base.:-(n::Integer, q::QuadraticRing) = typeof(q)(typeof(q.a)(n) - q.a, q.b)
 
 Base.:*(q::QuadraticRing{D}, n::Integer) where {D} = QuadraticRing{D}(n * q.a, n * q.b)
 Base.:*(n::Integer, q::QuadraticRing{D}) where {D} = q * n
@@ -519,27 +521,49 @@ function mul_half(q::QuadraticRing{D, <:Dyadic}, n::Integer=1) where {D}
     typeof(q)(new_coeffs...)
 end
 
-function Base.complex(r::RootOne{8})
+Base.complex(r::RootOne{8}) = Complex(real(r), imag(r))
+
+function Base.imag(r::RootOne{8})
     k = r.k
     return if k == 0
-        Complex(Droot2(1, 0), Droot2(0, 0))
+        Droot2(0, 0)
     elseif k == 1
-        Complex(Droot2(0, Dyadic(1, 1)), Droot2(0, Dyadic(1, 1)))
+        Droot2(0, Dyadic(1, 1))
     elseif k == 2
-        Complex(Droot2(0, 0), Droot2(1, Dyadic(0, 0)))
+        Droot2(1, Dyadic(0, 0))
     elseif k == 3
-        Complex(Droot2(0, Dyadic(-1, 1)), Droot2(0, Dyadic(1, 1)))
+        Droot2(0, Dyadic(1, 1))
     elseif k == 4
-        Complex(Droot2(-1, 0), Droot2(0, 0))
+        Droot2(0, 0)
     elseif k == 5
-        Complex(Droot2(0, Dyadic(-1, 1)), Droot2(0, Dyadic(-1, 1)))
+        Droot2(0, Dyadic(-1, 1))
     elseif k == 6
-        Complex(Droot2(0, 0), Droot2(-1, Dyadic(0, 0)))
+        Droot2(-1, Dyadic(0, 0))
     elseif k == 7
-        Complex(Droot2(0, Dyadic(1, 1)), Droot2(0, Dyadic(-1, 1)))
+        Droot2(0, Dyadic(-1, 1))
     end
 end
 
+function Base.real(r::RootOne{8})
+    k = r.k
+    return if k == 0
+        Droot2(1, 0)
+    elseif k == 1
+        Droot2(0, Dyadic(1, 1))
+    elseif k == 2
+        Droot2(0, 0)
+    elseif k == 3
+        Droot2(0, Dyadic(-1, 1))
+    elseif k == 4
+        Droot2(-1, 0)
+    elseif k == 5
+        Droot2(0, Dyadic(-1, 1))
+    elseif k == 6
+        Droot2(0, 0)
+    elseif k == 7
+        Droot2(0, Dyadic(1, 1))
+    end
+end
 
 for Ti in (:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128)
     @eval function (::Type{Base.$Ti})(q::QuadraticRing)

@@ -227,9 +227,9 @@ Base.conj(r::RootOne) = inv(r)
 Base.abs2(r::RootOne) = 1
 Base.abs(r::RootOne) = 1
 
-Base.real(r::RootOne{N}) where {N} = real(Int, r)
+#Base.real(r::RootOne{N}) where {N} = real(Int, r)
 Base.real(::Type{T}, r::RootOne{N}) where {T, N} = cospi(T(2 * r.k) / N)
-Base.imag(r::RootOne{N}) where {N} = imag(Int, r)
+#Base.imag(r::RootOne{N}) where {N} = imag(Int, r)
 Base.imag(::Type{T}, r::RootOne{N}) where {T, N} = sinpi(T(2 * r.k) / N)
 
 function Base.isreal(r::RootOne{N}) where {N}
