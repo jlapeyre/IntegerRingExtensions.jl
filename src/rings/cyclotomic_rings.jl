@@ -764,27 +764,27 @@ end
 ZOmega(r::RootOne{8}) = CyclotomicRing{4}(r)
 DOmega(r::RootOne{8}) = DOmega{Int}(r)
 
-function CyclotomicRing{4}(r::RootOne{8})
-    k = r.k
-    coeffs = if k == 0
-        (1, 0, 0, 0)
-    elseif k == 1
-        (0, 1, 0, 0)
-    elseif k == 2
-        (0, 0, 1, 0)
-    elseif k == 3
-        (0, 0, 0, 1)
-    elseif k == 4
-        (-1, 0, 0, 0)
-    elseif k == 5
-        (0, -1, 0, 0)
-    elseif k == 6
-        (0, 0, -1, 0)
-    elseif k == 7
-        (0, 0, 0, -1)
-    end
-    CyclotomicRing{4}(coeffs...)
-end
+# function CyclotomicRing{4}(r::RootOne{8})
+#     k = r.k
+#     coeffs = if k == 0
+#         (1, 0, 0, 0)
+#     elseif k == 1
+#         (0, 1, 0, 0)
+#     elseif k == 2
+#         (0, 0, 1, 0)
+#     elseif k == 3
+#         (0, 0, 0, 1)
+#     elseif k == 4
+#         (-1, 0, 0, 0)
+#     elseif k == 5
+#         (0, -1, 0, 0)
+#     elseif k == 6
+#         (0, 0, -1, 0)
+#     elseif k == 7
+#         (0, 0, 0, -1)
+#     end
+#     CyclotomicRing{4}(coeffs...)
+# end
 
 # With respect to base sqrt(2)
 function smallest_denominator_exponent(cyc::CyclotomicRing{<:Any, <:Dyadic})

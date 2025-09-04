@@ -6,7 +6,7 @@ import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, n
 import LinearAlgebra
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
-import ..Angles: radtodar, Dar, scalepi, unscalepi, intdiv
+import ..Angles: radtodar, Dar, Ang, scalepi, unscalepi, intdiv
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
 abstract type AbstractMatrix2x2{T} <: AbstractMatrix{T} end
@@ -356,7 +356,7 @@ function svdvals(m::Matrix2x2)
     end
     (v1, v2) = eigvals(ma)
     (s1, s2) = (sqrt(real(v1)), sqrt(real(v2)))
-    s1 > s2 ? (s1,s2) : (s2, s1)
+    s1 > s2 ? (s1, s2) : (s2, s1)
 end
 
 function opnorm(m::AbstractMatrix2x2)
@@ -556,6 +556,7 @@ function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     Matrix2x2(pu * uabs, pt * tabs, -pta * tabs,  pua * uabs)
 end
 
+
 @inline function Matrix2x2(U::AbstractSU2)
     Matrix2x2(SU2(unitary_u(U), unitary_t(U)))
 end
@@ -696,10 +697,8 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2B})
 end
 
 function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{Complex{T}}}) where {T}
-    uabs2 = rand(T) # cos^2(gamma)
-    alpha_u = T(2) * rand(T)
-    alpha_t = T(2) * rand(T)
-    SU2B(uabs2, Dar(alpha_u), Dar(alpha_t))
+    uabs2 = rand(rng, T) # cos^2(gamma)
+    SU2B(uabs2, rand(rng, Ang), rand(rng, Ang))
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2C})
@@ -763,6 +762,26 @@ struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
 
     su2::SUT
     phi::V
+end
+
+alt_random_unitary2x2() = alt_random_unitary2x2(Float64)
+function alt_random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
+    su2 = rand(SU2B)
+    gamma = T(2) * rand(T)
+    Unitary2x2(su2, Dar(gamma))
+end
+
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T}}) where T
+    Unitary2x2(rand(rng, SU2B{Complex{T}}), rand(rng, Ang))
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2})
+    Unitary2x2(rand(rng, SU2B), rand(rng, Ang))
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T, SUT, V}}) where {V, SUT <: AbstractSU2{T}} where {T}
+    Unitary2x2(rand(rng, SUT), rand(rng, Ang))
 end
 
 det(U::Unitary2x2) = cis(2 * U.phi)

@@ -209,6 +209,4 @@ for func in (:cos, :sin, :cis, :tan, :sincos)
     @eval $func(a::Ang) = $funcpi(Float64(a))
 end
 
-
 end # module Angles
-
