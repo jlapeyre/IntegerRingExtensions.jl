@@ -812,6 +812,11 @@ function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{T, Dar{
     SU2B(uabs2, rand(rng, Dar{T}), rand(rng, Dar{T}))
 end
 
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{Complex{T}}}) where {T}
+    uabs2 = rand(rng, T) # cos^2(gamma)
+    SU2B(uabs2, rand(rng, Ang), rand(rng, Ang))
+end
+
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2C})
     rand(rng, Random.SamplerType{SU2C{ComplexF64}}())
 end
