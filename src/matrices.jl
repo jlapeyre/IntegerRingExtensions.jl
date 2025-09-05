@@ -6,7 +6,7 @@ import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, n
 import LinearAlgebra
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
-import ..Angles: radtodar, Dar, Ang, scalepi, unscalepi, intdiv
+import ..Angles: radtodar, Dar, Ang, scalepi, unscalepi, intdiv, random_angle
 import IsApprox: isunitary, AbstractApprox, Equal, Approx
 
 abstract type AbstractMatrix2x2{T} <: AbstractMatrix{T} end
@@ -487,6 +487,10 @@ struct SU2B{T, V} <: AbstractSU2{T}
     alpha_t::V
 end
 
+function Base.eltype(::Type{<:SU2B{T}}) where T
+    Complex{T}
+end
+
 # gamma is the angle giving the magnitude.
 # It is usually called theta.
 # But that's also used for z-rotation angle
@@ -540,9 +544,9 @@ end
     SU2B_from_u_t(unew, newt)
 end
 
-random_unitary2x2() = random_unitary2x2(Float64)
+alt_random_unitary2x2() = random_unitary2x2(Float64)
 
-function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
+function alt_random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     uabs2 = rand(T) # cos^2(gamma)
     uabs = sqrt(uabs2)
     tabs = sqrt(1 - uabs2)
@@ -561,12 +565,32 @@ end
     Matrix2x2(SU2(unitary_u(U), unitary_t(U)))
 end
 
-struct ZRot{T, V} <: AbstractSU2{T}
+# struct ZRot{T, V} <: AbstractSU2{T}
+#     function ZRot(t::T) where T
+#         V = float(T)
+#         new{T, V}(t)
+#     end
+#     minushalftheta::T
+# end
+
+struct ZRot{T} <: AbstractSU2{T}
     function ZRot(t::T) where T
-        V = float(T)
-        new{T, V}(t)
+        new{T}(t)
     end
     minushalftheta::T
+end
+
+
+function _float_type(::Type{ZRot{T}}) where T
+    float(T)
+end
+
+# function Base.eltype(::Type{<:ZRot{<:Any,V}}) where V
+#     Complex{V}
+# end
+
+function Base.eltype(::Type{V}) where {V<:ZRot}
+    Complex{_float_type(V)}
 end
 
 # TODO: organize an interface
@@ -584,15 +608,25 @@ Base.:*(z::ZRot, x::Number) = x * z
 
 # This always gives "positive" rotation.
 # Tr(z) >= 0
-function random_ZRot()
-    a = random_angle() / 2
+function random_ZRot(::Type{T}=Float64) where {T<:AbstractFloat}
+    a = random_angle(T) / 2
     ZRot(a)
+end
+
+#function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2})
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{ZRot})
+    random_ZRot()
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{ZRot{T}}) where T
+    random_ZRot(T)
 end
 
 @inline tr(zr::ZRot) = 2 * cos(zr.minushalftheta)
 
 unitary_u(z::ZRot) = cis(z.minushalftheta)
-unitary_t(z::ZRot{<:Any, V}) where {V} = zero(Complex{V})
+unitary_t(z::ZRot{V}) where {V} = zero(Complex{_float_type(ZRot{V})})
+#unitary_t(z::ZRot{<:Any, V}) where {V} = zero(Complex{V})
 
 function eigvals(z::ZRot)
     u = unitary_u(z)
@@ -684,30 +718,6 @@ function eigvals(u::SU2B)
     (Complex(re_u, discr), Complex(re_u, -discr))
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2})
-    rand(rng, Random.SamplerType{SU2{ComplexF64}}())
-end
-
-function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2{Complex{T}}}) where {T}
-    SU2(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
-end
-
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2B})
-    rand(rng, Random.SamplerType{SU2B{ComplexF64}}())
-end
-
-function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{Complex{T}}}) where {T}
-    uabs2 = rand(rng, T) # cos^2(gamma)
-    SU2B(uabs2, rand(rng, Ang), rand(rng, Ang))
-end
-
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2C})
-    rand(rng, Random.SamplerType{SU2C{ComplexF64}}())
-end
-
-function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2C{Complex{T}}}) where {T}
-    SU2C(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
-end
 
 
 Matrix2x2(U::SU2) = Matrix2x2(U.u, U.t, -U.t', U.u')
@@ -764,14 +774,54 @@ struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
     phi::V
 end
 
-alt_random_unitary2x2() = alt_random_unitary2x2(Float64)
-function alt_random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
-    su2 = rand(SU2B)
+det(U::Unitary2x2) = cis(2 * U.phi)
+
+function Unitary2x2(su::AbstractSU2{T}) where T
+    Unitary2x2(su, zero(T))
+end
+
+function Unitary2x2(m::Matrix2x2{Complex{T}}, ::Type{SU2T} = SU2) where {T <: AbstractFloat, SU2T <: AbstractSU2}
+    phase_fac = sqrt(det(m))
+    msu2 = map(x -> x / phase_fac, m)
+    Unitary2x2(SU2T(msu2), radtodar(angle(phase_fac)))
+end
+
+random_unitary2x2() = random_unitary2x2(Float64)
+function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
+    su2 = rand(SU2B{BigFloat})
     gamma = T(2) * rand(T)
     Unitary2x2(su2, Dar(gamma))
 end
 
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2})
+    rand(rng, Random.SamplerType{SU2{ComplexF64}}())
+end
 
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2{Complex{T}}}) where {T}
+    SU2(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2B})
+    T = Float64
+    uabs2 = rand(rng, T) # cos^2(gamma)
+    SU2B(uabs2, rand(rng, Dar{T}), rand(rng, Dar{T}))
+end
+
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{T, Dar{T}}}) where {T}
+    uabs2 = rand(rng, T) # cos^2(gamma)
+    SU2B(uabs2, rand(rng, Dar{T}), rand(rng, Dar{T}))
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2C})
+    rand(rng, Random.SamplerType{SU2C{ComplexF64}}())
+end
+
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2C{Complex{T}}}) where {T}
+    SU2C(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
+end
+
+# These all return `Ang`. But that only handles fixed precision
+# what about BigFloat
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T}}) where T
     Unitary2x2(rand(rng, SU2B{Complex{T}}), rand(rng, Ang))
 end
@@ -784,17 +834,6 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T,
     Unitary2x2(rand(rng, SUT), rand(rng, Ang))
 end
 
-det(U::Unitary2x2) = cis(2 * U.phi)
-
-function Unitary2x2(su::AbstractSU2{T}) where T
-    Unitary2x2(su, zero(T))
-end
-
-function Unitary2x2(m::Matrix2x2{Complex{T}}, ::Type{SU2T} = SU2) where {T <: AbstractFloat, SU2T <: AbstractSU2}
-    phase_fac = sqrt(det(m))
-    msu2 = map(x -> x / phase_fac, m)
-    Unitary2x2(SU2T(msu2), radtodar(angle(phase_fac)))
-end
 
 function eigvals(U::Unitary2x2)
     (; su2, phi) = U

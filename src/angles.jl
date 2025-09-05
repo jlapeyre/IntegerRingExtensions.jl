@@ -16,6 +16,10 @@ struct Dar{T} #  <: Real I think I don't want this
     x::T
 end
 
+function Base.show(io::IO, ::PRETTY, d::Dar)
+    print(io, d.x, " π")
+end
+
 Base.AbstractFloat(::Type{Dar{T}}) where {T} = float(T)
 Base.AbstractFloat(a::Dar{T}) where {T} = unscalepi(float(a.x))
 Base.Float64(a::Dar) = unscalepi(float(a.x))
@@ -47,44 +51,6 @@ Base.:*(d::Dar, x::Real) = x * d
 
 Dar(d::Dar) = d
 
-# # The following functions work. But they are far
-# # From optimal. I stopped when I finally go them
-# # to pass some tests.
-# function zero_to_two(x)
-#     if x >= 0  # There must be a Base function call for this.
-#         (q, r) = divrem(x, 2)
-#         res =
-#             if iszero(q)
-#                 r
-#             elseif iszero(r)
-#                 2 * one(r)
-#             else
-#                 r
-#             end
-#         (0 <= res <= 2) || error(lazy"sad outcome $ret")
-#         return res
-#     else
-#         n = round(x)
-#         y = x - 2 * n + 2
-#         y > 0 || error(lazy"I dont know what to do with $x")
-#         zero_to_two(y)
-#     end
-# end
-
-# function _minus_one_to_one(x)
-#     y = zero_to_two(x)
-#     if 0 <= y <= 1
-#         return y
-#     end
-#     return y - 2
-# end
-
-# function old_minus_one_to_one(x)
-#     y = _minus_one_to_one(x)
-#     (-1 <= y <= 1) || error(lazy"Sad case of $y")
-#     return y
-# end
-
 """
     minus_one_to_one(x)
 
@@ -115,27 +81,75 @@ intdiv(x::Real, n::Integer) = x / n
 intdiv(x::Rational, n::Integer) = x * 1//n
 intdiv(x::Dar, n::Integer) = Dar(intdiv(x.x, n))
 
-# function dartorad(x::Real)
-#     dar.x * pi
-# end
+cscpi(x) = inv(sinpi(x))
+secpi(x) = inv(cospi(x))
 
-import Base: cos, sin, cis, tan, sincos  # , cospi, sinpi, cispi, tanpi
+import Base: cos, sin, cis, tan, sincos, csc, sec
 
-for func in (:cos, :sin, :cis, :tan, :sincos)
+for func in (:cos, :sin, :cis, :tan, :sincos, :csc, :sec)
     funcpi = Symbol(func, :pi)
     @eval $func(dar::Dar) = $funcpi(dar.x)
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Dar{T}}) where {T<:AbstractFloat}
+    Dar(2*rand(T) - 1)
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Dar})
+    T = Float64
+    Dar(2*rand(T) - 1)
 end
 
 Base.isapprox(a::Dar, b::Dar; kws...) = isapprox(a.x, b.x; kws...)
 Base.isapprox(a::Dar, x::Real; kws...) = isapprox(unscalepi(a.x), x; kws...)
 Base.isapprox(x::Real, a::Dar ; kws...) = isapprox(a, x; kws...)
 
+
+# Ang is nice. But Ang does not support BigFloat angles
+# Because BigInt is not fixed precision.
+# Dar above is more flexible
+
+"""
+    Ang{T<:Integer}
+
+An angle in `(-π, π]`.
+
+The angle is stored in field `x::T`.
+
+# Examples
+```jldoctest
+julia> Ang(typemax(Int))
+1.0 π
+
+julia> Ang(typemin(Int))
+-1.0 π
+```
+"""
 struct Ang{T<:Integer}
     x::T
 end
 
 Ang(z::Float64) = Ang{Int}(z)
 
+"""
+    Ang{T}(z::Float64)::Ang{T} where {T<:Integer}
+
+Return an `Ang` representing the angle `z π`.
+
+`z` is shifted so that the result is in `(-π, π]`.
+
+# Examples
+```jldoctest
+julia> Ang(0.5)
+0.5 π
+
+julia> cos(Ang(0.5))
+0.0
+
+julia> cos(101 * Ang(0.5))
+0.0
+```
+"""
 function Ang{T}(z::Float64) where {T<:Integer}
     zp = minus_one_to_one(z)
     if zp == 1
@@ -147,10 +161,6 @@ function Ang{T}(z::Float64) where {T<:Integer}
     end
 end
 
-# function Ang{T}(z::Float64) where {T<:Integer}
-#     Ang(T(minus_one_to_one(z) * typemax(T)))
-# end
-
 function Base.:(==)(a::Ang{T},  b::Ang{T}) where {T}
     a.x == b.x
 end
@@ -161,6 +171,11 @@ Base.:*(n::Integer, a::Ang{T}) where {T} = Ang(n * a.x)
 Base.:*(a::Ang{T}, n::Integer) where {T} = Ang(a.x * n)
 Base.:-(a::Ang) = Ang(-a.x)
 
+"""
+    radians(a::Ang{T})::float(T)
+
+Convert `a` to radians.
+"""
 radians(a::Ang{T}) where {T} = pi * float(T)(a)
 
 for FT in (:Float64, :Float32)
@@ -188,14 +203,14 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Ang{T}}) wher
     Ang(rand(T))
 end
 
-random_angle(args...) = random_angle(Float64, args...)
-
 """
     random_angle(::Type{T}=Float64, shape...) where {T}
 
 Return a random angle in `[-pi, pi]`
 """
-function random_angle(::Type{T}, args...) where {T}
+random_angle(args...) = random_angle(Float64, args...)
+
+function random_angle(::Type{T}, args...) where {T<:AbstractFloat}
     flts = rand(T, args...)
     f = x -> 2 * T(pi) * (x - T(1)/2)
     if isempty(args)
@@ -204,7 +219,15 @@ function random_angle(::Type{T}, args...) where {T}
     map!(f, flts, flts)
 end
 
-for func in (:cos, :sin, :cis, :tan, :sincos)
+function _random_angle(::Type{IntT}, rng::Random.AbstractRNG, args...) where {IntT}
+    radians(rand(rng, Ang{IntT}, args...))
+end
+
+function _random_angle(::Type{IntT}, args...) where {IntT}
+    radians(rand(Ang{IntT}, args...))
+end
+
+for func in (:cos, :sin, :cis, :tan, :sincos, :csc, :sec)
     funcpi = Symbol(func, :pi)
     @eval $func(a::Ang) = $funcpi(Float64(a))
 end

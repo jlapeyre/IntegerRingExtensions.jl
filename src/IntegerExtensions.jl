@@ -9,7 +9,7 @@ export ZrootD
 
 include("utils.jl")
 Reexport.@reexport import .Utils: subscript, superscript, lobit, small, countmap, random_unitary,
-    random_special_unitary
+    random_special_unitary, alt_random_unitary2x2
 
 include("common.jl")
 Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
@@ -45,7 +45,7 @@ Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagona
     SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
     get_theta, unitary_u, unitary_t,
     AbstractUnitary2x2, AbstractSU2, AbstractMatrix2x2,
-    random_ZRot, columns
+    random_ZRot, columns, opnormdistance
 #    zrotpi, zrothalfpi, get_thetapi, get_thetahalfpi
 #    SU2Param1, SU2Param2, SU2Param3, SU2ParamScaled,
 
