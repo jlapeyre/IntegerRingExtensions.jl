@@ -516,7 +516,6 @@ function one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
 end
 
 function mul_half(q::QuadraticRing{D, <:Dyadic}, n::Integer=1) where {D}
-    @show coeffs(q)
     new_coeffs = map(x -> mul_half(x, n), coeffs(q))
     typeof(q)(new_coeffs...)
 end

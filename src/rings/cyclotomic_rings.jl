@@ -8,7 +8,7 @@ import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne
 
 import ..Dyadics: Dyadic
-import ..QuadraticRings: Droot2
+import ..QuadraticRings: Droot2, Zroot2
 import ..Singletons: InvTwo, InvTwoT,
     RootTwo, RootTwoT,
     InvRootTwo, InvRootTwoT,
@@ -282,11 +282,6 @@ function Base.conj(cyc::DOmega{T}) where T
     DOmega{T}(newcoeff)
 end
 
-Base.one(::Type{DOmega}) = one(DOmega{Int})
-Base.one(::Type{ZOmega}) = one(ZOmega{Int})
-Base.zero(::Type{DOmega}) = zero(DOmega{Int})
-Base.zero(::Type{ZOmega}) = zero(ZOmega{Int})
-
 """
     conj(cyc::CyclotomicRing{4})
 
@@ -297,6 +292,21 @@ function Base.conj(cyc::CyclotomicRing{4})
     newcoeff = (a, -d, -c, -b)
     typeof(cyc)(newcoeff)
 end
+
+function Zroot2(z::ZOmega)
+    (a, b, c, d) = coeffs(z)
+    iszero(c) && d == -b || throw(ArgumentError(lazy"Inexact error converting $z to ZRoot2."))
+    Zroot2(a, b)
+end
+
+function ZOmega(q::Zroot2)
+    ZOmega(q.a, q.b, zero(q.b), -q.b)
+end
+
+Base.one(::Type{DOmega}) = one(DOmega{Int})
+Base.one(::Type{ZOmega}) = one(ZOmega{Int})
+Base.zero(::Type{DOmega}) = zero(DOmega{Int})
+Base.zero(::Type{ZOmega}) = zero(ZOmega{Int})
 
 Base.adjoint(cyc::CyclotomicRing) = conj(cyc)
 
@@ -826,9 +836,20 @@ Base.:(==)(c1::DOmegaA, c2::DOmega) = c1 == DOmegaA(c2)
 
 function ZOmega(z::DOmegaA)
     z = canonical(z)
-    iszero(z.k) || throw(ArgumentError(lazy"Inexact error converting $z to $ZOmega."))
+    iszero(z.k) || throw(ArgumentError(lazy"Inexact error converting $z to ZOmega."))
     z.z
 end
 
+Base.conj(z::DOmegaA) = DOmegaA(conj(z.z), z.k)
+Base.one(z::DOmegaA) = DOmegaA(one(z.z), zero(z.k))
+Base.zero(z::DOmegaA) = DOmegaA(zero(z.z), zero(z.k))
+Base.transpose(z::DOmegaA) = z
+
+Base.real(z::DOmegaA) = mul_half(real(z.z), z.k >> 1)
+Base.imag(z::DOmegaA) = mul_half(imag(z.z), z.k >> 1)
+Base.Complex(z::DOmegaA) = Complex(real(z), imag(z))
+Base.complex(z::DOmegaA) = Complex(z)
+
+DOmegaA(zz::Complex{<:Droot2}) = DOmegaA(DOmega(zz))
 
 end # module CyclotomicRings
