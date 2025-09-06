@@ -1,7 +1,7 @@
 module RingMatrices
 
-import ..CyclotomicRings: DOmega
-import ..Matrices2x2: Matrix2x2
+import ..CyclotomicRings: DOmega, least_denominator_exponent
+import ..Matrices2x2: Matrix2x2, AbstractMatrix2x2, elements
 import ..RootOnes: RootOne
 
 # The modules for rings, groups, and Matrices are independent.
@@ -18,6 +18,10 @@ function compute_phase_factor(m1::Matrix2x2{<:DOmega}, m2::Matrix2x2{<:DOmega})
         RootOne{8}(i) * m1 == m2 && return i
     end
     return -1
+end
+
+function least_denominator_exponent(m::AbstractMatrix2x2{<:DOmega})
+    maximum(least_denominator_exponent, elements(m))
 end
 
 end #module RingMatrices

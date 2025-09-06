@@ -490,6 +490,10 @@ function Base.eltype(::Type{<:SU2B{T}}) where T
     Complex{T}
 end
 
+function Base.adjoint(U::SU2B)
+    SU2B(U.uabs2, -U.alpha_u, U.alpha_t + pi)
+end
+
 # gamma is the angle giving the magnitude.
 # It is usually called theta.
 # But that's also used for z-rotation angle
@@ -517,7 +521,9 @@ end
 
 @inline function SU2B_from_u_t(u, t)
     abs2u = abs2(u)
-    SU2B(abs2u, angle(u/sqrt(abs2u)), angle(t/sqrt(1-abs2u)))
+    alpha_u = iszero(abs2u) ? zero(abs2u) : angle(u / sqrt(abs2u))
+    alpha_t = isone(abs2u) ? zero(abs2u) : angle(t / sqrt(1-abs2u))
+    SU2B(abs2u, alpha_u, alpha_t)
 end
 
 @inline Base.:-(a::SU2B, b::AbstractMatrix2x2) = Matrix2x2(a) - b

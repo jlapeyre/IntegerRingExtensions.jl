@@ -178,8 +178,4 @@ function random_special_unitary(n::Integer)
     phase * u
 end
 
-function random_phase(::Type{T}=Float64) where {T}
-    cis(random_angle(T))
-end
-
 end # module Utils

@@ -9,7 +9,7 @@ export ZrootD
 
 include("utils.jl")
 Reexport.@reexport import .Utils: subscript, superscript, lobit, small, countmap, random_unitary,
-    random_special_unitary, alt_random_unitary2x2
+    random_special_unitary
 
 include("common.jl")
 Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
@@ -22,7 +22,7 @@ Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag,
 
 include("angles.jl")
 Reexport.@reexport import .Angles: Dar, radtodar, scalepi, unscalepi, minus_one_to_one, radians, Ang,
-    random_angle
+    random_angle, random_phase
 
 include("rings/root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, Omega, omega
@@ -35,7 +35,7 @@ Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, Zroot2, Droot2
     rootDconj
 
 include("rings/cyclotomic_rings.jl")
-Reexport.@reexport import .CyclotomicRings: CyclotomicRing, DOmega, ZOmega, smallest_denominator_exponent,
+Reexport.@reexport import .CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOmega, least_denominator_exponent,
     rnorm
 
 include("matrices.jl")
@@ -45,7 +45,7 @@ Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagona
     SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
     get_theta, unitary_u, unitary_t,
     AbstractUnitary2x2, AbstractSU2, AbstractMatrix2x2,
-    random_ZRot, columns, opnormdistance
+    random_ZRot, columns, opnormdistance, alt_random_unitary2x2
 #    zrotpi, zrothalfpi, get_thetapi, get_thetahalfpi
 #    SU2Param1, SU2Param2, SU2Param3, SU2ParamScaled,
 

@@ -230,9 +230,7 @@ Base.abs(r::RootOne) = 1
 conj_root_two(r::RootOne{8}) = -r
 norm_root_two(r::RootOne{8}) = -r^2
 
-#Base.real(r::RootOne{N}) where {N} = real(Int, r)
 Base.real(::Type{T}, r::RootOne{N}) where {T, N} = cospi(T(2 * r.k) / N)
-#Base.imag(r::RootOne{N}) where {N} = imag(Int, r)
 Base.imag(::Type{T}, r::RootOne{N}) where {T, N} = sinpi(T(2 * r.k) / N)
 
 function Base.isreal(r::RootOne{N}) where {N}

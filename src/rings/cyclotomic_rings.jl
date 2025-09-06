@@ -573,9 +573,9 @@ end
 # This expression is invariant wrt reversing
 # the order of coefficients.
 """
-    mul_root_two(cyc::CyclotomicRing{4})
+    mul_root_two(cyc::CyclotomicRing{4}, n::Integer=1)
 
-Multiply `cyc` by the square root of two.
+Multiply `cyc` by `√2ⁿ`
 """
 function mul_root_two(cyc::CyclotomicRing{4})
     (a,b,c,d) = cyc.coeffs
@@ -787,8 +787,22 @@ DOmega(r::RootOne{8}) = DOmega{Int}(r)
 # end
 
 # With respect to base sqrt(2)
-function smallest_denominator_exponent(cyc::CyclotomicRing{<:Any, <:Dyadic})
-    maximum(map(x -> x.k, canonical(cyc).coeffs))
+function least_denominator_exponent(cyc::CyclotomicRing{<:Any, <:Dyadic})
+    lde2 = maximum(map(x -> x.k, canonical(cyc).coeffs))
+    #    @assert iseven(lde2)
+    lde2 << 1
+end
+
+struct DOmegaA{T, KT}
+    z::ZOmega{T}
+    k::KT
+end
+
+DOmegaA(z::ZOmega) = DOmegaA(z, 0)
+
+function DOmegaA(z::DOmega)
+    lde = least_denominator_exponent(z)
+    DOmegaA(mul_root_two(z, lde), lde)
 end
 
 end # module CyclotomicRings

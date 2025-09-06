@@ -32,8 +32,8 @@ Base.one(::Dar{T}) where {T} = one(T)
 Base.zero(::Type{Dar{T}}) where {T} = Dar(zero(T))
 Base.zero(::Dar{T}) where {T} = Dar(zero(T))
 
-Base.:+(d::Dar, x::Real) = Dar(d.x + x)
-Base.:-(d::Dar, x::Real) = Dar(d.x - x)
+Base.:+(d::Dar, x::Real) = Dar(d.x + scalepi(x))
+Base.:-(d::Dar, x::Real) = Dar(d.x - scalepi(x))
 Base.:+(x::Real, d::Dar) = d + x
 Base.:-(x::Real, d::Dar) = d - x
 Base.:+(d1::Dar, d2::Dar) = Dar(d1.x + d2.x)
@@ -225,6 +225,10 @@ end
 
 function _random_angle(::Type{IntT}, args...) where {IntT}
     radians(rand(Ang{IntT}, args...))
+end
+
+function random_phase(::Type{T}=Float64) where {T}
+    cis(random_angle(T))
 end
 
 for func in (:cos, :sin, :cis, :tan, :sincos, :csc, :sec)
