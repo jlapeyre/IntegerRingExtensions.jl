@@ -461,7 +461,6 @@ function random_diagonal_unitary(::Type{T}=Float64) where T
     diagm(Vector2(cispi(rand(T)), cispi(rand(T))))
 end
 
-
 isSU2(m::AbstractMatrix2x2) = isone(det(m))
 
 function isSU2(m::AbstractMatrix, approx::AbstractApprox)
