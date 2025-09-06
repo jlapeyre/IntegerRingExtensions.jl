@@ -1,7 +1,7 @@
 module RootOnes
 
 import ..Utils: subscript, superscript
-import ..Common: sqrt_imaginary, imaginary, isunit
+import ..Common: sqrt_imaginary, imaginary, isunit, conj_root_two, norm_root_two
 import Base: convert, show
 import Random
 
@@ -226,6 +226,9 @@ Base.adjoint(r::RootOne) = conj(r)
 Base.conj(r::RootOne) = inv(r)
 Base.abs2(r::RootOne) = 1
 Base.abs(r::RootOne) = 1
+
+conj_root_two(r::RootOne{8}) = -r
+norm_root_two(r::RootOne{8}) = -r^2
 
 #Base.real(r::RootOne{N}) where {N} = real(Int, r)
 Base.real(::Type{T}, r::RootOne{N}) where {T, N} = cospi(T(2 * r.k) / N)
