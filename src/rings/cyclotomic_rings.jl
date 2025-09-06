@@ -789,7 +789,6 @@ DOmega(r::RootOne{8}) = DOmega{Int}(r)
 # With respect to base sqrt(2)
 function least_denominator_exponent(cyc::CyclotomicRing{<:Any, <:Dyadic})
     lde2 = maximum(map(x -> x.k, canonical(cyc).coeffs))
-    #    @assert iseven(lde2)
     lde2 << 1
 end
 
@@ -800,9 +799,36 @@ end
 
 DOmegaA(z::ZOmega) = DOmegaA(z, 0)
 
-function DOmegaA(z::DOmega)
+@inline function DOmegaA(z::DOmega)
     lde = least_denominator_exponent(z)
-    DOmegaA(mul_root_two(z, lde), lde)
+    DOmegaA(ZOmega(mul_root_two(z, lde)), lde)
 end
+
+function Base.show(io::IO, ::PRETTY, x::DOmegaA)
+    print(io, "(")
+    show(io, PRETTY(), x.z)
+    print(io, ")")
+    print(io, " / √2", superscript(x.k))
+end
+
+function DOmega(z::DOmegaA)
+    DOmega(map(x -> canonical(Dyadic(x, div(z.k, 2))), coeffs(z.z)))
+end
+
+canonical(z::DOmegaA) = DOmegaA(canonical(z.z), z.k)
+
+function Base.:(==)(c1::DOmegaA, c2::DOmegaA)
+    (d1, d2) = (canonical(c1), canonical(c2))
+    d1.z == d2.z && d1.k == d2.k
+end
+
+Base.:(==)(c1::DOmegaA, c2::DOmega) = c1 == DOmegaA(c2)
+
+function ZOmega(z::DOmegaA)
+    z = canonical(z)
+    iszero(z.k) || throw(ArgumentError(lazy"Inexact error converting $z to $ZOmega."))
+    z.z
+end
+
 
 end # module CyclotomicRings

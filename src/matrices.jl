@@ -770,6 +770,13 @@ end
 
 Base.adjoint(u::SU2) = SU2(conj(u.u), -u.t)
 
+"""
+    Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
+
+Represents a `2 x 2` unitary matrix as a matrix in SU2 times a global phase.
+
+Fields: `su2`, `phi`.
+"""
 struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
     function Unitary2x2(su2::W, phi::V) where {V, W <: AbstractSU2{T}} where {T}
         new{T, W, V}(su2, phi)
@@ -779,16 +786,29 @@ struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
     phi::V
 end
 
-det(U::Unitary2x2) = cis(2 * U.phi)
-
 function Unitary2x2(su::AbstractSU2{T}) where T
     Unitary2x2(su, zero(T))
 end
+
+det(U::Unitary2x2) = cis(2 * U.phi)
 
 function Unitary2x2(m::Matrix2x2{Complex{T}}, ::Type{SU2T} = SU2) where {T <: AbstractFloat, SU2T <: AbstractSU2}
     phase_fac = sqrt(det(m))
     msu2 = map(x -> x / phase_fac, m)
     Unitary2x2(SU2T(msu2), radtodar(angle(phase_fac)))
+end
+
+function eigvals(U::Unitary2x2)
+    (; su2, phi) = U
+    (v1, v2) = eigvals(su2)
+    p = cis(phi)
+    (p * v1, p * v2)
+end
+
+function Matrix2x2(U::Unitary2x2)
+    (;su2, phi) = U
+    p = cis(phi)
+    map(x -> p * x, Matrix2x2(su2))
 end
 
 random_unitary2x2() = random_unitary2x2(Float64)
@@ -844,18 +864,5 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T,
     Unitary2x2(rand(rng, SUT), rand(rng, Ang))
 end
 
-
-function eigvals(U::Unitary2x2)
-    (; su2, phi) = U
-    (v1, v2) = eigvals(su2)
-    p = cis(phi)
-    (p * v1, p * v2)
-end
-
-function Matrix2x2(U::Unitary2x2)
-    (;su2, phi) = U
-    p = cis(phi)
-    map(x -> p * x, Matrix2x2(su2))
-end
 
 end # module Matrices2x2

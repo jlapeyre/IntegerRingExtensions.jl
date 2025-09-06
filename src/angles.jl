@@ -204,7 +204,7 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Ang{T}}) wher
 end
 
 """
-    random_angle(::Type{T}=Float64, shape...) where {T}
+    random_angle(::Type{T}=Float64, shape...)::T where {T}
 
 Return a random angle in `[-pi, pi]`
 """
