@@ -101,4 +101,7 @@ end
 
     @test_throws MethodError DOmega(1,2,3)
     @test_throws MethodError ZOmega(1,2,3)
+
+    @test Zroot2(ZOmega(Zroot2(1, 2))) === Zroot2(1,2)
+
 end

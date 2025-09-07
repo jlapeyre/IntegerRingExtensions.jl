@@ -44,7 +44,6 @@ end
     @test typeof(DOmega(1,2,3,4)) === DOmega{Int}
 
     @test cromega == cromega
-#    @test DOmega{Int}(0,0,0,1) == one(cromega)
     @test DOmega(1,0,0,0) == one(cromega)
     @test isone(one(cr))
     @test isone(one(cromega))
