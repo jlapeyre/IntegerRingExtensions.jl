@@ -2,7 +2,7 @@ module IntegerExtensions
 import Reexport
 
 export imaginary, sqrt_imaginary
-export Droot2
+export DRoot2
 export DOmega
 export ZRoot2
 export ZrootD
@@ -31,7 +31,7 @@ include("rings/dyadic.jl")
 Reexport.@reexport import .Dyadics: Dyadic
 
 include("rings/quadratic_ring.jl")
-Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, ZRoot2, Droot2, QuadraticRing2,
+Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, ZRoot2, DRoot2, QuadraticRing2,
     rootDconj
 
 include("rings/cyclotomic_rings.jl")

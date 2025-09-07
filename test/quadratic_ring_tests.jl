@@ -28,7 +28,7 @@ end
     @test isa(ZRoot2{BigInt}(RootTwo), ZRoot2{BigInt})
 end
 
-@testset "Droot2" begin
+@testset "DRoot2" begin
     # x = ZRoot2(3)
     # @test x == 3
     # @test Int(x) == 3

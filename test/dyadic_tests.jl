@@ -20,9 +20,9 @@
     cs = params(zh)
     @test cs == (1, 0)
 
-    x = Droot2(Dyadic(3,2), 5)
-    @test RootTwo * x == Droot2(10, Dyadic(3,2))
-    @test x * RootTwo == Droot2(10, Dyadic(3,2))
+    x = DRoot2(Dyadic(3,2), 5)
+    @test RootTwo * x == DRoot2(10, Dyadic(3,2))
+    @test x * RootTwo == DRoot2(10, Dyadic(3,2))
 
     @test x === InvRootTwo * (RootTwo * x)
     @test x === RootTwo * (InvRootTwo * x)

@@ -8,7 +8,7 @@ import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne
 
 import ..Dyadics: Dyadic
-import ..QuadraticRings: Droot2, ZRoot2
+import ..QuadraticRings: DRoot2, ZRoot2
 import ..Singletons: InvTwo, InvTwoT,
     RootTwo, RootTwoT,
     InvRootTwo, InvRootTwoT,
@@ -257,10 +257,10 @@ Return a `Tuple` of the coeffients of `cyc`
 julia> coeffs(ZRoot2(1,2))
 (1, 2)
 
-julia> coeffs(Droot2(3,4))
+julia> coeffs(DRoot2(3,4))
 (3, 4)
 
-julia> coeffs(Droot2(1,Dyadic(3,2)))
+julia> coeffs(DRoot2(1,Dyadic(3,2)))
 (1, 3/2²)
 ```
 """
@@ -437,22 +437,22 @@ end
 
 function Base.real(cyc::ZOmega{<:Integer})
     (a, b , c, d) = coeffs(cyc)
-    Droot2(Dyadic(a, 0), Dyadic(b-d, 1))
+    DRoot2(Dyadic(a, 0), Dyadic(b-d, 1))
 end
 
 function Base.real(cyc::DOmega{<:Integer})
     (a, b , c, d) = coeffs(cyc)
-    Droot2(a, mul_half(b - d))
+    DRoot2(a, mul_half(b - d))
 end
 
 function Base.imag(cyc::ZOmega{T}) where T
     (a, b , c, d) = coeffs(cyc)
-    Droot2(Dyadic(c, 0), Dyadic(b+d, 1))
+    DRoot2(Dyadic(c, 0), Dyadic(b+d, 1))
 end
 
 function Base.imag(cyc::DOmega{<:Integer})
     (a, b , c, d) = coeffs(cyc)
-    Droot2(c, mul_half(b + d))
+    DRoot2(c, mul_half(b + d))
 end
 
 function Base.isreal(cyc::DOmega{<:Integer})
@@ -460,9 +460,9 @@ function Base.isreal(cyc::DOmega{<:Integer})
     iszero(c) && iszero(b + d)
 end
 
-DOmega(zz::Complex{<:Droot2}) = CyclotomicRing{4}(zz)
-CyclotomicRing(zz::Complex{<:Droot2}) = CyclotomicRing{4}(zz)
-function CyclotomicRing{4}(zz::Complex{<:Droot2})
+DOmega(zz::Complex{<:DRoot2}) = CyclotomicRing{4}(zz)
+CyclotomicRing(zz::Complex{<:DRoot2}) = CyclotomicRing{4}(zz)
+function CyclotomicRing{4}(zz::Complex{<:DRoot2})
     (r, i) = (real(zz), imag(zz))
     (w, x) = (r.a, r.b)
     (y, z) = (i.a, i.b)
@@ -473,9 +473,9 @@ function CyclotomicRing{4}(zz::Complex{<:Droot2})
     return DOmega((a,b,c,d))
 end
 
-DOmega(zz::Droot2) = CyclotomicRing{4}(zz)
-CyclotomicRing(zz::Droot2) = CyclotomicRing{4}(zz)
-function CyclotomicRing{4}(zz::Droot2)
+DOmega(zz::DRoot2) = CyclotomicRing{4}(zz)
+CyclotomicRing(zz::DRoot2) = CyclotomicRing{4}(zz)
+function CyclotomicRing{4}(zz::DRoot2)
     (w, x) = (zz.a, zz.b)
     a = w
     c = zero(typeof(w))
@@ -566,7 +566,7 @@ end
 
 @inline Base.:*(z::Complex, c::CyclotomicRing) = c * z
 
-function Base.:*(x::Droot2, c::CyclotomicRing)
+function Base.:*(x::DRoot2, c::CyclotomicRing)
     error("not implemented")
 end
 
@@ -878,6 +878,6 @@ Base.imag(z::DOmegaA) = mul_half(imag(z.z), z.k >> 1)
 Base.Complex(z::DOmegaA) = Complex(real(z), imag(z))
 Base.complex(z::DOmegaA) = Complex(z)
 
-DOmegaA(zz::Complex{<:Droot2}) = DOmegaA(DOmega(zz))
+DOmegaA(zz::Complex{<:DRoot2}) = DOmegaA(DOmega(zz))
 
 end # module CyclotomicRings

@@ -53,9 +53,9 @@ end
     @test real(azf) > 0
 end
 
-@testset "Droot2" begin
-    x = Droot2(1, Dyadic(3, 2))
-    @test typeof(x) === Droot2{Int64, Int64}
+@testset "DRoot2" begin
+    x = DRoot2(1, Dyadic(3, 2))
+    @test typeof(x) === DRoot2{Int64, Int64}
     @test typeof(big(x)) === QuadraticRing{2, BigFloat}
     @test typeof(big(big(x))) === BigFloat
 end

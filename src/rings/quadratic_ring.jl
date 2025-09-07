@@ -10,7 +10,7 @@ import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
 import ..RootOnes: RootOne
 import ..Utils: PRETTY
 
-export QuadraticRing, QuadraticRing2, ZrootD, ZRoot2, Droot2
+export QuadraticRing, QuadraticRing2, ZrootD, ZRoot2, DRoot2
 
 ########################
 ####
@@ -43,7 +43,7 @@ dyadic fractions with `√D` adjoined.
 
 The following aliases are defined:
 ```julia
-const Droot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
+const DRoot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
 ```
 
 ```julia
@@ -108,7 +108,7 @@ const QuadraticRing2{CoeffT} = QuadraticRing{2} where CoeffT
 """
     coeffs(q::QuadraticRing)
     coeffs(q::ZRoot2)
-    coeffs(q::Droot2)
+    coeffs(q::DRoot2)
 
 Return a `Tuple` of the two coeffients of `q`.
 
@@ -117,10 +117,10 @@ Return a `Tuple` of the two coeffients of `q`.
 julia> coeffs(ZRoot2(1,2))
 (1, 2)
 
-julia> coeffs(Droot2(1,2))
+julia> coeffs(DRoot2(1,2))
 (Dyadic{Int64, Int64}(1, 0), Dyadic{Int64, Int64}(2, 0))
 
-julia> coeffs(Droot2(1,Dyadic(3,2)))
+julia> coeffs(DRoot2(1,Dyadic(3,2)))
 (Dyadic{Int64, Int64}(1, 0), Dyadic{Int64, Int64}(3, 2))
 ```
 """
@@ -138,7 +138,7 @@ provided `D` is a valid integer (See `QuadraticRing`).
 ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
 ```
 
-See also `ZRoot2`, `Droot2`.
+See also `ZRoot2`, `DRoot2`.
 
 # Examples
 ```jldoctest
@@ -164,7 +164,7 @@ Represents the ring `ℤ[√2]` of quadratic integers of radix `2`.
 ZRoot2{CoeffT} = QuadraticRing{2, CoeffT} where {2, CoeffT<:Integer}
 ```
 
-See also `Droot2`.
+See also `DRoot2`.
 
 # Examples
 ```jldoctest
@@ -438,7 +438,7 @@ promote_rule(::Type{V}, ::Type{T2})  where {V <: QuadraticRing{<:Any, T},T2} whe
     promote_type(float(T), T2)
 
 """
-    Droot2{T1, T2}
+    DRoot2{T1, T2}
 
 Represents the ring `𝔻[√2] = ℤ[√½]`.
 
@@ -446,73 +446,73 @@ Represents the ring `𝔻[√2] = ℤ[√½]`.
 
 # Examples
 ```jldoctest
-julia> Droot2(Dyadic(1,2), Dyadic(3, 4))
+julia> DRoot2(Dyadic(1,2), Dyadic(3, 4))
 1/2² + 3/2⁴√2
 
-julia> repr(Droot2(Dyadic(1,2), Dyadic(3, 4)))
+julia> repr(DRoot2(Dyadic(1,2), Dyadic(3, 4)))
 "QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(1, 2), Dyadic{Int64, Int64}(3, 4))"
 
 
-julia> Droot2(4, 5)
+julia> DRoot2(4, 5)
 4 + 5√2
 
-julia> repr(Droot2(4, 5))
+julia> repr(DRoot2(4, 5))
 "QuadraticRing{2, Dyadic{Int64, Int64}}(Dyadic{Int64, Int64}(4, 0), Dyadic{Int64, Int64}(5, 0))"
 ```
     """
-const Droot2{T, V} = QuadraticRing{2, Dyadic{T, V}}
-#const Droot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
+const DRoot2{T, V} = QuadraticRing{2, Dyadic{T, V}}
+#const DRoot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
 
-function Droot2(a, b)
+function DRoot2(a, b)
     a1 = Dyadic(a)
     a2 = Dyadic(b)
     QuadraticRing{2}(a1, a2)
 end
 
 """
-    root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
+    root_two(::Type{DRoot2{T1, T2}}) where {T1, T2}
 
-Return a value of `Droot2{T1,T2}` representing the square root of two.
+Return a value of `DRoot2{T1,T2}` representing the square root of two.
 
 # Example
 ```jldoctest
-julia> root_two(Droot2{Int,Int})
+julia> root_two(DRoot2{Int,Int})
 0+ √2
 ```
 """
-function root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
+function root_two(::Type{DRoot2{T1, T2}}) where {T1, T2}
     z1 = zero(T1)
     z2 = zero(T2)
     o1 = one(T1)
-    Droot2(Dyadic(z1,z2), Dyadic(o1,z2))
+    DRoot2(Dyadic(z1,z2), Dyadic(o1,z2))
 end
 
-Base.:*(::InvRootTwoT, q::Droot2) = QuadraticRing{2}(q.b, InvTwo * q.a)
-Base.:*(q::Droot2, ::InvRootTwoT) = q * InvRootTwo
+Base.:*(::InvRootTwoT, q::DRoot2) = QuadraticRing{2}(q.b, InvTwo * q.a)
+Base.:*(q::DRoot2, ::InvRootTwoT) = q * InvRootTwo
 
 """
-    one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
+    one_over_root_two(::Type{DRoot2{T1, T2}}) where {T1, T2}
 
 Return a value representing the reciprocal of the square root of two.
 
 # Example
 ```jldoctest
-julia> one_over_root_two(Droot2{Int,Int})
+julia> one_over_root_two(DRoot2{Int,Int})
 0 + 1/2√2
 
-julia> big(one_over_root_two(Droot2{Int,Int}))
+julia> big(one_over_root_two(DRoot2{Int,Int}))
 0.0 + 0.5√2
 
-julia> big(big(one_over_root_two(Droot2{Int,Int})))
+julia> big(big(one_over_root_two(DRoot2{Int,Int})))
 0.707106781186547524400844362104849039284835937688474036588339868995366239231051
 ```
 """
-function one_over_root_two(::Type{Droot2{T1, T2}}) where {T1, T2}
+function one_over_root_two(::Type{DRoot2{T1, T2}}) where {T1, T2}
     z1 = zero(T1)
     z2 = zero(T2)
     o1 = one(T1)
     o2 = one(T2)
-    Droot2(Dyadic(z1,z2), Dyadic(o1,o2))
+    DRoot2(Dyadic(z1,z2), Dyadic(o1,o2))
 end
 
 function mul_half(q::QuadraticRing{D, <:Dyadic}, n::Integer=1) where {D}
@@ -525,42 +525,42 @@ Base.complex(r::RootOne{8}) = Complex(real(r), imag(r))
 function Base.imag(r::RootOne{8})
     k = r.k
     return if k == 0
-        Droot2(0, 0)
+        DRoot2(0, 0)
     elseif k == 1
-        Droot2(0, Dyadic(1, 1))
+        DRoot2(0, Dyadic(1, 1))
     elseif k == 2
-        Droot2(1, Dyadic(0, 0))
+        DRoot2(1, Dyadic(0, 0))
     elseif k == 3
-        Droot2(0, Dyadic(1, 1))
+        DRoot2(0, Dyadic(1, 1))
     elseif k == 4
-        Droot2(0, 0)
+        DRoot2(0, 0)
     elseif k == 5
-        Droot2(0, Dyadic(-1, 1))
+        DRoot2(0, Dyadic(-1, 1))
     elseif k == 6
-        Droot2(-1, Dyadic(0, 0))
+        DRoot2(-1, Dyadic(0, 0))
     elseif k == 7
-        Droot2(0, Dyadic(-1, 1))
+        DRoot2(0, Dyadic(-1, 1))
     end
 end
 
 function Base.real(r::RootOne{8})
     k = r.k
     return if k == 0
-        Droot2(1, 0)
+        DRoot2(1, 0)
     elseif k == 1
-        Droot2(0, Dyadic(1, 1))
+        DRoot2(0, Dyadic(1, 1))
     elseif k == 2
-        Droot2(0, 0)
+        DRoot2(0, 0)
     elseif k == 3
-        Droot2(0, Dyadic(-1, 1))
+        DRoot2(0, Dyadic(-1, 1))
     elseif k == 4
-        Droot2(-1, 0)
+        DRoot2(-1, 0)
     elseif k == 5
-        Droot2(0, Dyadic(-1, 1))
+        DRoot2(0, Dyadic(-1, 1))
     elseif k == 6
-        Droot2(0, 0)
+        DRoot2(0, 0)
     elseif k == 7
-        Droot2(0, Dyadic(1, 1))
+        DRoot2(0, Dyadic(1, 1))
     end
 end
 
