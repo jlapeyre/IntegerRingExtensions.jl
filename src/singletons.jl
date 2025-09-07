@@ -64,6 +64,9 @@ isone(::OneT) = true
 iseven(::OneT) = false
 isreal(::OneT) = true
 
+Base.:*(::OneT, x::Number) = x
+Base.:*(x::Number, ::OneT) = x
+
 """
     One
     𝟙
@@ -382,11 +385,11 @@ Base.:*(::RootTwoT, ::RootTwoT) = Two
 Base.:*(::InvRootTwoT, ::InvRootTwoT) = InvTwo
 
 # Not using OneT here.
-Base.:*(::InvTwoT, ::TwoT) = 1
-Base.:*(::TwoT, ::InvTwoT) = 1
+Base.:*(::InvTwoT, ::TwoT) = One
+Base.:*(::TwoT, ::InvTwoT) = One
 
-Base.:*(::InvRootTwoT, ::RootTwoT) = 1 # May want to use a different type
-Base.:*(::RootTwoT, ::InvRootTwoT) = 1 # May want to use a different type
+Base.:*(::InvRootTwoT, ::RootTwoT) = One # May want to use a different type
+Base.:*(::RootTwoT, ::InvRootTwoT) = One # May want to use a different type
 
 Base.:*(::ImagT, ::ImagT) = -1
 

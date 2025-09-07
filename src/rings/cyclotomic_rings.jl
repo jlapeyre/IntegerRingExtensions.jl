@@ -10,7 +10,7 @@ import ..RootOnes: RootOne
 import ..Dyadics: Dyadic
 import ..QuadraticRings: DRoot2, ZRoot2
 import ..Singletons: InvTwo, InvTwoT,
-    RootTwo, RootTwoT,
+    RootTwo, RootTwoT, Two, TwoT,
     InvRootTwo, InvRootTwoT,
     Imag, ImagT,
     RootImag, RootImagT,
@@ -647,7 +647,19 @@ function mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
     CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
 end
 
-function mul_two(cyc::CyclotomicRing{4}, n::Integer=1)
+@inline function Base.:*(::TwoT, cyc::CyclotomicRing{4})
+    mul_two(cyc)
+end
+
+Base.:*(cyc::CyclotomicRing{4}, ::TwoT) = Two * cyc
+
+@inline function Base.:*(powtwo::Pow{TwoT}, cyc::CyclotomicRing{4})
+    mul_two(cyc, powtwo.n)
+end
+
+@inline Base.:*(cyc::CyclotomicRing{4}, powtwo::Pow{TwoT}) = powtwo * cyc
+
+@inline function mul_two(cyc::CyclotomicRing{4}, n::Integer=1)
     n == 0 && return cyc
     CyclotomicRing(map(x -> mul_two(x, n), cyc.coeffs))
 end
