@@ -71,6 +71,7 @@ integers are already exactly represented by `Complex{<:Integer}`.
 """
 struct QuadraticRing{D, CoeffT <: Real} <: Real
     function QuadraticRing{D, T}(a::T, b::T) where {D, T}
+        isa(D, Integer) || throw(ArgumentError(lazy"D must be an Integer"))
         new(a, b)
     end
 
@@ -184,9 +185,9 @@ julia> ZRoot2{Dyadic{Int, Int}}(1, 2)  # Enforces ℤ as base ring.
 ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{Dyadic{Int64, Int64}}
 ```
 """
-const ZRoot2{T} = ZrootD{2, T}
+const ZRoot2{T} = QuadraticRing{2, T} where {T<:Integer}
+# const ZRoot2{T} = ZrootD{2, T}
 # Defining in terms of ZrootD may help printing alias type. (Nope)
-#const ZRoot2{T} = QuadraticRing{2, T} where {T<:Integer}
 
 # This has the effect of printing ZRoot2 as we want.
 # But it no longer prints: (alias for ...)
