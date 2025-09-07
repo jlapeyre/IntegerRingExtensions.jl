@@ -596,6 +596,8 @@ end
 
 Base.:*(c::CyclotomicRing{4}, r::RootOne{8}) = r * c
 
+Base.:/(c::CyclotomicRing{4}, r::RootOne{8}) = c * inv(r)
+
 function Base.:*(::ImagT, cyc::CyclotomicRing{4})
     (a, b, c, d) = cyc.coeffs
     typeof(cyc)(-c,-d,a,b)
