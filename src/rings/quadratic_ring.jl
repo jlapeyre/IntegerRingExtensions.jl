@@ -417,6 +417,31 @@ This implements √D-conjugation.
 """
 conj_root_D(qi::QuadraticRing) = typeof(qi)(qi.a, -qi.b)
 
+function Base.sqrt(qi::ZRoot2)
+#    qi.a < 0 && throw(ArgumentError(lazy"Inexact error"))
+    qi.a < 0 && return nothing
+    _norm = norm_root_two(qi)
+    _norm < 0 && return nothing
+#    _norm < 0 && throw(ArgumentError(lazy"Inexact error"))
+    r = isqrt(_norm)
+    apr = qi.a + r
+    amr = qi.a - r
+    a1 = isqrt(div(apr, 2))
+    b1 = isqrt(div(amr, 4))
+    a2 = isqrt(div(amr, 2))
+    b2 = isqrt(div(apr, 4))
+    if sign(qi.a) * sign(qi.b) >= 0
+        w1 = ZRoot2(a1, b1)
+        w2 = ZRoot2(a2, b2)
+    else
+        w1 = ZRoot2(a1, -b1)
+        w2 = ZRoot2(a2, -b2)
+    end
+    qi == w1 * w1 && return w1
+    qi == w2 * w2 && return w2
+    nothing
+end
+
 Base.:*(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D =
     QuadraticRing{D}(q1.a * q2.a + D * q1.b * q2.b, q1.a * q2.b + q1.b * q2. a)
 
