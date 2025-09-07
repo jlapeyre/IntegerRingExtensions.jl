@@ -5,7 +5,7 @@ export imaginary, sqrt_imaginary
 export DRoot2
 export DOmega
 export ZRoot2
-export ZrootD
+export ZRootD
 
 include("utils.jl")
 Reexport.@reexport import .Utils: subscript, superscript, lobit, small, countmap, random_unitary,
@@ -31,7 +31,7 @@ include("rings/dyadic.jl")
 Reexport.@reexport import .Dyadics: Dyadic
 
 include("rings/quadratic_ring.jl")
-Reexport.@reexport import .QuadraticRings: QuadraticRing, ZrootD, ZRoot2, DRoot2, QuadraticRing2,
+Reexport.@reexport import .QuadraticRings: QuadraticRing, ZRootD, ZRoot2, DRoot2, QuadraticRing2,
     rootDconj
 
 include("rings/cyclotomic_rings.jl")

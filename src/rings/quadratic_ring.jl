@@ -10,7 +10,7 @@ import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
 import ..RootOnes: RootOne
 import ..Utils: PRETTY
 
-export QuadraticRing, QuadraticRing2, ZrootD, ZRoot2, DRoot2
+export QuadraticRing, QuadraticRing2, ZRootD, ZRoot2, DRoot2
 
 ########################
 ####
@@ -47,7 +47,7 @@ const DRoot2{T1, T2} = QuadraticRing{2, Dyadic{T1, T2}}
 ```
 
 ```julia
-const ZrootD{T1, T2} = QuadraticRing{T1, T2} where {T1, T2<:Integer}
+const ZRootD{T1, T2} = QuadraticRing{T1, T2} where {T1, T2<:Integer}
 ```
 
 ```julia
@@ -129,30 +129,30 @@ coeffs(q::QuadraticRing) = (q.a, q.b)
 
 # Can't constrain `D` to be an integer :(
 """
-    ZrootD{D, CoeffT} where {D, CoeffT<:Integer}
+    ZRootD{D, CoeffT} where {D, CoeffT<:Integer}
 
 Represents the ring `ℤ[√D]` of quadratic integers of radix `D`,
 provided `D` is a valid integer (See `QuadraticRing`).
 
-`ZrootD` is an alias defined by
+`ZRootD` is an alias defined by
 ```julia
-ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
+ZRootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
 ```
 
 See also `ZRoot2`, `DRoot2`.
 
 # Examples
 ```jldoctest
-julia> ZrootD{3}(2, 3)
+julia> ZRootD{3}(2, 3)
 2 + 3√3
 ```
 """
-const ZrootD{T, V} = QuadraticRing{T, V} where {T, V<:Integer}
-#const ZrootD{D, T2} = QuadraticRing{D, T2} where {D, T2<:Integer}
+const ZRootD{T, V} = QuadraticRing{T, V} where {T, V<:Integer}
+#const ZRootD{D, T2} = QuadraticRing{D, T2} where {D, T2<:Integer}
 
-function ZrootD{D}(a, b=zero(a)) where D
+function ZRootD{D}(a, b=zero(a)) where D
     (a, b) = promote(a, b)
-    ZrootD{D}{typeof(a)}(a, b)
+    ZRootD{D}{typeof(a)}(a, b)
 end
 
 """
@@ -186,8 +186,8 @@ ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{Dyadic{I
 ```
 """
 const ZRoot2{T} = QuadraticRing{2, T} where {T<:Integer}
-# const ZRoot2{T} = ZrootD{2, T}
-# Defining in terms of ZrootD may help printing alias type. (Nope)
+# const ZRoot2{T} = ZRootD{2, T}
+# Defining in terms of ZRootD may help printing alias type. (Nope)
 
 # This has the effect of printing ZRoot2 as we want.
 # But it no longer prints: (alias for ...)
