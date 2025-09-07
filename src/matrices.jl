@@ -7,7 +7,7 @@ import LinearAlgebra
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, Dar, Ang, scalepi, unscalepi, intdiv, random_angle
-import IsApprox: isunitary, AbstractApprox, Equal, Approx
+import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx
 
 abstract type AbstractMatrix2x2{T} <: AbstractMatrix{T} end
 abstract type Normal2x2{T} <: AbstractMatrix2x2{T} end
@@ -60,7 +60,7 @@ end
 
 Base.Matrix(m::AbstractMatrix2x2) = reshape([elements(m)...,], (2,2))
 
-Matrix2x2{T}(m::AbstractMatrix2x2) where {T} = map(x -> T(x), elements(m))
+Matrix2x2{T}(m::AbstractMatrix2x2) where {T} = Matrix2x2(map(x -> T(x), elements(m))...,)
 
 Matrix2x2(m::Matrix2x2) = m
 
@@ -190,6 +190,15 @@ end
 
 isunitary(m::Matrix2x2, ::Equal) = isunitary(m)
 isunitary(m::AbstractUnitary2x2) = true
+
+isinvolution(m::AbstractMatrix2x2) = isinvolution(m, Equal())
+function isinvolution(m::AbstractMatrix2x2, ::Equal)
+    isone(m * m)
+end
+function isinvolution(m::AbstractMatrix2x2, approx::Approx)
+    isone(m * m, approx)
+end
+
 svdvals(::AbstractUnitary2x2{T}) where {T} = (one(real(T)), one(real(T)))
 
 """

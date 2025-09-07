@@ -3,6 +3,7 @@ module RingMatrices
 import ..CyclotomicRings: DOmega, least_denominator_exponent
 import ..Matrices2x2: Matrix2x2, AbstractMatrix2x2, elements
 import ..RootOnes: RootOne
+import IsApprox: isinvolution, Approx, AbstractApprox, Equal
 
 # The modules for rings, groups, and Matrices are independent.
 # This module mixes them.
@@ -23,5 +24,15 @@ end
 function least_denominator_exponent(m::AbstractMatrix2x2{<:DOmega})
     maximum(least_denominator_exponent, elements(m))
 end
+
+isinvolution(m::AbstractMatrix{<:DOmega}) = isinvolution(m, Equal())
+function isinvolution(m::AbstractMatrix{<:DOmega}, ::Equal)
+    isone(m * m)
+end
+function isinvolution(m::AbstractMatrix{<:DOmega}, approx::Approx)
+    isone(m * m, approx)
+end
+
+
 
 end #module RingMatrices

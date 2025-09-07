@@ -28,11 +28,12 @@ julia> compose("TSHTHTHTHT")
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
 """
-function compose(gates::AbstractString; chunklen=300)
+function compose(gates::AbstractString; chunklen=500)
     gates = reverse(gates)
     length(codeunits(gates)) <= chunklen && return compose_one(gates, false)
     chunks = reverse(chunkstring(gates, chunklen))
     mats = [map(DOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
+#    mats = [compose_one(chunk, false) for chunk in chunks]
     canonical(prod(mats))
 end
 
