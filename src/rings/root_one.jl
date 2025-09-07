@@ -69,7 +69,7 @@ julia> RootOne{8}(2) * RootOne{8}(3)
 RootOne{8}(5)
 ```
 """
-struct RootOne{N}
+struct RootOne{N} <: Number
     function RootOne{N}(k) where {N}
         new{N}(mod(k, N))
     end

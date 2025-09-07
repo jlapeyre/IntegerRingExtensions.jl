@@ -1,16 +1,6 @@
 using IntegerExtensions
 using Test
 
-include("quadratic_ring_tests.jl")
-include("cyclotomic_tests.jl")
-include("dyadic_tests.jl")
-include("common_tests.jl")
-include("matrices_tests.jl")
-include("composition_tests.jl")
-include("zrot_tests.jl")
-include("ringmatrices_tests.jl")
-include("singleton_conversion_tests.jl")
-include("rootonetests.jl")
 
 @testset "QuadraticRing{2, Int}" begin
     # Don't follow this example in real code!
@@ -44,18 +34,18 @@ end
 
 @testset "DOmega" begin
     cr = CyclotomicRing(1,2,3,4)
-    @test typeof(cr) === CyclotomicRing{4, Int64}
-    cromega = DOmega{Int}((1,2,3,4))
-    @test cromega === DOmega{Int}(1,2,3,4)
+    @test isa(cr, CyclotomicRing{4, Int64})
+    cromega = DOmega((1,2,3,4))
+    @test cromega === DOmega(1,2,3,4)
     @test typeof(cromega) === DOmega{Int}
     @test cromega === DOmega{Int}(cr)
-    z = DOmega{Int}(1,2,3,Dyadic(1,1))
+    z = DOmega(1,2,3,Dyadic(1,1))
     @test typeof(z) === DOmega{Int}
     @test typeof(DOmega(1,2,3,4)) === DOmega{Int}
 
     @test cromega == cromega
 #    @test DOmega{Int}(0,0,0,1) == one(cromega)
-    @test DOmega{Int}(1,0,0,0) == one(cromega)
+    @test DOmega(1,0,0,0) == one(cromega)
     @test isone(one(cr))
     @test isone(one(cromega))
 
@@ -79,3 +69,13 @@ end
     @test isapprox(float(hadamard), 1/sqrt(2) * [1 1; 1 -1])
 end
 
+include("composition_tests.jl")
+include("quadratic_ring_tests.jl")
+include("cyclotomic_tests.jl")
+include("dyadic_tests.jl")
+include("common_tests.jl")
+include("matrices_tests.jl")
+include("zrot_tests.jl")
+include("ringmatrices_tests.jl")
+include("singleton_conversion_tests.jl")
+include("rootonetests.jl")

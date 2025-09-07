@@ -48,20 +48,14 @@ The ring `𝔻[ω] = ℤ[1/√2, i]`:
 const DOmega{T} = CyclotomicRing{4, Dyadic{T, Int}}
 ```
 """
-struct CyclotomicRing{M, CoeffT <: Number}
-    # function CyclotomicRing{M}(tup) where M
-    #     length(tup) == M || throw(ArgumentError(lazy"Length of $tuple must be equal to $M"))
-    #     tup = promote(tup...)
-    #     new{M, typeof(first(tup))}(tup)
-    # end
-
-    # function CyclotomicRing{M, CoeffT}(tup) where {M, CoeffT}
-    #     length(tup) == M || throw(ArgumentError(lazy"Length of $tuple must be equal to $M"))
-    #     tup = map(x -> CoeffT(x), tup)
-    #     new{M, typeof(first(tup))}(tup)
-    # end
+struct CyclotomicRing{M, CoeffT <: Number} <: Number
+    function CyclotomicRing{M, CoeffT}(coeffs::NTuple{M, CoeffT}) where {M, CoeffT <: Number}
+        new{M, CoeffT}(coeffs)
+    end
     coeffs::NTuple{M, CoeffT}
 end
+
+CyclotomicRing(coeffs::NTuple{M, T}) where {M, T} = CyclotomicRing{M,T}(coeffs)
 
 ###
 ### Aliases for special cases: DOmega, ZOmega
@@ -102,28 +96,37 @@ const ZOmega{T} = CyclotomicRing{4, T} where {T <: Integer}
 ### Constructors
 ###
 
+# This causes ambiguity with
+# CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1 <: Number, CT2 <: Number}
 function CyclotomicRing{4, T}(x::Number) where {T}
     z = zero(T)
     return CyclotomicRing{4, T}((T(x), z, z, z))
 end
 
-function CyclotomicRing(coeffs::T...) where {T}
-    CyclotomicRing{length(coeffs), T}(coeffs)
+function CyclotomicRing{M, T}(x::Number) where {M, T}
+    z = zero(T)
+    val = T(x)
+    return CyclotomicRing{M, T}(ntuple(i -> i == 1 ? val : z, Val(M)))
+end
+
+function CyclotomicRing(coeffs::T...) where {T <: Number}
+    CyclotomicRing{length(coeffs), typeof(coeffs[1])}(coeffs)
+end
+
+function CyclotomicRing{M}(c1::Number, c2, coeffs...) where M
+    cs = promote(c1, c2, coeffs...)
+    CyclotomicRing{M, typeof(cs[1])}(cs)
+end
+
+function CyclotomicRing(c1::Dyadic, coeffs::Dyadic...)
+    cs = promote(c1, coeffs...)
+    CyclotomicRing{length(cs), typeof(cs[1])}(cs)
 end
 
 # function CyclotomicRing(coeffs::NTuple{N, <:Number}) where {N}
 #     CyclotomicRing{N}(coeffs)
 # end
 
-function CyclotomicRing(c1::Dyadic, coeffs::Dyadic...)
-    cs = promote(c1, coeffs...)
-    CyclotomicRing(cs)
-end
-
-function CyclotomicRing{M}(c1::Number, coeffs...) where M
-    cs = promote(c1, coeffs...)
-    CyclotomicRing{M, typeof(cs[1])}(cs)
-end
 
 function CyclotomicRing{4}(a::Number,b,c,d)
     cs = promote(a,b,c,d)
@@ -131,15 +134,19 @@ function CyclotomicRing{4}(a::Number,b,c,d)
 end
 
 function DOmega(cs::NTuple{4, <:Dyadic})
-    CyclotomicRing(cs)
+    CyclotomicRing{4, typeof(first(cs))}(cs)
+end
+
+function DOmega(cs::NTuple{4, <:Integer})
+    cs = map(Dyadic, cs)
+    CyclotomicRing{4, typeof(first(cs))}(cs)
 end
 
 function DOmega(c1, c2, c3, c4)
     cs0 = (c1, c2, c3, c4)
     cs1 = promote(cs0...)
     cs = map(Dyadic, cs1)
-#    @show typeof(cs)
-    CyclotomicRing(cs)
+    CyclotomicRing{4, Dyadic{typeof(cs[1].a), Int}}(cs)
 end
 
 function _mkomega(::Type{T}, a, b, c, d) where {T}
@@ -175,6 +182,13 @@ function DOmega(r::Rational)
 end
 
 DOmega(a::T) where {T<:Integer} = DOmega{T}(a)
+
+# Resolves ambiguity
+function CyclotomicRing{4, CT1}(c::CyclotomicRing{4, CT2}) where {CT1 <: Number, CT2 <: Number}
+    M = 4
+    coeffs = convert.(CT1, c.coeffs)
+    CyclotomicRing{M, CT1}(coeffs)
+end
 
 function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1 <: Number, CT2 <: Number}
     coeffs = convert.(CT1, c.coeffs)
@@ -275,6 +289,11 @@ function promote_rule(::Type{CyclotomicRing{<:Any, T}}, ::Type{V}) where {T, V <
     promote_type(promote_type(T, AbstractFloat), V)
 end
 
+function promote_rule(::Type{T}, ::Type{<:RootOne{8}}) where {T}
+    T
+end
+promote_rule(::Type{<:RootOne{8}}, ::Type{T}) where {T} = T
+
 function Base.conj(cyc::DOmega{T}) where T
     (a, b, c, d) = cyc.coeffs
     # I think promotion not needed.
@@ -302,6 +321,13 @@ end
 function ZOmega(q::Zroot2)
     ZOmega(q.a, q.b, zero(q.b), -q.b)
 end
+
+function promote_rule(::Type{<:Zroot2}, ::Type{T}) where {T <: ZOmega}
+    T
+end
+
+# Base.:(==)(a::Zroot2, b::ZOmega) = ZOmega(a) == b
+# Base.:(==)(a::ZOmega, b::Zroot2) = b == a
 
 Base.one(::Type{DOmega}) = one(DOmega{Int})
 Base.one(::Type{ZOmega}) = one(ZOmega{Int})
@@ -505,7 +531,7 @@ function Base.:*(c1::CyclotomicRing{4}, c2::CyclotomicRing{4})
 
         a1*d2 + b1*c2 + c1*b2 + d1*a2,
     )
-    CyclotomicRing(coeffs)
+    CyclotomicRing{4, typeof(first(coeffs))}(coeffs)
 end
 
 function Base.:*(r::Real, c::CyclotomicRing)
@@ -590,7 +616,7 @@ Multiply `cyc` by `√2ⁿ`
 function mul_root_two(cyc::CyclotomicRing{4})
     (a,b,c,d) = cyc.coeffs
     coeffs = (b-d, c+a, b+d, c-a)
-    CyclotomicRing(coeffs)
+    typeof(cyc)(coeffs)
 end
 
 function mul_root_two(cyc::CyclotomicRing{4}, n::Integer)
@@ -658,7 +684,7 @@ end
 @inline function Base.:(==)(cyc::CyclotomicRing{N}, r::RootOne{M}) where {N, M}
     2*N == M || return throw(ArgumentError(lazy"Unsupported arguments"))
     r.k > N && return -cyc == -r
-    isone(sum(isone, cyc)) || return false # Exactly one coeff is one
+    isone(sum(isone, coeffs(cyc))) || return false # Exactly one coeff is one
     n = findfirst(isone, coeffs(cyc)) # Which coeff is one?
     n == r.k + 1
 end
@@ -768,7 +794,9 @@ function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
         else
             (0,0,0,val)
         end
-    CyclotomicRing{4, T}(coeffs)
+    #    println(T)
+    cs = map(Dyadic, coeffs)
+    CyclotomicRing{4, typeof(cs[1])}(cs)
 end
 
 ZOmega(r::RootOne{8}) = CyclotomicRing{4}(r)
@@ -802,7 +830,7 @@ function least_denominator_exponent(cyc::CyclotomicRing{<:Any, <:Dyadic})
     lde2 << 1
 end
 
-struct DOmegaA{T, KT}
+struct DOmegaA{T, KT} <: Number
     z::ZOmega{T}
     k::KT
 end
