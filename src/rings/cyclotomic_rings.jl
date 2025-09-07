@@ -664,6 +664,7 @@ end
     CyclotomicRing(map(x -> mul_two(x, n), cyc.coeffs))
 end
 
+# Hmm. this is wrong
 function Base.:*(::InvTwoT, cyc::CyclotomicRing)
     CyclotomicRing(map(x -> InvTwo * x, cyc.coeffs))
 end
@@ -678,7 +679,7 @@ function Base.:*(::RootTwoT, cyc::CyclotomicRing{4})
     CyclotomicRing(coeffs)
 end
 
-Base.:*(::InvRootTwoT, cyc::CyclotomicRing{4}) = RootTwo * (InvTwo * cyc)
+Base.:*(::InvRootTwoT, cyc::CyclotomicRing{4}) = mul_one_over_root_two(cyc)
 
 """
     mul_one_over_root_two(cyc::CyclotomicRing{4})
