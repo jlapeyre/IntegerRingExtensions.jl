@@ -3,12 +3,12 @@ module QuadraticRings
 import LinearAlgebra
 import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
-    mul_half, conj_root_two, norm_root_two, isrational, isunit, invstrict
+    mul_half, conj_root_two, norm_root_two, norm_root_D, conj_root_D, isrational, isunit, invstrict
 import ..Dyadics: Dyadic
 
 import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
 import ..RootOnes: RootOne
-import ..Utils: PRETTY
+import ..Utils: PRETTY, issquarefree
 
 export QuadraticRing, QuadraticRing2, ZRootD, ZRoot2, DRoot2
 
@@ -38,7 +38,7 @@ values of `D` are `2` and `3`.
 
 If `D` is a supported integer and `CoeffT <: Integer`, then the type represents `ℤ[√D]`, a ring of quadratic integers.
 
-If `D` is the type `Dyadic`, then the ring represents `𝔻[√D]`, that is, the ring of
+If `CoeffT <: Dyadic`, then the ring represents `𝔻[√D]`, that is, the ring of
 dyadic fractions with `√D` adjoined.
 
 The following aliases are defined:
@@ -71,7 +71,16 @@ integers are already exactly represented by `Complex{<:Integer}`.
 """
 struct QuadraticRing{D, CoeffT <: Real} <: Real
     function QuadraticRing{D, T}(a::T, b::T) where {D, T}
+
+        # This definitely catches errors and should be done at compile time.
         isa(D, Integer) || throw(ArgumentError(lazy"D must be an Integer"))
+
+        # We may not want these checks. I am not sure when they happen.
+        D > 1 || throw(ArgumentError(lazy"D must be greater than one. Got $D"))
+        mod(D, 4) != 1 || throw(ArgumentError(lazy"D may not be 1 mod 4. Got $D"))
+
+        # Following happens on each instantiation. Way too slow.
+#        issquarefree(D) || throw(ArgumentError(lazy"D must be square free Got $D"))
         new(a, b)
     end
 
@@ -368,16 +377,26 @@ function Base.big(q::QuadraticRing{D, T}) where {D, T <: AbstractFloat}
     big(q.a) + sqrt(big(D)) * big(q.b)
 end
 
-# This is a misnomer. Works for other D as well
 """
-    norm_root_two(qi::QuadraticRing{D})
+    norm_root_two(qi::QuadraticRing{2})
+
+Return the norm of `qi`.
+
+This method maps `a + b√2` to `a² - 2 b²`.
+This method is a convenience wrapper for `norm_root_D`.
+"""
+norm_root_two(qi::QuadraticRing{2}) = norm_root_D(qi)
+
+
+"""
+    norm_root_D(qi::QuadraticRing{D})
 
 Return the norm of `qi`.
 
 This method maps `a + b√D` to `a² - D b²`.
-This method implements the √2-norm.
+This method implements the √D-norm.
 """
-norm_root_two(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
+norm_root_D(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
 
 """
     conj_root_two(qi::QuadraticRing{2})
@@ -385,10 +404,18 @@ norm_root_two(qi::QuadraticRing{D}) where D = qi.a * qi.a  - D * (qi.b * qi.b)
 Maps `a + b√2` to `a - b√2`.
 
 This implements √2-conjugation.
+This method is a convenience wrapper for `conj_root_D`.
 """
-conj_root_two(qi::QuadraticRing{2}) = QuadraticRing{2}(qi.a, -qi.b)
+conj_root_two(qi::QuadraticRing{2}) = conj_root_D(qi)
 
-rootDconj(qi::QuadraticRing{D}) where D = QuadraticRing{D}(qi.a, -qi.b)
+"""
+    conj_root_D(qi::QuadraticRing{D}) where D
+
+Maps `a + b√D` to `a - b√D`.
+
+This implements √D-conjugation.
+"""
+conj_root_D(qi::QuadraticRing) = typeof(qi)(qi.a, -qi.b)
 
 Base.:*(q1::QuadraticRing{D}, q2::QuadraticRing{D}) where D =
     QuadraticRing{D}(q1.a * q2.a + D * q1.b * q2.b, q1.a * q2.b + q1.b * q2. a)

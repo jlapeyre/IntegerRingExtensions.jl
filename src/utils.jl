@@ -2,8 +2,17 @@ module Utils
 
 import LinearAlgebra
 import ILog2: ilog2
+using Primes: factor
 
 export subscript, superscript
+
+function issquarefree(n::Integer)
+    facs = factor(n)
+    for (fac, mult) in facs
+        mult > 1 && return false
+    end
+    return true
+end
 
 subscript(i::Integer) = _script(i, _sub_digit)
 superscript(i::Integer) = _script(i, _super_digit)
