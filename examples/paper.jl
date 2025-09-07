@@ -11,7 +11,7 @@ const cidelta = complex(idelta)
 # Can represent with ZOmega. But we need to manipulate delta as a DOmega
 const delta_z = ZOmega(1, 1, 0 , 0)
 
-const lambda = Zroot2(1, 1)
+const lambda = ZRoot2(1, 1)
 
 @assert abs(float(delta^2)) == 2 + sqrt(2)
 

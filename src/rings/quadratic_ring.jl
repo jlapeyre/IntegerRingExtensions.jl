@@ -10,7 +10,7 @@ import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
 import ..RootOnes: RootOne
 import ..Utils: PRETTY
 
-export QuadraticRing, QuadraticRing2, ZrootD, Zroot2, Droot2
+export QuadraticRing, QuadraticRing2, ZrootD, ZRoot2, Droot2
 
 ########################
 ####
@@ -51,7 +51,7 @@ const ZrootD{T1, T2} = QuadraticRing{T1, T2} where {T1, T2<:Integer}
 ```
 
 ```julia
-const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
+const ZRoot2{T} = QuadraticRing{2, T} where {T<:Integer}
 ```
 
 # Examples
@@ -107,14 +107,14 @@ const QuadraticRing2{CoeffT} = QuadraticRing{2} where CoeffT
 
 """
     coeffs(q::QuadraticRing)
-    coeffs(q::Zroot2)
+    coeffs(q::ZRoot2)
     coeffs(q::Droot2)
 
 Return a `Tuple` of the two coeffients of `q`.
 
 # Examples
 ```jldoctest
-julia> coeffs(Zroot2(1,2))
+julia> coeffs(ZRoot2(1,2))
 (1, 2)
 
 julia> coeffs(Droot2(1,2))
@@ -138,7 +138,7 @@ provided `D` is a valid integer (See `QuadraticRing`).
 ZrootD{D, CoeffT} = QuadraticRing{D, CoeffT} where {D, CoeffT<:Integer}
 ```
 
-See also `Zroot2`, `Droot2`.
+See also `ZRoot2`, `Droot2`.
 
 # Examples
 ```jldoctest
@@ -155,80 +155,80 @@ function ZrootD{D}(a, b=zero(a)) where D
 end
 
 """
-    Zroot2{CoeffT} where {CoeffT<:Integer}
+    ZRoot2{CoeffT} where {CoeffT<:Integer}
 
 Represents the ring `ℤ[√2]` of quadratic integers of radix `2`.
 
-`Zroot2` is an alias defined by
+`ZRoot2` is an alias defined by
 ```
-Zroot2{CoeffT} = QuadraticRing{2, CoeffT} where {2, CoeffT<:Integer}
+ZRoot2{CoeffT} = QuadraticRing{2, CoeffT} where {2, CoeffT<:Integer}
 ```
 
 See also `Droot2`.
 
 # Examples
 ```jldoctest
-julia> Zroot2(2, 3)
+julia> ZRoot2(2, 3)
 2 + 3√2
 
-julia> repr(Zroot2(2, 3))
+julia> repr(ZRoot2(2, 3))
 "QuadraticRing{2, Int64}(2, 3)"
 
-julia> Zroot2{BigInt}(1, 2)
+julia> ZRoot2{BigInt}(1, 2)
 1 + 2√2
 
-julia> typeof(coeffs(Zroot2{BigInt}(1, 2)))
+julia> typeof(coeffs(ZRoot2{BigInt}(1, 2)))
 Tuple{BigInt, BigInt}
 
-julia> Zroot2{Dyadic{Int, Int}}(1, 2)  # Enforces ℤ as base ring.
+julia> ZRoot2{Dyadic{Int, Int}}(1, 2)  # Enforces ℤ as base ring.
 ERROR: TypeError: in QuadraticRing, in T, expected T<:Integer, got Type{Dyadic{Int64, Int64}}
 ```
 """
-const Zroot2{T} = ZrootD{2, T}
+const ZRoot2{T} = ZrootD{2, T}
 # Defining in terms of ZrootD may help printing alias type. (Nope)
-#const Zroot2{T} = QuadraticRing{2, T} where {T<:Integer}
+#const ZRoot2{T} = QuadraticRing{2, T} where {T<:Integer}
 
-# This has the effect of printing Zroot2 as we want.
+# This has the effect of printing ZRoot2 as we want.
 # But it no longer prints: (alias for ...)
-function Base.show(io::IO, ::Type{Zroot2{T}}) where {T <: Integer}
-    print(io, "Zroot2{$T}")
+function Base.show(io::IO, ::Type{ZRoot2{T}}) where {T <: Integer}
+    print(io, "ZRoot2{$T}")
 end
 
 ##
 ## Constructors
 ##
 
-function Zroot2(a, b=zero(a))
+function ZRoot2(a, b=zero(a))
     (a, b) = promote(a, b)
-    Zroot2{typeof(a)}(a, b)
+    ZRoot2{typeof(a)}(a, b)
 end
 
 
-Zroot2(::RootTwoT) = Zroot2{Int}(RootTwo)
+ZRoot2(::RootTwoT) = ZRoot2{Int}(RootTwo)
 
 function QuadraticRing{2, T}(::RootTwoT) where {T}
     QuadraticRing{2, T}(zero(T), one(T))
 end
 
-# function Zroot2{T}(::RootTwoT) where {T}
-#     Zroot2(zero(T), one(T))
+# function ZRoot2{T}(::RootTwoT) where {T}
+#     ZRoot2(zero(T), one(T))
 # end
 
 isrational(q::QuadraticRing{<:Any, <:Integer}) = iszero(q.b)
 isrational(q::QuadraticRing{<:Any, <:Dyadic}) = iszero(q.b)
 
 """
-    root_two(::Type{Zroot2{T}}) where T
+    root_two(::Type{ZRoot2{T}}) where T
 
-Return a value of `Zroot2{T}` representing the square root of two.
+Return a value of `ZRoot2{T}` representing the square root of two.
 
 # Example
 ```jldoctest
-julia> root_two(Zroot2{Int})
+julia> root_two(ZRoot2{Int})
 0+ √2
 ```
 """
-root_two(::Type{Zroot2{T}}) where T = Zroot2(zero(T), one(T))
+root_two(::Type{ZRoot2{T}}) where T = ZRoot2(zero(T), one(T))
 
 function show(io::IO, ::MIME"text/plain", qr::QuadraticRing{D}) where {D}
     if isone(qr.b)

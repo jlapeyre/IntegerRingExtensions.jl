@@ -1,8 +1,8 @@
-@testset "Zroot2" begin
-    x = Zroot2(3)
+@testset "ZRoot2" begin
+    x = ZRoot2(3)
     @test x == 3
     @test Int(x) == 3
-    r2 = root_two(Zroot2{Int})
+    r2 = root_two(ZRoot2{Int})
     @test float(r2) == sqrt(2)
 
     cnt = 0
@@ -24,14 +24,14 @@
 end
 
 @testset "Quadratic Construction" begin
-    @test Zroot2(RootTwo) == Zroot2(0, 1)
-    @test isa(Zroot2{BigInt}(RootTwo), Zroot2{BigInt})
+    @test ZRoot2(RootTwo) == ZRoot2(0, 1)
+    @test isa(ZRoot2{BigInt}(RootTwo), ZRoot2{BigInt})
 end
 
 @testset "Droot2" begin
-    # x = Zroot2(3)
+    # x = ZRoot2(3)
     # @test x == 3
     # @test Int(x) == 3
-    # r2 = root_two(Zroot2{Int})
+    # r2 = root_two(ZRoot2{Int})
     # @test float(r2) == sqrt(2)
 end

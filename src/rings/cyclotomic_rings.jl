@@ -8,7 +8,7 @@ import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne
 
 import ..Dyadics: Dyadic
-import ..QuadraticRings: Droot2, Zroot2
+import ..QuadraticRings: Droot2, ZRoot2
 import ..Singletons: InvTwo, InvTwoT,
     RootTwo, RootTwoT,
     InvRootTwo, InvRootTwoT,
@@ -254,7 +254,7 @@ Return a `Tuple` of the coeffients of `cyc`
 
 # Examples
 ```jldoctest
-julia> coeffs(Zroot2(1,2))
+julia> coeffs(ZRoot2(1,2))
 (1, 2)
 
 julia> coeffs(Droot2(3,4))
@@ -312,22 +312,22 @@ function Base.conj(cyc::CyclotomicRing{4})
     typeof(cyc)(newcoeff)
 end
 
-function Zroot2(z::ZOmega)
+function ZRoot2(z::ZOmega)
     (a, b, c, d) = coeffs(z)
     iszero(c) && d == -b || throw(ArgumentError(lazy"Inexact error converting $z to ZRoot2."))
-    Zroot2(a, b)
+    ZRoot2(a, b)
 end
 
-function ZOmega(q::Zroot2)
+function ZOmega(q::ZRoot2)
     ZOmega(q.a, q.b, zero(q.b), -q.b)
 end
 
-function promote_rule(::Type{<:Zroot2}, ::Type{T}) where {T <: ZOmega}
+function promote_rule(::Type{<:ZRoot2}, ::Type{T}) where {T <: ZOmega}
     T
 end
 
-# Base.:(==)(a::Zroot2, b::ZOmega) = ZOmega(a) == b
-# Base.:(==)(a::ZOmega, b::Zroot2) = b == a
+# Base.:(==)(a::ZRoot2, b::ZOmega) = ZOmega(a) == b
+# Base.:(==)(a::ZOmega, b::ZRoot2) = b == a
 
 Base.one(::Type{DOmega}) = one(DOmega{Int})
 Base.one(::Type{ZOmega}) = one(ZOmega{Int})
