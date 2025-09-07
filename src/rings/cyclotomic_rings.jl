@@ -635,6 +635,8 @@ function mul_root_two(cyc::CyclotomicRing{4}, n::Integer)
     end
 end
 
+# This converts to float. Not what we want, I think.
+# We need to not change the type of the input
 """
     mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
 
@@ -642,7 +644,7 @@ Multiply `cyc` by `n` factors of the reciprocal of two.
 
 `n` may be positive, negative, or zero.
 """
-function mul_half(cyc::CyclotomicRing{4}, n::Integer=1)
+function mul_half(cyc::CyclotomicRing{4, <:Dyadic}, n::Integer=1)
     n == 0 && return cyc
     CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
 end
@@ -664,9 +666,9 @@ end
     CyclotomicRing(map(x -> mul_two(x, n), cyc.coeffs))
 end
 
-# Hmm. this is wrong
 function Base.:*(::InvTwoT, cyc::CyclotomicRing)
-    CyclotomicRing(map(x -> InvTwo * x, cyc.coeffs))
+    mul_half(cyc)
+#    CyclotomicRing(map(x -> InvTwo * x, cyc.coeffs))
 end
 
 function Base.:*(pow::Pow, cyc::CyclotomicRing{4})

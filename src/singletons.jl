@@ -67,6 +67,10 @@ isreal(::OneT) = true
 Base.:*(::OneT, x::Number) = x
 Base.:*(x::Number, ::OneT) = x
 
+# Probably do not want these.
+# Base.:*(::OneT, x::T) where {T} = one(T) * x
+# Base.:*(x, ::OneT) = One * x
+
 """
     One
     𝟙
@@ -388,8 +392,8 @@ Base.:*(::InvRootTwoT, ::InvRootTwoT) = InvTwo
 Base.:*(::InvTwoT, ::TwoT) = One
 Base.:*(::TwoT, ::InvTwoT) = One
 
-Base.:*(::InvRootTwoT, ::RootTwoT) = One # May want to use a different type
-Base.:*(::RootTwoT, ::InvRootTwoT) = One # May want to use a different type
+Base.:*(::InvRootTwoT, ::RootTwoT) = One
+Base.:*(::RootTwoT, ::InvRootTwoT) = One
 
 Base.:*(::ImagT, ::ImagT) = -1
 
@@ -503,9 +507,6 @@ Base.:*(x, ::RootImagT) = RootImag * x
 
 Base.:*(::ImagT, x::T) where {T<:Number} = complex(T)(im) * x
 Base.:*(x, ::ImagT) = Imag * x
-
-Base.:*(::OneT, x::T) where {T} = one(T) * x
-Base.:*(x, ::OneT) = One * x
 
 # Don't know where this is used
 Base.promote_rule(::Type{TwoT}, ::Type{T}) where {T<:Integer} = T
