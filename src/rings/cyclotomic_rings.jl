@@ -675,9 +675,9 @@ function Base.:*(::InvTwoT, cyc::CyclotomicRing)
 #    CyclotomicRing(map(x -> InvTwo * x, cyc.coeffs))
 end
 
-function Base.:*(pow::Pow, cyc::CyclotomicRing{4})
-    CyclotomicRing(map(x -> pow * x, cyc.coeffs))
-end
+# function Base.:*(pow::Pow, cyc::CyclotomicRing{4})
+#     CyclotomicRing(map(x -> pow * x, cyc.coeffs))
+# end
 
 function Base.:*(::RootTwoT, cyc::CyclotomicRing{4})
     (a,b,c,d) = cyc.coeffs
