@@ -322,6 +322,20 @@ function LinearAlgebra.normalize(v::Vector2{T}) where {T}
     Vector2{typeof(x1)}(x1, y1)
 end
 
+# Several times faster than generic fallback
+function LinearAlgebra.isposdef(m::AbstractMatrix2x2)
+    LinearAlgebra.ishermitian(m) || return false
+    evs = eigvals(m)
+    evs[1] > 0 && evs[2] > 0
+end
+
+# Generic fallback is not less efficient
+# function LinearAlgebra.ishermitian(m::AbstractMatrix2x2)
+#     (a,b,c,d) = elements(m)
+#     (isreal(a) && isreal(d)) || return false
+#     c == adjoint(b)
+# end
+
 function eigvecs(m::AbstractMatrix2x2)
     (v1, v2) = eigvals(m)
     (a, b, c, d) = elements(m)
@@ -368,6 +382,17 @@ function svdvals(m::Matrix2x2)
     s1 > s2 ? (s1, s2) : (s2, s1)
 end
 
+function LinearAlgebra.norm(m::AbstractMatrix2x2, n::Real=2)
+    n == 2 && return norm2(m)
+    n == 1 && return norm1(m)
+    n == Inf && return normInf(m)
+end
+
+# We may need to scale for accuracy, as is done in LinearAlgebra code.
+norm2(m::AbstractMatrix2x2) = sqrt(sum(abs2, elements(m)))
+norm1(m::AbstractMatrix2x2) = sum(abs, elements(m))
+normInf(m::AbstractMatrix2x2) = maximum(abs, elements(m))
+
 function opnorm(m::AbstractMatrix2x2)
     (v1, v2) = svdvals(m)
     max(v1, v2)
@@ -383,9 +408,8 @@ end
 Return the trace norm of `m`.
 """
 function tracenorm(m::AbstractMatrix2x2)
-    (v1, v2) = svdvals(m)
-    v1 + v2
-end
+    sum(svdvals(m))
+ end
 
 function tracedistance(a::AbstractMatrix2x2, b::AbstractMatrix2x2)
     tn = tracenorm(a - b)
