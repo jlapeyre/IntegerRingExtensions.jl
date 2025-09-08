@@ -108,11 +108,15 @@ end
 function Base.show(io::IO, ::PRETTY, m::AbstractMatrix2x2)
     summary(io, m)
     println(io, ":")
-    spc = "  "
+    _show_matrix2x2(io, m)
+end
+
+function _show_matrix2x2(io::IO, m::AbstractMatrix2x2)
     (as, bs, cs, ds)  = map(_showstr, elements(m))
     (al, bl, cl, dl) = map(length, (as, bs, cs, ds))
     w1 = max(al, bl)
     w2 = max(cl, dl)
+    spc = "  "
     print(io, cpad(as, w1), spc)
     println(io, cpad(cs, w2))
     print(io, cpad(bs, w1), spc)
@@ -230,12 +234,12 @@ end
     Matrix2x2(a1*a2 + c1*b2, a2*b1 + d1*b2, a1*c2 + c1*d2, b1*c2 + d1*d2)
 end
 
-@inline function Base.:*(m::Matrix2x2, x::Number)
+@inline function Base.:*(m::AbstractMatrix2x2, x::Number)
     (a, b, c, d) = elements(m)
     Matrix2x2(x * a, x * b, x * c, x * d)
 end
 
-@inline Base.:*(x::Number, m::Matrix2x2) = m * x
+@inline Base.:*(x::Number, m::AbstractMatrix2x2) = m * x
 
 @inline function _pair_op(op, m1, m2)
     (a1, b1, c1, d1) = elements(m1)
@@ -243,10 +247,10 @@ end
     Matrix2x2(op(a1, a2), op(b1, b2), op(c1, c2), op(d1,d2))
 end
 
-Base.:*(m1::Matrix2x2, m2::Matrix2x2) = _mul2(m1, m2)
-Base.:+(m1::Matrix2x2, m2::Matrix2x2) = _pair_op(+, m1, m2)
+Base.:*(m1::AbstractMatrix2x2, m2::AbstractMatrix2x2) = _mul2(m1, m2)
+Base.:+(m1::AbstractMatrix2x2, m2::AbstractMatrix2x2) = _pair_op(+, m1, m2)
 Base.:-(m1::Matrix2x2, m2::Matrix2x2) = _pair_op(-, m1, m2)
-Base.:-(m::Matrix2x2) = map(-, m) # Unary minus
+Base.:-(m::AbstractMatrix2x2) = map(-, m) # Unary minus
 
 Base.:-(a::AbstractMatrix2x2, b::AbstractMatrix2x2) = Matrix2x2(a) - Matrix2x2(b)
 
@@ -371,7 +375,7 @@ end
 
 Return a tuple of the singular values of `m` in descending order.
 """
-function svdvals(m::Matrix2x2)
+function svdvals(m::AbstractMatrix2x2)
     ma = m * adjoint(m)
     if isone(ma)
         ev = one(real(eltype(m)))
@@ -494,6 +498,10 @@ function random_diagonal_unitary(::Type{T}=Float64) where T
     diagm(Vector2(cispi(rand(T)), cispi(rand(T))))
 end
 
+function LinearAlgebra.isdiag(m::AbstractMatrix2x2)
+    iszero(m[2]) && iszero(m[3])
+end
+
 isSU2(m::AbstractMatrix2x2) = isone(det(m))
 
 function isSU2(m::AbstractMatrix, approx::AbstractApprox)
@@ -582,7 +590,7 @@ end
     SU2B_from_u_t(unew, newt)
 end
 
-alt_random_unitary2x2() = random_unitary2x2(Float64)
+alt_random_unitary2x2() = alt_random_unitary2x2(Float64)
 
 function alt_random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     uabs2 = rand(T) # cos^2(gamma)
@@ -598,18 +606,9 @@ function alt_random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     Matrix2x2(pu * uabs, pt * tabs, -pta * tabs,  pua * uabs)
 end
 
-
 @inline function Matrix2x2(U::AbstractSU2)
     Matrix2x2(SU2(unitary_u(U), unitary_t(U)))
 end
-
-# struct ZRot{T, V} <: AbstractSU2{T}
-#     function ZRot(t::T) where T
-#         V = float(T)
-#         new{T, V}(t)
-#     end
-#     minushalftheta::T
-# end
 
 struct ZRot{T} <: AbstractSU2{T}
     function ZRot(t::T) where T
@@ -618,14 +617,9 @@ struct ZRot{T} <: AbstractSU2{T}
     minushalftheta::T
 end
 
-
 function _float_type(::Type{ZRot{T}}) where T
     float(T)
 end
-
-# function Base.eltype(::Type{<:ZRot{<:Any,V}}) where V
-#     Complex{V}
-# end
 
 function Base.eltype(::Type{V}) where {V<:ZRot}
     Complex{_float_type(V)}
@@ -671,6 +665,7 @@ function eigvals(z::ZRot)
     (u, u')
 end
 
+# Probably no faster than fallback
 LinearAlgebra.isdiag(::ZRot) = true
 
 Base.:(==)(zr1::ZRot, zr2::ZRot) = zr1.minushalftheta == zr2.minushalftheta
@@ -845,8 +840,9 @@ function Matrix2x2(U::Unitary2x2)
 end
 
 random_unitary2x2() = random_unitary2x2(Float64)
+
 function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
-    su2 = rand(SU2B{BigFloat})
+    su2 = random_SU2B(T)
     gamma = T(2) * rand(T)
     Unitary2x2(su2, Dar(gamma))
 end
@@ -857,6 +853,25 @@ end
 
 function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2{Complex{T}}}) where {T}
     SU2(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
+end
+
+function random_SU2B(rng::Random.AbstractRNG)
+    random_SU2B(rng, Float64)
+end
+
+function random_SU2B()
+    random_SU2B(Float64)
+end
+
+function random_SU2B(::Type{FloatT}) where {FloatT}
+    random_SU2B(Random.GLOBAL_RNG, FloatT)
+end
+
+# Julia's random sampling interface is a bit difficult. We do this manually.
+function random_SU2B(rng::Random.AbstractRNG, ::Type{FloatT}) where {FloatT}
+    T = Float64
+    uabs2 = rand(rng, T) # cos^2(gamma)
+    SU2B(uabs2, rand(rng, Dar{T}), rand(rng, Dar{T}))
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2B})
@@ -897,5 +912,49 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T,
     Unitary2x2(rand(rng, SUT), rand(rng, Ang))
 end
 
+struct ScaleMatrix2x2{V, MatrixT <: AbstractMatrix2x2, ScaleT} <: AbstractMatrix2x2{V}
+    function ScaleMatrix2x2(m::AbstractMatrix2x2, s)
+        V = typeof(s * m[1])
+        new{V, typeof(m), typeof(s)}(m, s)
+    end
+
+    m::MatrixT
+    s::ScaleT
+end
+
+function Base.getindex(sm::ScaleMatrix2x2, i::Integer)
+    sm.s * sm.m[i]
+end
+
+function Matrix2x2(sm::ScaleMatrix2x2)
+    Matrix2x2(map(x -> sm.s * x, sm.m))
+end
+
+function Base.show(io::IO, ::PRETTY, sm::ScaleMatrix2x2)
+    summary(io, sm)
+    println(io, ":")
+    println(io, sm.s, " ×")
+    _show_matrix2x2(io, sm.m)
+end
+
+function LinearAlgebra.eigvals(sm::ScaleMatrix2x2)
+    (v1, v2) = eigvals(sm.m)
+    (sm.s * v1, sm.s * v2)
+end
+
+function Base.adjoint(sm::ScaleMatrix2x2)
+    ScaleMatrix2x2(adjoint(sm.m), adjoint(sm.s))
+end
+
+function Base.:*(sm1::ScaleMatrix2x2, sm2::ScaleMatrix2x2)
+    s = sm1.s *  sm2.s
+    m = sm1.m * sm2.m
+    ScaleMatrix2x2(m, s)
+end
+
+# Fallback in dense.jl is no less performant in at least some cases.
+function Base.:^(sm::ScaleMatrix2x2, n::Integer)
+    ScaleMatrix2x2(sm.m^n, sm.s^n)
+end
 
 end # module Matrices2x2

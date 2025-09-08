@@ -621,6 +621,10 @@ function mul_root_two(cyc::CyclotomicRing{4})
     typeof(cyc)(coeffs)
 end
 
+function Base.:*(pow::Pow{RootTwoT}, cyc::CyclotomicRing{4})
+    mul_root_two(cyc, pow.n)
+end
+
 function mul_root_two(cyc::CyclotomicRing{4}, n::Integer)
     n == 0 && return cyc
     if n > 0

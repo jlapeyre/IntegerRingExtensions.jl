@@ -154,4 +154,5 @@ function Matrix2x2(::Type{Gate1{:S}}, ::Type{T}=Float64) where {T}
     Matrix2x2(complex(one(T)), zero(T), zero(T), Complex(zero(T), one(T)))
 end
 
+
 end # module Gates

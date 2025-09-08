@@ -45,12 +45,13 @@ Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagona
     SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
     get_theta, unitary_u, unitary_t,
     AbstractUnitary2x2, AbstractSU2, AbstractMatrix2x2,
-    random_ZRot, columns, opnormdistance, alt_random_unitary2x2
+    random_ZRot, columns, opnormdistance, alt_random_unitary2x2,
+    ScaleMatrix2x2
 #    zrotpi, zrothalfpi, get_thetapi, get_thetahalfpi
 #    SU2Param1, SU2Param2, SU2Param3, SU2ParamScaled,
 
 include("ring_matrices.jl")
-Reexport.@reexport import .RingMatrices: compute_phase_factor
+Reexport.@reexport import .RingMatrices: compute_phase_factor, scalematrix
 
 include("gates.jl")
 Reexport.@reexport import .Gates: Gate1, RZ, random_RZ
@@ -59,6 +60,10 @@ include("compose.jl")
 Reexport.@reexport import .Compose: compose, compose_one, get_global_phase,
     correct_global_phase, rotation_error, rotation_error_GPID, Uapprox, random_Uapprox,
     isUapprox
+
+include("gate_matrix.jl")
+Reexport.@reexport import .GateMatrix: XF64, YF64, ZF64, SF64, TF64,
+    CLIFFORD_STR, CLIFFORD_DOMEGA
 
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose

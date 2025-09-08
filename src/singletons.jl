@@ -252,7 +252,7 @@ Represents and instance of type `T` raised to the power `n`.
 
 This is intended for singleton types `T`.
 """
-struct Pow{T}
+struct Pow{T} <: Number
     n::Int
 end
 
