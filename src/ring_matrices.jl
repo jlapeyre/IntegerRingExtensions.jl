@@ -12,15 +12,20 @@ import ..Singletons: InvTwo, InvTwoT,
     RootImag, RootImagT,
     Pow
 
-# The modules for rings, groups, and Matrices are independent.
+# The modules for rings and groups on one hand, and `Matrix2x2` on the other, are independent.
 # This module mixes them.
 
 function Base.:*(r::RootOne{8}, m::Matrix2x2{<:DOmega})
     map(x -> r * x, m)
 end
 
-Base.:*(m::Matrix2x2{<:DOmega}, r::RootOne{8}) = r * m
+Base.:*(m::AbstractMatrix2x2{<:DOmega}, r::RootOne{8}) = r * m
 
+"""
+    compute_phase_factor(m1::Matrix2x2{<:DOmega}, m2::Matrix2x2{<:DOmega})::Int
+
+Find `k` in `0:7` such that `Omega(k) * m1 == m2`. If no such `k` exists, return `-1`.
+"""
 function compute_phase_factor(m1::Matrix2x2{<:DOmega}, m2::Matrix2x2{<:DOmega})
     for i in 0:7
         RootOne{8}(i) * m1 == m2 && return i
@@ -28,8 +33,18 @@ function compute_phase_factor(m1::Matrix2x2{<:DOmega}, m2::Matrix2x2{<:DOmega})
     return -1
 end
 
+"""
+    least_denominator_exponent(m::AbstractMatrix2x2{<:DOmega})
+
+The minimum `k`, such that `√2ᵏ * m[i,j] ∈ ℤ[ω]` for all `i,j`.
+"""
 function least_denominator_exponent(m::AbstractMatrix2x2{<:DOmega})
     maximum(least_denominator_exponent, elements(m))
+end
+
+# This is, of course, very fast. Because the lde is stored in a field.
+function least_denominator_exponent(m::ScaleMatrix2x2{<: DOmega, <: Matrix2x2{<:ZOmega}, <: Pow{InvRootTwoT}})
+    m.s.n
 end
 
 isinvolution(m::AbstractMatrix{<:DOmega}) = isinvolution(m, Equal())
@@ -53,5 +68,11 @@ function scalematrix(m::AbstractMatrix{<:DOmega})
     mz = Matrix2x2{T}(m)
     ScaleMatrix2x2(mz, InvRootTwo^k)
 end
+
+function Base.:*(r::RootOne{8}, sm::ScaleMatrix2x2{<:DOmega})
+#    typeof(sm)(r * sm.m, sm.s) # TODO: write method for this.
+    ScaleMatrix2x2(r * sm.m, sm.s)
+end
+
 
 end #module RingMatrices
