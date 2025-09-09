@@ -9,6 +9,8 @@ import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, Dar, Ang, scalepi, unscalepi, intdiv, random_angle
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx
 
+export Matrix2x2, AbstractMatrix2x2
+
 abstract type AbstractMatrixNxN{T, N} <: AbstractMatrix{T} end
 
 const AbstractMatrix2x2{T} = AbstractMatrixNxN{T, 2} where T
@@ -17,7 +19,6 @@ const AbstractMatrix2x2{T} = AbstractMatrixNxN{T, 2} where T
 abstract type Normal2x2{T} <: AbstractMatrix2x2{T} end
 abstract type AbstractUnitary2x2{T} <: Normal2x2{T} end
 abstract type AbstractSU2{T} <: AbstractUnitary2x2{T} end
-
 abstract type AbstractVector2{T} <: AbstractVector{T} end
 
 """
