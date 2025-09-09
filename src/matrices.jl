@@ -290,18 +290,18 @@ Base.:-(m::AbstractMatrix2x2) = map(-, m) # Unary minus
 Base.:-(a::AbstractMatrix2x2, b::AbstractMatrix2x2) = Matrix2x2(a) - Matrix2x2(b)
 
 # This is only called if `n` is not literal at the call site.
-function Base.:^(m::Matrix2x2, n::Integer)
+function Base.:^(m::MatrixNxN, n::Integer)
     n == 0 && return one(m)
     n == 1 && return m  # If elements of m are mutable, this is problematic
     n == 2 && return m * m
     return _power_by_squaring(m, n)
 end
 
-Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{0}) = one(m)
-Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{1}) = m # If elements of m are mutable, this is problematic
-Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{2}) = m * m
-Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{3}) = m * m * m
-Base.literal_pow(::typeof(Base.:^), m::Matrix2x2, ::Val{4}) = (m * m) * (m * m)
+Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{0}) = one(m)
+Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{1}) = m # If elements of m are mutable, this is problematic
+Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{2}) = m * m
+Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{3}) = m * m * m
+Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{4}) = (m * m) * (m * m)
 
 ##
 ## Linear algebra and related operations
@@ -437,7 +437,7 @@ function opnorm(m::AbstractMatrix2x2)
     max(v1, v2)
 end
 
-function opnormdistance(a::AbstractMatrix2x2, b::AbstractMatrix2x2)
+function opnormdistance(a::AbstractMatrixNxN, b::AbstractMatrixNxN)
     opnorm(a - b)
 end
 
@@ -446,7 +446,7 @@ end
 
 Return the trace norm of `m`.
 """
-function tracenorm(m::AbstractMatrix2x2)
+function tracenorm(m::AbstractMatrixNxN)
     sum(svdvals(m))
  end
 
