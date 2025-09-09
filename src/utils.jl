@@ -18,7 +18,6 @@ subscript(i::Integer) = _script(i, _sub_digit)
 superscript(i::Integer) = _script(i, _super_digit)
 superscript(x) = string("^", x)
 
-
 function _script(i::Integer, _script_func)
     # if i < 0
     #     error("Negative numbers are not supported for direct subscript conversion.")
@@ -190,6 +189,10 @@ function random_special_unitary(n::Integer)
     prod_eigs = LinearAlgebra.det(u)
     phase = prod_eigs^(-1/n)
     phase * u
+end
+
+function prettylist(items)
+    foreach(x->(show(stdout, PRETTY(), x); println("\n")), items)
 end
 
 end # module Utils
