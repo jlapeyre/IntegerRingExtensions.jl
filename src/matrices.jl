@@ -51,15 +51,6 @@ function Matrix2x2(tup::NTuple{4, T}) where T
     Matrix2x2{T}(tup)
 end
 
-# IntegerExtensions.Matrices2x2.MatrixNxN{T, 2, 4} where T)(::NTuple{4, ComplexF64})
-# function Matrix2x2{T}(tup::NTuple{4, T}) where {T}
-# end
-
-# function Matrix2x2(a, b, c, d)
-#     T = typeof(a)
-#     Matrix2x2{T}((a, b, c, d))
-# end
-
 struct Vector2{T} <: AbstractVector2{T}
     data::NTuple{2, T}
 end
@@ -86,6 +77,19 @@ Matrix2x2{T}(a, b, c, d) where {T} = Matrix2x2(T(a), T(b), T(c), T(d))
 function Matrix2x2(m::Matrix)
     size(m) == (2,2) || error("Wrong size")
     Matrix2x2(m...,)
+end
+
+function MatrixNxN{T, N}(m::Matrix) where {T, N}
+    size(m) == (N, N) || error("Wrong size")
+    N2 = N * N
+    # Use NTuple{N2, eltype(m)} to avoid really bad perf.
+    MatrixNxN{T, N, N2}(NTuple{N2, eltype(m)}(m))
+end
+
+function MatrixNxN{T, N, N2}(m::Matrix) where {T, N, N2}
+    size(m) == (N, N) || error("Wrong size")
+    # Use NTuple{N2, eltype(m)} to avoid really bad perf.
+    MatrixNxN{T, N, N2}(NTuple{N2, eltype(m)}(m))
 end
 
 Base.Matrix(m::AbstractMatrix2x2) = reshape([elements(m)...,], (2,2))
@@ -177,7 +181,7 @@ end
 ## Required, and standard, `Base` properties
 ##
 
-@inline function Base.getindex(m::Matrix2x2, i::Integer)
+@inline function Base.getindex(m::MatrixNxN, i::Integer)
     @boundscheck checkbounds(m, i)
     return @inbounds m.data[i]
 end
@@ -191,10 +195,14 @@ function Base.getindex(m::AbstractSU2, i::Integer)
     return conj(unitary_u(m))
 end
 
-Base.size(::AbstractMatrix2x2) = (2, 2)
-Base.eltype(::Type{<:AbstractMatrix2x2{T}}) where T = T
-Base.eltype(::Type{AbstractMatrix2x2{T}}) where T = T
-Base.IndexStyle(::Type{<:AbstractMatrix2x2}) = IndexLinear()
+Base.size(::AbstractMatrixNxN{T, N}) where{T, N} = (N, N)
+Base.eltype(::AbstractMatrixNxN{T, N}) where{T, N} = T
+Base.IndexStyle(::Type{<:AbstractMatrixNxN}) = IndexLinear()
+
+#Base.size(::AbstractMatrix2x2) = (2, 2)
+# Base.eltype(::Type{<:AbstractMatrix2x2{T}}) where T = T
+# Base.eltype(::Type{AbstractMatrix2x2{T}}) where T = T
+#Base.IndexStyle(::Type{<:AbstractMatrix2x2}) = IndexLinear()
 Base.one(::Type{Matrix2x2{T}}) where T = Matrix2x2(one(T), zero(T), zero(T), one(T))
 Base.one(::Matrix2x2{T}) where {T} = one(Matrix2x2{T})
 Base.zero(::Type{Matrix2x2{T}}) where T = Matrix2x2(zero(T), zero(T), zero(T), zero(T))
