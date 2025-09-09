@@ -227,14 +227,14 @@ function isunitary(m::MatrixNxN)
     isone(m * m')
 end
 
-isunitary(m::Matrix2x2, ::Equal) = isunitary(m)
+isunitary(m::MatrixNxN, ::Equal) = isunitary(m)
 isunitary(m::AbstractUnitary2x2) = true
 
-isinvolution(m::AbstractMatrix2x2) = isinvolution(m, Equal())
-function isinvolution(m::AbstractMatrix2x2, ::Equal)
+isinvolution(m::AbstractMatrixNxN) = isinvolution(m, Equal())
+function isinvolution(m::AbstractMatrixNxN, ::Equal)
     isone(m * m)
 end
-function isinvolution(m::AbstractMatrix2x2, approx::Approx)
+function isinvolution(m::AbstractMatrixNxN, approx::Approx)
     isone(m * m, approx)
 end
 
