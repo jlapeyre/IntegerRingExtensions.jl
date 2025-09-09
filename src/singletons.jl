@@ -1,7 +1,7 @@
 module Singletons
 
 import Base: show, inv, sqrt, isone, iszero, isinteger, iseven, isreal
-import ..Utils: PRETTY
+import ..Utils: PRETTY, superscript
 import ..Common: isrational
 
 
@@ -254,6 +254,16 @@ This is intended for singleton types `T`.
 """
 struct Pow{T} <: Number
     n::Int
+end
+
+function show(io::IO, ::PRETTY, p::Pow{T}) where {T}
+    show(io, PRETTY(), T())
+    print(io, superscript(p.n))
+end
+
+function show(io::IO, ::PRETTY, p::Pow{InvRootTwoT})
+    show(io, PRETTY(), RootTwo)
+    print(io, superscript(-p.n))
 end
 
 Base.length(::Pow{<:SingleNum}) = 1

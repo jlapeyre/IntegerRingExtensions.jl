@@ -653,6 +653,18 @@ function mul_half(cyc::CyclotomicRing{4, <:Dyadic}, n::Integer=1)
     CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
 end
 
+function mul_half(cyc::CyclotomicRing{4, <: Integer}, n::Integer=1)
+    CyclotomicRing(map(x -> Dyadic(x, n), coeffs(cyc)))
+end
+
+function Base.:*(::InvTwoT, cyc::CyclotomicRing{4, <: Integer}, n::Integer=1)
+    mul_half(cyc)
+end
+
+function Base.:*(p::Pow{InvTwoT}, cyc::CyclotomicRing{4, <: Integer}, n::Integer=1)
+    mul_half(cyc, p.n)
+end
+
 @inline function Base.:*(::TwoT, cyc::CyclotomicRing{4})
     mul_two(cyc)
 end
@@ -670,11 +682,6 @@ end
     CyclotomicRing(map(x -> mul_two(x, n), cyc.coeffs))
 end
 
-function Base.:*(::InvTwoT, cyc::CyclotomicRing)
-    mul_half(cyc)
-#    CyclotomicRing(map(x -> InvTwo * x, cyc.coeffs))
-end
-
 # function Base.:*(pow::Pow, cyc::CyclotomicRing{4})
 #     CyclotomicRing(map(x -> pow * x, cyc.coeffs))
 # end
@@ -686,6 +693,18 @@ function Base.:*(::RootTwoT, cyc::CyclotomicRing{4})
 end
 
 Base.:*(::InvRootTwoT, cyc::CyclotomicRing{4}) = mul_one_over_root_two(cyc)
+
+function Base.:*(p::Pow{InvRootTwoT}, cyc::CyclotomicRing{4})
+    mul_one_over_root_two(cyc, p.n)
+end
+
+function mul_one_over_root_two(cyc::CyclotomicRing{4}, n::Integer)
+    if iseven(n)
+        mul_half(cyc, div(n, 2))
+    else
+        mul_one_over_root_two(mul_half(cyc, div(n, 2)))
+    end
+end
 
 """
     mul_one_over_root_two(cyc::CyclotomicRing{4})

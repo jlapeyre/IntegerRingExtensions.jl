@@ -933,7 +933,8 @@ end
 function Base.show(io::IO, ::PRETTY, sm::ScaleMatrix2x2)
     summary(io, sm)
     println(io, ":")
-    println(io, sm.s, " ×")
+    show(io, PRETTY(), sm.s)
+    println(io, " ×")
     _show_matrix2x2(io, sm.m)
 end
 

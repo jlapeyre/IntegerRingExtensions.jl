@@ -18,14 +18,19 @@ subscript(i::Integer) = _script(i, _sub_digit)
 superscript(i::Integer) = _script(i, _super_digit)
 superscript(x) = string("^", x)
 
+
 function _script(i::Integer, _script_func)
-    if i < 0
-        error("Negative numbers are not supported for direct subscript conversion.")
-    end
+    # if i < 0
+    #     error("Negative numbers are not supported for direct subscript conversion.")
+    # end
     # Get the digits of the integer in reverse order (e.g., 123 -> [3, 2, 1])
-    digits_array = reverse(digits(i))
+    digits_array = reverse(digits(abs(i)))
     # Convert each digit to its Unicode subscript character and join them
-    return join(_script_func(d) for d in digits_array)
+    if i < 0
+        return join(['⁻', (_script_func(d) for d in digits_array)...])
+    else
+        return join(_script_func(d) for d in digits_array)
+    end
 end
 
 function _sub_digit(d::Integer)
