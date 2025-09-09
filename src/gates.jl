@@ -3,6 +3,7 @@ module Gates
 using ..Utils: PRETTY
 import ..Matrices2x2: Matrix2x2, SU2
 using ..Singletons: Imag, RootImag, InvRootTwo
+using ..RootOnes: omega
 
 export Gate1
 
@@ -116,9 +117,15 @@ function Base.:*(::Gate1{:H}, m::Matrix2x2)
     Matrix2x2(s*(a + b), s*(a-b), s*(c+d), s*(c-d))
 end
 
+# We could also use `omega` instead of `RootImag`.
 function Base.:*(::Gate1{:T}, m::Matrix2x2)
     (a,b,c,d) = m.data
     Matrix2x2(a, RootImag * b, c, RootImag * d)
+end
+
+function Base.:*(::Gate1{:Tdg}, m::Matrix2x2)
+    (a,b,c,d) = m.data
+    Matrix2x2(a, inv(omega) * b, c, inv(omega) * d)
 end
 
 function Base.:*(::Gate1{:I}, m::Matrix2x2)

@@ -502,6 +502,10 @@ function LinearAlgebra.isdiag(m::AbstractMatrix2x2)
     iszero(m[2]) && iszero(m[3])
 end
 
+function isantidiag(m::AbstractMatrix2x2)
+    iszero(m[1]) && iszero(m[4])
+end
+
 isSU2(m::AbstractMatrix2x2) = isone(det(m))
 
 function isSU2(m::AbstractMatrix, approx::AbstractApprox)

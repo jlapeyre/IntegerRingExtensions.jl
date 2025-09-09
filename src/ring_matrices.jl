@@ -41,6 +41,11 @@ function isinvolution(m::AbstractMatrix{<:DOmega}, approx::Approx)
     isone(m * m, approx)
 end
 
+"""
+    scalematrix(m::AbstractMatrix{<:DOmega})::ScaleMatrix2x2
+
+Convert `m` to a `ScaleMatrix2x2` containing a matrix of type `Matrix2x2{<:ZOmega}` and a global power of `1/√2`.
+"""
 function scalematrix(m::AbstractMatrix{<:DOmega})
     k = least_denominator_exponent(m)
     m = RootTwo^k * m

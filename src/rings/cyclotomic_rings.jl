@@ -870,6 +870,27 @@ function least_denominator_exponent(cyc::CyclotomicRing{<:Any, <:Dyadic})
     lde2 << 1
 end
 
+"""
+    struct DOmegaA{T, KT} <: Number
+
+An element of `𝔻[ω] = ℤ[1/√2, i]` represented as an element of `ℤ[ω]` together with
+ a factor of a power of `1/√2`.
+
+# Examples
+```jldoctest
+julia> z = DOmega(3//4,1,1,1//2)
+3/2²ω⁰ + ω + ω² + 1/2ω³
+
+julia> za = DOmegaA(z)
+(3ω⁰ + 4ω + 4ω² + 2ω³) / √2⁴
+
+julia> DOmega(za)
+3/2²ω⁰ + ω + ω² + 1/2ω³
+
+julia> DOmega(za) === z
+true
+```
+"""
 struct DOmegaA{T, KT} <: Number
     z::ZOmega{T}
     k::KT

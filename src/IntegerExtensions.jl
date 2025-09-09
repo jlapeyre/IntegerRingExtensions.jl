@@ -46,9 +46,7 @@ Reexport.@reexport import .Matrices2x2: Matrix2x2, Vector2, GPID, random_diagona
     get_theta, unitary_u, unitary_t,
     AbstractUnitary2x2, AbstractSU2, AbstractMatrix2x2,
     random_ZRot, columns, opnormdistance, alt_random_unitary2x2,
-    ScaleMatrix2x2
-#    zrotpi, zrothalfpi, get_thetapi, get_thetahalfpi
-#    SU2Param1, SU2Param2, SU2Param3, SU2ParamScaled,
+    ScaleMatrix2x2, isantidiag
 
 include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor, scalematrix

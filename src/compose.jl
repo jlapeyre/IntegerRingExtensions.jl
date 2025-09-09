@@ -116,6 +116,8 @@ end
         Gate1(:S) * matrix
     elseif gate === :T
         Gate1(:T) * matrix
+    elseif gate === :Q  # We restrict gates in string to one char. So Q == Tdg
+        Gate1(:Tdg) * matrix
     elseif gate === :X
         Gate1(:X) * matrix
     elseif gate === :W
@@ -247,4 +249,3 @@ end
 # end
 
 end # module Compose
-
