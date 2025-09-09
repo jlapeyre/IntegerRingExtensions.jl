@@ -9,13 +9,13 @@ import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, Dar, Ang, scalepi, unscalepi, intdiv, random_angle
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx
 
-export Matrix2x2, AbstractMatrix2x2
+export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4
 
 abstract type AbstractMatrixNxN{T, N} <: AbstractMatrix{T} end
 
 const AbstractMatrix2x2{T} = AbstractMatrixNxN{T, 2} where T
+const AbstractMatrix4x4{T} = AbstractMatrixNxN{T, 4} where T
 
-#abstract type AbstractMatrix2x2{T} <: AbstractMatrixNxN{T}
 abstract type Normal2x2{T} <: AbstractMatrix2x2{T} end
 abstract type AbstractUnitary2x2{T} <: Normal2x2{T} end
 abstract type AbstractSU2{T} <: AbstractUnitary2x2{T} end
@@ -46,9 +46,19 @@ struct MatrixNxN{T, N, N2} <: AbstractMatrixNxN{T, N}
 end
 
 const Matrix2x2{T} = MatrixNxN{T, 2, 4} where {T}
+const Matrix4x4{T} = MatrixNxN{T, 4, 16} where {T}
 
 function Matrix2x2(tup::NTuple{4, T}) where T
     Matrix2x2{T}(tup)
+end
+
+function Matrix4x4(tup::NTuple{16, T}) where T
+    Matrix4x4{T}(tup)
+end
+
+function MatrixNxN(tup::NTuple{N2, T}) where {N2, T}
+    N = isqrt(N2)
+    MatrixNxN{T, N, N2}(tup)
 end
 
 struct Vector2{T} <: AbstractVector2{T}
@@ -74,9 +84,13 @@ Return a `Matrix2x2` with the given elements.
 """
 Matrix2x2(a, b, c, d) = Matrix2x2(promote(a, b, c, d))
 Matrix2x2{T}(a, b, c, d) where {T} = Matrix2x2(T(a), T(b), T(c), T(d))
+
 function Matrix2x2(m::Matrix)
-    size(m) == (2,2) || error("Wrong size")
-    Matrix2x2(m...,)
+    MatrixNxN{eltype(m), 2}(m)
+end
+
+function Matrix4x4(m::Matrix)
+    MatrixNxN{eltype(m), 4}(m)
 end
 
 function MatrixNxN{T, N}(m::Matrix) where {T, N}
@@ -98,10 +112,10 @@ Matrix2x2{T}(m::AbstractMatrix2x2) where {T} = Matrix2x2(map(x -> T(x), elements
 
 Matrix2x2(m::Matrix2x2) = m
 
-function Base.map(f, m::AbstractMatrix2x2)
-    (a, b, c, d) = elements(m)
-    Matrix2x2(f(a), f(b), f(c), f(d))
+function Base.map(f, m::AbstractMatrixNxN)
+    MatrixNxN(map(f, elements(m)))
 end
+
 
 elements(m::Matrix2x2) = m.data
 elements(m::AbstractMatrix2x2) = elements(Matrix2x2(m))
