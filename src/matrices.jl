@@ -213,10 +213,7 @@ function Base.isone(m::Matrix2x2)
     isone(a) && isone(d) && iszero(b) && iszero(c)
 end
 
-function Base.iszero(m::Matrix2x2)
-    (a, b, c, d) = elements(m)
-    iszero(a) && iszero(d) && iszero(b) && iszero(c)
-end
+Base.iszero(m::MatrixNxN) = all(iszero, elements(m))
 
 ##
 ## Further properties.
@@ -226,7 +223,7 @@ end
 ## IsApprox.isunitary
 ##
 
-function isunitary(m::Matrix2x2)
+function isunitary(m::MatrixNxN)
     isone(m * m')
 end
 
