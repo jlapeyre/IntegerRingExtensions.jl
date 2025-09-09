@@ -70,7 +70,7 @@ function scalematrix(m::AbstractMatrix{<:DOmega})
 end
 
 function Base.:*(r::RootOne{8}, sm::ScaleMatrix2x2{<:DOmega})
-#    typeof(sm)(r * sm.m, sm.s) # TODO: write method for this.
+    #    typeof(sm)(r * sm.m, sm.s) # TODO: write method for this.
     ScaleMatrix2x2(r * sm.m, sm.s)
 end
 
