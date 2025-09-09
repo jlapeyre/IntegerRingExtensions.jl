@@ -30,9 +30,34 @@ If `T` is `isbits`, then `Matrix2x2{T}` is `isbits`.
 We implement a few necessary operations, including matrix multiplication,
 addition, subtraction, and unary minus.
 """
-struct Matrix2x2{T} <: AbstractMatrix2x2{T}
-    data::NTuple{4, T}
+struct MatrixNxN{T, N, N2} <: AbstractMatrixNxN{T, N}
+    function MatrixNxN{T, N}(data::NTuple{N2, T}) where {T, N, N2}
+        N2 == N * N ||  throw(ArgumentError(lazy"Inexact error bad tup"))
+        new{T, N, N2}(data)
+    end
+
+    function MatrixNxN{T, N, N2}(data::NTuple{N2, T}) where {T, N, N2}
+        N2 == N * N ||  throw(ArgumentError(lazy"Inexact error bad tup"))
+        new{T, N, N2}(data)
+    end
+
+    data::NTuple{N2, T}
 end
+
+const Matrix2x2{T} = MatrixNxN{T, 2, 4} where {T}
+
+function Matrix2x2(tup::NTuple{4, T}) where T
+    Matrix2x2{T}(tup)
+end
+
+# IntegerExtensions.Matrices2x2.MatrixNxN{T, 2, 4} where T)(::NTuple{4, ComplexF64})
+# function Matrix2x2{T}(tup::NTuple{4, T}) where {T}
+# end
+
+# function Matrix2x2(a, b, c, d)
+#     T = typeof(a)
+#     Matrix2x2{T}((a, b, c, d))
+# end
 
 struct Vector2{T} <: AbstractVector2{T}
     data::NTuple{2, T}
