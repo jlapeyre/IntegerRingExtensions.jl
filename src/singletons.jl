@@ -502,6 +502,15 @@ end
 Base.:*(pow::Pow{T}, x::NT) where {NT <: Number, T} = NT(T())^pow.n * x
 Base.:*(x::Number, pow::Pow) = x * pow
 Base.:^(x::SingleNum, n::Integer) = Pow{typeof(x)}(n)
+
+Base.:*(x::Pow{TwoT}, ::InvTwoT) = Pow{TwoT}(x.n - 1)
+Base.:*(x::Pow{InvTwoT}, ::TwoT) = Pow{InvTwoT}(x.n + 1)
+Base.:*(x::Pow{TwoT}, y::Pow{TwoT}) = Pow{TwoT}(x.n + y.n)
+Base.:*(x::Pow{TwoT}, y::Pow{InvTwoT}) = Pow{TwoT}(x.n - y.n)
+Base.:*(x::Pow{InvTwoT}, y::Pow{InvTwoT}) = Pow{InvTwoT}(x.n + y.n)
+Base.inv(x::Pow{TwoT}) = Pow{InvTwoT}(x.n)
+Base.inv(x::Pow{InvTwoT}) = Pow{TwoT}(x.n)
+
 Base.:^(::OneT, n::Integer) = One
 Base.inv(::OneT) = One
 Base.:*(::ZeroT, ::SingleNum) = Zero

@@ -104,3 +104,8 @@ end
 
     @test ZRoot2(ZOmega(ZRoot2(1, 2))) === ZRoot2(1,2)
 end
+
+@testset "CyclotomicRing mixed artithemtic" begin
+    x = DOmega(1,3//2, -5//4, 1//8)
+    @test Two * (InvTwo * x) === (Two * InvTwo) * x
+end

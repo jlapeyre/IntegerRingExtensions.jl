@@ -657,7 +657,7 @@ function mul_half(cyc::CyclotomicRing{4, <: Integer}, n::Integer=1)
     CyclotomicRing(map(x -> Dyadic(x, n), coeffs(cyc)))
 end
 
-function Base.:*(::InvTwoT, cyc::CyclotomicRing{4, <: Integer}, n::Integer=1)
+@inline function Base.:*(::InvTwoT, cyc::CyclotomicRing{4}, n::Integer=1)
     mul_half(cyc)
 end
 
