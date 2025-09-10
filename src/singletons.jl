@@ -35,7 +35,7 @@ iszero(::ZeroT) = true
 isone(::ZeroT) = false
 iseven(::ZeroT) = true
 isreal(::ZeroT) = true
-#inv(::ZeroT) = Inf
+inv(::ZeroT) = Inf
 
 """
     Zero
