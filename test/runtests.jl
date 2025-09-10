@@ -1,6 +1,16 @@
 using IntegerExtensions
 using Test
 
+include("singleton_conversion_tests.jl")
+include("composition_tests.jl")
+include("quadratic_ring_tests.jl")
+include("cyclotomic_tests.jl")
+include("dyadic_tests.jl")
+include("common_tests.jl")
+include("matrices_tests.jl")
+include("zrot_tests.jl")
+include("ringmatrices_tests.jl")
+include("rootonetests.jl")
 
 @testset "QuadraticRing{2, Int}" begin
     # Don't follow this example in real code!
@@ -67,14 +77,3 @@ end
     hadamard = [z z; z -z] # Hadamard matrix
     @test isapprox(float(hadamard), 1/sqrt(2) * [1 1; 1 -1])
 end
-
-include("composition_tests.jl")
-include("quadratic_ring_tests.jl")
-include("cyclotomic_tests.jl")
-include("dyadic_tests.jl")
-include("common_tests.jl")
-include("matrices_tests.jl")
-include("zrot_tests.jl")
-include("ringmatrices_tests.jl")
-include("singleton_conversion_tests.jl")
-include("rootonetests.jl")

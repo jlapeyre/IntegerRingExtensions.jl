@@ -510,6 +510,7 @@ Base.:*(::OneT, ::ZeroT) = Zero
 Base.:*(::ZeroT, ::OneT) = Zero
 Base.:*(::OneT, s::SingleNum) = s
 Base.:*(s::SingleNum, ::OneT) = s
+Base.:*(::OneT, ::OneT) = One
 
 Base.:*(::OneT, x::Number) = x
 Base.:*(x::Number, ::OneT) = x

@@ -84,3 +84,15 @@ end
         end
     end
 end
+
+@testset "Singletons One" begin
+    @test_throws MethodError One * "dog"
+    @test_throws MethodError "zebra" * One
+    @test One * One === One
+    @test Zero * One === Zero
+    @test One * Zero === Zero
+    @test isone(One)
+    @test ! iszero(One)
+    @test One * 2.1 === 2.1
+    @test 0.5 * One === 0.5
+end
