@@ -34,6 +34,7 @@ iszero(::ZeroT) = true
 isone(::ZeroT) = false
 iseven(::ZeroT) = true
 isreal(::ZeroT) = true
+inv(::ZeroT) = Inf
 
 """
     Zero
@@ -508,11 +509,11 @@ Base.:*(x::Pow{InvTwoT}, ::TwoT) = Pow{InvTwoT}(x.n + 1)
 Base.:*(x::Pow{TwoT}, y::Pow{TwoT}) = Pow{TwoT}(x.n + y.n)
 Base.:*(x::Pow{TwoT}, y::Pow{InvTwoT}) = Pow{TwoT}(x.n - y.n)
 Base.:*(x::Pow{InvTwoT}, y::Pow{InvTwoT}) = Pow{InvTwoT}(x.n + y.n)
-Base.inv(x::Pow{TwoT}) = Pow{InvTwoT}(x.n)
-Base.inv(x::Pow{InvTwoT}) = Pow{TwoT}(x.n)
+
+Base.inv(x::Pow{T}) where {T} = inv(T()) ^ (x.n)
+Base.inv(::OneT) = One
 
 Base.:^(::OneT, n::Integer) = One
-Base.inv(::OneT) = One
 Base.:*(::ZeroT, ::SingleNum) = Zero
 Base.:*(::SingleNum, ::ZeroT) = Zero
 Base.:*(::OneT, ::ZeroT) = Zero
@@ -520,21 +521,16 @@ Base.:*(::ZeroT, ::OneT) = Zero
 Base.:*(::OneT, s::SingleNum) = s
 Base.:*(s::SingleNum, ::OneT) = s
 Base.:*(::OneT, ::OneT) = One
-
 Base.:*(::OneT, x::Number) = x
 Base.:*(x::Number, ::OneT) = x
-
 Base.:*(::RootImagT, ::RootImagT) = Imag
 Base.:*(::RootTwoT, ::RootTwoT) = Two
 Base.:*(::InvRootTwoT, ::InvRootTwoT) = InvTwo
-
 # Not using OneT here.
 Base.:*(::InvTwoT, ::TwoT) = One
 Base.:*(::TwoT, ::InvTwoT) = One
-
 Base.:*(::InvRootTwoT, ::RootTwoT) = One
 Base.:*(::RootTwoT, ::InvRootTwoT) = One
-
 Base.:*(::ImagT, ::ImagT) = -1
 
 function Base.:*(::RootImagT, x::T) where {T<:Number}
