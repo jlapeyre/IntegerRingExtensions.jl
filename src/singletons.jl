@@ -64,12 +64,6 @@ isone(::OneT) = true
 iseven(::OneT) = false
 isreal(::OneT) = true
 
-Base.:*(::OneT, x::Number) = x
-Base.:*(x::Number, ::OneT) = x
-
-# Probably do not want these.
-# Base.:*(::OneT, x::T) where {T} = one(T) * x
-# Base.:*(x, ::OneT) = One * x
 
 """
     One
@@ -286,9 +280,6 @@ Base.length(::SingleNum) = 1
 Base.iterate(p::SingleNum) = (p, nothing)
 Base.iterate(p::SingleNum, ::Any) = nothing
 
-Base.:*(pow::Pow{T}, x::NT) where {NT <: Number, T} = NT(T())^pow.n * x
-Base.:*(x::Number, pow::Pow) = x * pow
-Base.:^(x::SingleNum, n::Integer) = Pow{typeof(x)}(n)
 
 Base.size(::SingleNum) = ()
 Base.size(::Pow{<:SingleNum}) = ()
@@ -406,18 +397,6 @@ canconvert(::Type{RootImagT}, ::Type{Complex{T}}) where {T <: Real} = true
 canconvert(::Type{RootImagT}, ::Type{Complex}) = true
 canconvert(::Type{RootImagT}, ::Type{Real}) = false
 
-Base.:*(::RootImagT, ::RootImagT) = Imag
-Base.:*(::RootTwoT, ::RootTwoT) = Two
-Base.:*(::InvRootTwoT, ::InvRootTwoT) = InvTwo
-
-# Not using OneT here.
-Base.:*(::InvTwoT, ::TwoT) = One
-Base.:*(::TwoT, ::InvTwoT) = One
-
-Base.:*(::InvRootTwoT, ::RootTwoT) = One
-Base.:*(::RootTwoT, ::InvRootTwoT) = One
-
-Base.:*(::ImagT, ::ImagT) = -1
 
 function _make_types()
     intypes = [:Int8, :Int16, :Int32, :Int64, :Int128, :UInt8, :UInt16, :UInt32, :UInt64, :UInt128, :BigInt]
@@ -520,6 +499,34 @@ end
 # We use `Number` to avoid dispatching to these when calling
 # with singletons
 
+Base.:*(pow::Pow{T}, x::NT) where {NT <: Number, T} = NT(T())^pow.n * x
+Base.:*(x::Number, pow::Pow) = x * pow
+Base.:^(x::SingleNum, n::Integer) = Pow{typeof(x)}(n)
+Base.:^(::OneT, n::Integer) = One
+Base.inv(::OneT) = One
+Base.:*(::ZeroT, ::SingleNum) = Zero
+Base.:*(::SingleNum, ::ZeroT) = Zero
+Base.:*(::OneT, ::ZeroT) = Zero
+Base.:*(::ZeroT, ::OneT) = Zero
+Base.:*(::OneT, s::SingleNum) = s
+Base.:*(s::SingleNum, ::OneT) = s
+
+Base.:*(::OneT, x::Number) = x
+Base.:*(x::Number, ::OneT) = x
+
+Base.:*(::RootImagT, ::RootImagT) = Imag
+Base.:*(::RootTwoT, ::RootTwoT) = Two
+Base.:*(::InvRootTwoT, ::InvRootTwoT) = InvTwo
+
+# Not using OneT here.
+Base.:*(::InvTwoT, ::TwoT) = One
+Base.:*(::TwoT, ::InvTwoT) = One
+
+Base.:*(::InvRootTwoT, ::RootTwoT) = One
+Base.:*(::RootTwoT, ::InvRootTwoT) = One
+
+Base.:*(::ImagT, ::ImagT) = -1
+
 function Base.:*(::RootImagT, x::T) where {T<:Number}
     T2 = complex(T)
     (T2(im) + one(T2))/sqrt(T2(2)) * x
@@ -528,15 +535,15 @@ end
 Base.:*(x, ::RootImagT) = RootImag * x
 
 Base.:*(::ImagT, x::T) where {T<:Number} = complex(T)(im) * x
-Base.:*(x, ::ImagT) = Imag * x
+# Base.:*(x, ::ImagT) = Imag * x
 
 # Don't know where this is used
 Base.promote_rule(::Type{TwoT}, ::Type{T}) where {T<:Integer} = T
 
-Base.:*(::TwoT, x::T) where {T} = T(2) * x
-Base.:*(x, ::TwoT) = Two * x
+# Base.:*(::TwoT, x::T) where {T} = T(2) * x
+#Base.:*(x, ::TwoT) = Two * x
 
 Base.:*(::InvRootTwoT, x::T) where {T<:Number} = sqrt(float(T)(1//2)) * x
-Base.:*(x, ::InvRootTwoT) = InvRootTwo * x
+#Base.:*(x, ::InvRootTwoT) = InvRootTwo * x
 
 end # module Singletons
