@@ -261,6 +261,18 @@ function show(io::IO, ::PRETTY, p::Pow{T}) where {T}
     print(io, superscript(p.n))
 end
 
+function Base.AbstractFloat(p::Pow{T}) where {T}
+    AbstractFloat(T())^p.n
+end
+
+function Base.Rational(p::Pow{T}) where {T}
+    Rational(T())^p.n
+end
+
+function Base.Rational{V}(p::Pow{T}) where {V, T}
+    Rational{V}(T())^p.n
+end
+
 function show(io::IO, ::PRETTY, p::Pow{InvRootTwoT})
     show(io, PRETTY(), RootTwo)
     print(io, superscript(-p.n))
@@ -444,7 +456,7 @@ for (ST, litST, func) in ((:TwoT, 2, :identity), (:InvTwoT, 1//2, :identity), (:
     end
     if canconvert(STT, Rational)
         @eval function Rational(obj::$ST)
-                Rational(Int64(obj))
+                Rational{Int64}(obj)
         end
     end
     if canconvert(STT, Int64)

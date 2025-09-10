@@ -62,6 +62,11 @@ end
         @test canconvert(ST, float(T))
         @test canconvert(ST, Complex{float(T)})
     end
+    @test Rational(InvTwo) === 1//2
+    @test Rational{Int}(InvTwo) === 1//2
+    biginvtwo = Rational{BigInt}(InvTwo)
+    @test biginvtwo == 1//2
+    @test biginvtwo isa Rational{BigInt}
 end
 
 @testset "Singletons RootTwo" begin
