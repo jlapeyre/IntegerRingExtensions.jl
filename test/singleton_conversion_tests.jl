@@ -88,6 +88,13 @@ end
 @testset "Singletons One" begin
     @test_throws MethodError One * "dog"
     @test_throws MethodError "zebra" * One
+    @test_throws MethodError One^"zebra"
+    @test_throws MethodError One^2.0
+
+    for n in (0, 1, 2, -1, -2, 3, -3)
+        @test One^n === One
+    end
+
     @test One * One === One
     @test Zero * One === Zero
     @test One * Zero === Zero
