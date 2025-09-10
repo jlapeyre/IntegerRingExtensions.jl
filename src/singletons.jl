@@ -533,6 +533,8 @@ Base.:*(x::Pow{TwoT}, y::Pow{InvTwoT}) = Pow{TwoT}(x.n - y.n)
 Base.:*(x::Pow{InvTwoT}, y::Pow{InvTwoT}) = Pow{InvTwoT}(x.n + y.n)
 Base.:*(x::Pow{InvRootTwoT}, y::Pow{InvRootTwoT}) = Pow{InvRootTwoT}(x.n + y.n)
 
+Base.:*(::InvRootTwoT, y::Pow{InvRootTwoT}) = Pow{InvRootTwoT}(y.n + 1)
+
 Base.inv(x::Pow{T}) where {T} = inv(T()) ^ (x.n)
 Base.inv(::OneT) = One
 

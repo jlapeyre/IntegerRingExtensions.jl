@@ -47,6 +47,7 @@ const CLIFFORD_STR = (
 const CLIFFORD_DOMEGA = map(s -> compose(string(s)), CLIFFORD_STR)
 
 const CLIFFORD_DOMEGA_MAP = Dict{Symbol, typeof(CLIFFORD_DOMEGA[1])}()
+#const CLIFFORD_DOMEGA_MAP = Dict{Symbol, Any}()
 
 for (s, m) in zip(CLIFFORD_STR, CLIFFORD_DOMEGA)
     CLIFFORD_DOMEGA_MAP[s] = m

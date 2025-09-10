@@ -2,7 +2,8 @@ module Compose
 
 using ..Matrices2x2: Matrix2x2, GPID
 import ..Matrices2x2: get_theta
-import ..Gates: Gate1, RZ, random_RZ
+import ..RingMatrices: scalematrix
+import ..Gates: Gate1, RZ
 using ..Common: canonical
 using ..CyclotomicRings: DOmega
 using ..Utils: PRETTY
@@ -28,7 +29,7 @@ julia> compose("TSHTHTHTHT")
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
 """
-function compose(gates::AbstractString; chunklen=500, reduce_fractions=true)
+function compose(gates::AbstractString; chunklen=200, reduce_fractions=true)
     gates = reverse(gates)
     length(codeunits(gates)) <= chunklen && return compose_one(gates, false; reduce_fractions=reduce_fractions)
     chunks = reverse(chunkstring(gates, chunklen))
@@ -81,6 +82,7 @@ of longer compositions with smaller data types.
 """
 function compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=true)
     gates = rev ? reverse(gates) : gates
+#    matrix = scalematrix(one(Matrix2x2{DOmega{Int}}))
     matrix = one(Matrix2x2{DOmega{Int}})
     reduce_func = reduce_fractions ? canonical : identity
     for gate in codeunits(gates)

@@ -1021,6 +1021,10 @@ function Matrix2x2(sm::ScaleMatrix2x2)
     Matrix2x2(map(x -> sm.s * x, sm.m))
 end
 
+function Base.map(f, sm::ScaleMatrix2x2)
+    ScaleMatrix2x2(map(f, sm.m), sm.s)
+end
+
 function Base.show(io::IO, ::PRETTY, sm::ScaleMatrix2x2)
     summary(io, sm)
     println(io, ":")

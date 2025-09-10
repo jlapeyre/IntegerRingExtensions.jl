@@ -3,7 +3,9 @@ module RingMatrices
 import ..CyclotomicRings: DOmega, ZOmega, least_denominator_exponent
 import ..Matrices2x2: MatrixNxN, Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2
 import ..RootOnes: RootOne
+import ..Common: canonical
 import IsApprox: isinvolution, Approx, AbstractApprox, Equal
+
 
 import ..Singletons: InvTwo, InvTwoT,
     RootTwo, RootTwoT, Two, TwoT,
@@ -70,6 +72,10 @@ function scalematrix(m::AbstractMatrix{<:DOmega})
     T = typeof(ZOmega(m[1]))
     mz = Matrix2x2{T}(m)
     ScaleMatrix2x2(mz, InvRootTwo^k)
+end
+
+function canonical(sm::ScaleMatrix2x2)
+    ScaleMatrix2x2(canonical(sm.m), sm.s)
 end
 
 function Base.:*(r::RootOne{8}, sm::ScaleMatrix2x2{<:DOmega})

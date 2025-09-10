@@ -1,7 +1,7 @@
 module Gates
 
 using ..Utils: PRETTY
-import ..Matrices2x2: Matrix2x2, SU2
+import ..Matrices2x2: Matrix2x2, SU2, ScaleMatrix2x2
 using ..Singletons: Imag, RootImag, InvRootTwo
 using ..RootOnes: omega
 
@@ -73,10 +73,10 @@ function RZ(theta)
     Matrix2x2(cis(-t2), z, z, cis(t2))
 end
 
-function random_RZ(::Type{T}=Float64) where {T}
-    theta = random_angle(T)
-    return RZ(theta)
-end
+# function random_RZ(::Type{T}=Float64) where {T}
+#     theta = random_angle(T)
+#     return RZ(theta)
+# end
 
 Base.:*(::Gate1{:W}, m::Matrix2x2) =  map(x-> RootImag * x, m)
 Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1(:W) * m
@@ -131,6 +131,77 @@ end
 function Base.:*(::Gate1{:I}, m::Matrix2x2)
     m
 end
+
+#################
+
+Base.:*(::Gate1{:W}, m::ScaleMatrix2x2) =  ScaleMatrix2x2(omega * m.m, m.s)
+Base.:*(m::ScaleMatrix2x2, ::Gate1{:W}) = Gate1(:W) * m
+
+function Base.:*(::Gate1{:H}, m::ScaleMatrix2x2)
+    s_new = InvRootTwo * m.s
+    (a,b,c,d) = m.m.data
+    m_new = Matrix2x2(a + b, a - b, c + d, c - d)
+    ScaleMatrix2x2(m_new, s_new)
+end
+
+function Base.:*(g::Gate1, m::ScaleMatrix2x2)
+    ScaleMatrix2x2(typeof(g)() * m.m, m.s)
+end
+
+# function Base.:*(::Gate1{:X}, m::ScaleMatrix2x2)
+#     (a,b,c,d) = m.m.data
+#     ScaleMatrix2x2(m.s, (b, a, d, c))
+# end
+
+# function Base.:*(::Gate1{:Y}, m::ScaleMatrix2x2)
+#     (a,b,c,d) = m.m.data
+#     ScaleMatrix2x2(m.s, Matrix2x2(b, Imag * a, -(Imag * d), c))
+# end
+
+# function Base.:*(::Gate1{:Z}, m::ScaleMatrix2x2)
+#     (a,b,c,d) = m.m.data
+#     ScaleMatrix2x2(m.s, Matrix2x2(a, -b, c, -d))
+# end
+
+# function Base.:*(m::ScaleMatrix2x2, ::Gate1{:X})
+#     (a,b,c,d) = m.m.data
+#     ScaleMatrix2x2(m.s, Matrix2x2(c, d, a, b))
+# end
+
+# function Base.:*(::Gate1{:S}, m::ScaleMatrix2x2)
+#     (a,b,c,d) = m.m.data
+#     ScaleMatrix2x2(m.s, Matrix2x2(a, Imag * b, c, Imag * d))
+# end
+
+# function Base.:*(::Gate1{:Sdg}, m::ScaleMatrix2x2)
+#     (a,b,c,d) = m.m.data
+#     ScaleMatrix2x2(m.s, Matrix2x2(a, -(Imag * b), c, -(Imag * d)))
+# end
+
+# function Base.:*(::Gate1{:H}, m::ScaleMatrix2x2)
+#     news = InvRootTwo * m.s
+#     ScaleMatrix2x2(Gate1(:H) * m.m, news)
+# end
+
+# # We could also use `omega` instead of `RootImag`.
+# function Base.:*(::Gate1{:T}, m::ScaleMatrix2x2)
+#     ScaleMatrix2x2(m.s, Gate1(:T) * m.m)
+# end
+
+# function Base.:*(g::Gate1, m::ScaleMatrix2x2)
+#     ScaleMatrix2x2(typeof(g)() * m.m, m.s)
+# end
+
+# function Base.:*(::Gate1{:Tdg}, m::Matrix2x2)
+#     ScaleMatrix2x2(m.s, Gate1(:Tdg) * m.m)
+# end
+
+# function Base.:*(::Gate1{:I}, m::Matrix2x2)
+#     ScaleMatrix2x2(m.s, Gate1(:I) * m.m)
+# end
+
+#################
+
 
 # This mistake is very easy to make, causes bugs.
 function Base.:*(::Type{T}, m::Matrix2x2) where {T <: Gate1{V}} where V

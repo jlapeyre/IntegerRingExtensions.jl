@@ -57,7 +57,7 @@ include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor, scalematrix
 
 include("gates.jl")
-Reexport.@reexport import .Gates: Gate1, RZ, random_RZ
+Reexport.@reexport import .Gates: Gate1, RZ # , random_RZ
 
 include("compose.jl")
 Reexport.@reexport import .Compose: compose, compose_one, get_global_phase,
@@ -66,7 +66,7 @@ Reexport.@reexport import .Compose: compose, compose_one, get_global_phase,
 
 include("gate_matrix.jl")
 Reexport.@reexport import .GateMatrix: XF64, YF64, ZF64, SF64, TF64,
-    CLIFFORD_STR, CLIFFORD_DOMEGA
+    CLIFFORD_STR, CLIFFORD_DOMEGA, CLIFFORD_DOMEGA_MAP
 
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose
