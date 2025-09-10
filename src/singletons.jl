@@ -167,7 +167,7 @@ struct InvRootTwoT <: SingleNum
 end
 const InvRootTwo = InvRootTwoT()
 show(io::IO, ::PRETTY, ::InvRootTwoT) = print(io, "√𝟚⁻¹")
-sqrt(::InvTwoT) = InvRoot2
+sqrt(::InvTwoT) = InvRootTwo
 inv(::InvRootTwoT) = RootTwo
 inv(::RootTwoT) = InvRootTwo
 isrational(::InvRootTwoT) = false
