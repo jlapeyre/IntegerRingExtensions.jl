@@ -1049,4 +1049,6 @@ function Base.:^(sm::ScaleMatrix2x2, n::Integer)
     ScaleMatrix2x2(sm.m^n, sm.s^n)
 end
 
+det(sm::ScaleMatrix2x2) = (sm.s * sm.s) * det(sm.m)
+
 end # module Matrices2x2
