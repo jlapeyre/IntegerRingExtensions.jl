@@ -12,20 +12,16 @@ import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx
 export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4
 
 abstract type AbstractMatrixNxN{T, N} <: AbstractMatrix{T} end
-
-
 abstract type AbstractNormalNxN{T, N} <: AbstractMatrixNxN{T, N} end
 abstract type AbstractUnitaryNxN{T, N} <: AbstractNormalNxN{T, N} end
 
 const AbstractMatrix2x2{T} = AbstractMatrixNxN{T, 2} where T
-const AbstractMatrix4x4{T} = AbstractMatrixNxN{T, 4} where T
 const AbstractNormal2x2{T} = AbstractNormalNxN{T, 2} where {T}
+const AbstractUnitary2x2{T} = AbstractUnitaryNxN{T, 2} where {T}
 
-abstract type AbstractUnitary2x2{T} <: AbstractNormalNxN{T, 2} end
-#abstract type AbstractUnitary2x2{T} <: AbstractNormal2x2{T} end
-
-#abstract type AbstractNormal2x2{T} <: AbstractMatrix2x2{T} end
-
+const AbstractMatrix4x4{T} = AbstractMatrixNxN{T, 4} where T
+const AbstractNormal4x4{T} = AbstractNormalNxN{T, 4} where {T}
+const AbstractUnitary4x4{T} = AbstractUnitaryNxN{T, 4} where {T}
 
 abstract type AbstractSU2{T} <: AbstractUnitary2x2{T} end
 abstract type AbstractVector2{T} <: AbstractVector{T} end
@@ -265,7 +261,9 @@ function isinvolution(m::AbstractMatrixNxN, approx::Approx)
     isone(m * m, approx)
 end
 
-svdvals(::AbstractUnitary2x2{T}) where {T} = (one(real(T)), one(real(T)))
+function svdvals(::AbstractUnitary2x2{T}) where {T}
+    (one(real(T)), one(real(T)))
+end
 
 """
     isunitary(m::Matrix2x2, app::Approx)
@@ -342,10 +340,15 @@ end
 Base.adjoint(m::Matrix2x2) = permutedims(map(adjoint, m))
 Base.transpose(m::Matrix2x2) = permutedims(map(transpose, m))
 
-@inline function tr(m::AbstractMatrix2x2)
-    (a, _b, _c, d) = elements(m)
-    a + d
+@inline function tr(m::AbstractMatrix4x4)
+    sum(i -> m[i,i], 1:4)
 end
+
+# OK. But prev function is fine
+# @inline function tr(m::AbstractMatrix2x2)
+#     (a, _b, _c, d) = elements(m)
+#     a + d
+# end
 
 @inline function det(m::AbstractMatrix2x2)
     (a, b, c, d) = elements(m)
@@ -367,6 +370,7 @@ function eigvals(m::AbstractMatrix2x2)
         (a + d - discr)/2,
     )
 end
+
 function LinearAlgebra.norm(v::AbstractVector2)
     (x, y) = elements(v)
     sqrt(abs2(x) + abs2(y))
