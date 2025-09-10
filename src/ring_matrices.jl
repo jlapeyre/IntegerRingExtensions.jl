@@ -22,6 +22,7 @@ end
 Base.:*(m::AbstractMatrix2x2{<:DOmega}, r::RootOne{8}) = r * m
 
 Base.:*(n::SingleNum, m::AbstractMatrixNxN) = map(x -> n * x, m)
+Base.:*(m::AbstractMatrixNxN, n::SingleNum) = map(x -> n * x, m)
 
 """
     compute_phase_factor(m1::Matrix2x2{<:DOmega}, m2::Matrix2x2{<:DOmega})::Int
