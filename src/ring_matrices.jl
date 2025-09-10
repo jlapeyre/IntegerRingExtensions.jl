@@ -1,7 +1,7 @@
 module RingMatrices
 
 import ..CyclotomicRings: DOmega, ZOmega, least_denominator_exponent
-import ..Matrices2x2: Matrix2x2, AbstractMatrix2x2, elements, ScaleMatrix2x2
+import ..Matrices2x2: Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2
 import ..RootOnes: RootOne
 import IsApprox: isinvolution, Approx, AbstractApprox, Equal
 
@@ -10,7 +10,7 @@ import ..Singletons: InvTwo, InvTwoT,
     InvRootTwo, InvRootTwoT,
     Imag, ImagT,
     RootImag, RootImagT,
-    Pow
+    Pow, SingleNum
 
 # The modules for rings and groups on one hand, and `Matrix2x2` on the other, are independent.
 # This module mixes them.
@@ -20,6 +20,8 @@ function Base.:*(r::RootOne{8}, m::Matrix2x2{<:DOmega})
 end
 
 Base.:*(m::AbstractMatrix2x2{<:DOmega}, r::RootOne{8}) = r * m
+
+Base.:*(n::SingleNum, m::AbstractMatrixNxN) = map(x -> n * x, m)
 
 """
     compute_phase_factor(m1::Matrix2x2{<:DOmega}, m2::Matrix2x2{<:DOmega})::Int

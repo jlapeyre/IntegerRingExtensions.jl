@@ -559,6 +559,8 @@ function Base.:*(::RootImagT, x::T) where {T<:Number}
     (T2(im) + one(T2))/sqrt(T2(2)) * x
 end
 
+Base.:*(x::SingleNum, y::Number) = typeof(y)(x) * y
+
 Base.:*(x, ::RootImagT) = RootImag * x
 
 Base.:*(::ImagT, x::T) where {T<:Number} = complex(T)(im) * x
