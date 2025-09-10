@@ -302,7 +302,7 @@ function convert(::Type{Rational{T}}, f::Dyadic) where {T}
 end
 
 function Dyadic(r::Rational)
-    ispow2(r.den) || throw(ArgumentError(lazy"denominator $(r.den) not a power of 2"))
+    ispow2(r.den) || throw(ArgumentError(lazy"Inexact error: denominator $(r.den) not a power of 2"))
     Dyadic(r.num, ILog2.ilog2(r.den))
 end
 
