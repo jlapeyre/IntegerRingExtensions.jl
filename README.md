@@ -13,7 +13,7 @@ The main goal of this package is to support research in unitary synthesis.
 These packages implement more general cyclotomic numbers. They are field extensions, rather than
 just ring extensions. The implementations are necessarily more complicated and are much less efficient than
 those in `IntegerExtensions.jl`. In particular, the implementations in these two packages require heap allocation
-for creating and using the provided types, whereas, instances of rings in `IntegerExtensions` are `isbits`
+for creating and using the provided types, whereas instances of rings in `IntegerExtensions` are `isbits`
 when the underlying integer type is `isbits`.
 
 <!-- [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jlapeyre.github.io/IntegerExtensions.jl/dev/) -->
