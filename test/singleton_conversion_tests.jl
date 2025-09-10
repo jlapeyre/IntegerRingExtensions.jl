@@ -95,4 +95,8 @@ end
     @test ! iszero(One)
     @test One * 2.1 === 2.1
     @test 0.5 * One === 0.5
+    for T in (Two, InvTwo, RootTwo, InvRootTwo)
+        @test One * T === T
+        @test T * One === T
+    end
 end
