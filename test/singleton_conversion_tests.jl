@@ -109,8 +109,8 @@ end
 end
 
 @testset "Singletons Zero" begin
-    for T in (One, Two, InvTwo, RootTwo, InvRootTwo, Imag)
-        @test Zero * T === Zero
+    for x in (One, Two, InvTwo, RootTwo, InvRootTwo, Imag)
+        @test Zero * x === Zero
     end
     @test inv(Zero) === Inf
 end

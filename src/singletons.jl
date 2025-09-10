@@ -4,7 +4,6 @@ import Base: show, inv, sqrt, isone, iszero, isinteger, iseven, isreal
 import ..Utils: PRETTY, superscript
 import ..Common: isrational
 
-
 export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹,
     One, Zero, 𝟙, 𝟘
 
@@ -22,6 +21,8 @@ An abstract type for reprenting single numbers as singleton types.
 """
 abstract type SingleNum end
 
+const NumSingleNum = Union{Number, SingleNum}
+
 struct ZeroT <: SingleNum
 end
 const Zero = ZeroT()
@@ -34,7 +35,7 @@ iszero(::ZeroT) = true
 isone(::ZeroT) = false
 iseven(::ZeroT) = true
 isreal(::ZeroT) = true
-inv(::ZeroT) = Inf
+#inv(::ZeroT) = Inf
 
 """
     Zero
@@ -65,6 +66,8 @@ isone(::OneT) = true
 iseven(::OneT) = false
 isreal(::OneT) = true
 
+Base.zero(n::SingleNum) = Zero
+Base.one(n::SingleNum) = One
 
 """
     One
@@ -281,9 +284,20 @@ Base.length(::SingleNum) = 1
 Base.iterate(p::SingleNum) = (p, nothing)
 Base.iterate(p::SingleNum, ::Any) = nothing
 
-
 Base.size(::SingleNum) = ()
 Base.size(::Pow{<:SingleNum}) = ()
+
+Base.isinteger(p::Pow{TwoT}) = p.n >= 0
+Base.isinteger(p::Pow{InvTwoT}) = p.n <= 0
+Base.isinteger(p::Pow{RootTwoT}) = p.n >= 0 && iseven(p.n)
+Base.isinteger(p::Pow{InvRootTwoT}) = p.n <= 0 && iseven(p.n)
+Base.isinteger(p::Pow{ZeroT}) = p.n >= 0
+
+isrational(p::Pow{TwoT}) = true
+isrational(p::Pow{InvTwoT}) = true
+isrational(p::Pow{RootTwoT}) = iseven(p.n)
+isrational(p::Pow{InvRootTwoT}) = iseven(p.n)
+isrational(p::Pow{ZeroT}) = p.n >= 0
 
 ###
 ### Conversion and arithmetic
@@ -502,7 +516,15 @@ end
 
 Base.:*(pow::Pow{T}, x::NT) where {NT <: Number, T} = NT(T())^pow.n * x
 Base.:*(x::Number, pow::Pow) = x * pow
-Base.:^(x::SingleNum, n::Integer) = Pow{typeof(x)}(n)
+
+function Base.literal_pow(f::typeof(^), x::SingleNum, ::Val{N}) where {N}
+    Pow{typeof(x)}(N)
+end
+
+function Base.:^(x::SingleNum, n::Integer)
+    Pow{typeof(x)}(n)
+end
+Base.:^(::OneT, n::Integer) = One
 
 Base.:*(x::Pow{TwoT}, ::InvTwoT) = Pow{TwoT}(x.n - 1)
 Base.:*(x::Pow{InvTwoT}, ::TwoT) = Pow{InvTwoT}(x.n + 1)
@@ -513,7 +535,6 @@ Base.:*(x::Pow{InvTwoT}, y::Pow{InvTwoT}) = Pow{InvTwoT}(x.n + y.n)
 Base.inv(x::Pow{T}) where {T} = inv(T()) ^ (x.n)
 Base.inv(::OneT) = One
 
-Base.:^(::OneT, n::Integer) = One
 Base.:*(::ZeroT, ::SingleNum) = Zero
 Base.:*(::SingleNum, ::ZeroT) = Zero
 Base.:*(::OneT, ::ZeroT) = Zero
@@ -542,6 +563,12 @@ Base.:*(x, ::RootImagT) = RootImag * x
 
 Base.:*(::ImagT, x::T) where {T<:Number} = complex(T)(im) * x
 # Base.:*(x, ::ImagT) = Imag * x
+
+Base.:+(::OneT, ::OneT) = Two
+Base.:-(::TwoT, ::OneT) = One
+Base.:-(x::T, y::T) where {T <: SingleNum} = Zero
+Base.:+(::ZeroT, x::NumSingleNum) = x
+Base.:-(x::NumSingleNum, ::ZeroT) = x
 
 # Don't know where this is used
 Base.promote_rule(::Type{TwoT}, ::Type{T}) where {T<:Integer} = T
