@@ -13,11 +13,20 @@ export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4
 
 abstract type AbstractMatrixNxN{T, N} <: AbstractMatrix{T} end
 
+
+abstract type AbstractNormalNxN{T, N} <: AbstractMatrixNxN{T, N} end
+abstract type AbstractUnitaryNxN{T, N} <: AbstractNormalNxN{T, N} end
+
 const AbstractMatrix2x2{T} = AbstractMatrixNxN{T, 2} where T
 const AbstractMatrix4x4{T} = AbstractMatrixNxN{T, 4} where T
+const AbstractNormal2x2{T} = AbstractNormalNxN{T, 2} where {T}
 
-abstract type Normal2x2{T} <: AbstractMatrix2x2{T} end
-abstract type AbstractUnitary2x2{T} <: Normal2x2{T} end
+abstract type AbstractUnitary2x2{T} <: AbstractNormalNxN{T, 2} end
+#abstract type AbstractUnitary2x2{T} <: AbstractNormal2x2{T} end
+
+#abstract type AbstractNormal2x2{T} <: AbstractMatrix2x2{T} end
+
+
 abstract type AbstractSU2{T} <: AbstractUnitary2x2{T} end
 abstract type AbstractVector2{T} <: AbstractVector{T} end
 
@@ -222,10 +231,13 @@ Base.one(::Matrix2x2{T}) where {T} = one(Matrix2x2{T})
 Base.zero(::Type{Matrix2x2{T}}) where T = Matrix2x2(zero(T), zero(T), zero(T), zero(T))
 Base.zero(::Matrix2x2{T}) where {T} = zero(Matrix2x2{T})
 
-function Base.isone(m::Matrix2x2)
-    (a, b, c, d) = elements(m)
-    isone(a) && isone(d) && iszero(b) && iszero(c)
-end
+# Base.isone fallback is efficient for MatrixNxN
+
+# OK, but prbly not needed
+# function Base.isone(m::Matrix2x2)
+#     (a, b, c, d) = elements(m)
+#     isone(a) && isone(d) && iszero(b) && iszero(c)
+# end
 
 Base.iszero(m::MatrixNxN) = all(iszero, elements(m))
 
@@ -243,6 +255,7 @@ end
 
 isunitary(m::MatrixNxN, ::Equal) = isunitary(m)
 isunitary(m::AbstractUnitary2x2) = true
+Base.iszero(m::AbstractUnitary2x2) = false
 
 isinvolution(m::AbstractMatrixNxN) = isinvolution(m, Equal())
 function isinvolution(m::AbstractMatrixNxN, ::Equal)
