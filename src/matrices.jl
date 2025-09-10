@@ -917,6 +917,27 @@ function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     Unitary2x2(su2, Dar(gamma))
 end
 
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Matrix2x2})
+    rand(rng, Matrix2x2{Float64})
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Matrix4x4})
+    rand(rng, Matrix4x4{Float64})
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Matrix2x2{T}}) where {T}
+    rand(rng, MatrixNxN{T, 2})
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Matrix4x4{T}}) where {T}
+    rand(rng, MatrixNxN{T, 4})
+end
+
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{MatrixNxN{T, N}}) where {T, N}
+    n = N * N
+    MatrixNxN(NTuple{n, T}(rand(T, n)))
+end
+
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2})
     rand(rng, Random.SamplerType{SU2{ComplexF64}}())
 end

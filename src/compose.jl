@@ -28,9 +28,9 @@ julia> compose("TSHTHTHTHT")
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
 """
-function compose(gates::AbstractString; chunklen=500)
+function compose(gates::AbstractString; chunklen=500, reduce_fractions=true)
     gates = reverse(gates)
-    length(codeunits(gates)) <= chunklen && return compose_one(gates, false)
+    length(codeunits(gates)) <= chunklen && return compose_one(gates, false; reduce_fractions=reduce_fractions)
     chunks = reverse(chunkstring(gates, chunklen))
     mats = [map(DOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
 #    mats = [compose_one(chunk, false) for chunk in chunks]
@@ -81,58 +81,91 @@ of longer compositions with smaller data types.
 """
 function compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=true)
     gates = rev ? reverse(gates) : gates
-    result = one(Matrix2x2{DOmega{Int}})
+    matrix = one(Matrix2x2{DOmega{Int}})
     reduce_func = reduce_fractions ? canonical : identity
     for gate in codeunits(gates)
-        new_result = _apply_gate(Symbol(Char(gate)), result)
-        isnothing(new_result) && error(lazy"unknown gate $(Symbol(Char(gate)))")
-        result = reduce_func(new_result)
+        new_matrix = _apply_gate(Symbol(Char(gate)), matrix)
+        isnothing(new_matrix) && error(lazy"unknown gate $(Symbol(Char(gate)))")
+        matrix = reduce_func(new_matrix)
     end
-    return result
+    return matrix
 end
 
-# Not used at the moment
-# # `map_func` allows supplying gates that are not "built in"
-# function compose_one(gates::AbstractString, map_func; reduce_fractions=true)
-#     result = one(Matrix2x2{DOmega{Int}})
-#     reduce_func = reduce_fractions ? canonical : identity
-#     for gate in codeunits(gates)
-#         sgate = Symbol(Char(gate))
-#         new_result = _apply_gate(sgate, result)
-#         if isnothing(new_result)
-#             new_result = map_func(sgate) * result
-#         end
-#         result = reduce_func(new_result)
-#     end
-#     return result
-# end
+function _alt_compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=true)
+    gates = rev ? reverse(gates) : gates
+    matrix = one(Matrix2x2{DOmega{Int}})
+    reduce_func = reduce_fractions ? canonical : identity
+    for gate in codeunits(gates)
+        gate = Symbol(Char(gate))
+        new_result =
+            if gate === :H
+                Gate1(:H) * matrix
+            elseif gate === :T
+                Gate1(:T) * matrix
+            elseif gate === :S
+                Gate1(:S) * matrix
+            elseif gate === :Q  # We restrict gates in string to one char. So Q == Tdg
+                Gate1(:Tdg) * matrix
+            elseif gate === :X
+                Gate1(:X) * matrix
+            elseif gate === :W
+                Gate1(:W) * matrix
+            elseif gate === :I
+                Gate1(:I) * matrix
+            elseif gate === :Y
+                Gate1(:Y) * matrix
+            elseif gate === :Z
+                Gate1(:Z) * matrix
+            else
+                nothing
+            end
+        isnothing(new_result) && error(lazy"unknown gate $gate")
+        matrix = reduce_func(new_result)
+    end
+    return matrix
+end
 
-# TODO: There are some packages that do this spliting for you.
-# But I don't think general enough.
+# Only for testing.
+# This incurs no allocation. OTOH, compose("HT"^n) incurs allocation for each iteration.
+# I don't understand exactly why. But it must be due to the conditional
+# An optimization would be to split the input string into sequences, like
+# "HT"^n, etc. and apply these with a function like this one.
+function apply_HT(n)
+    matrix = one(Matrix2x2{DOmega{Int}})
+    reduce = canonical
+    for _ in 1:n
+        matrix = reduce(Gate1(:H) * matrix)
+        matrix = reduce(Gate1(:T) * matrix)
+    end
+    matrix
+end
+
+# Split using conditionals to avoid dynamic dispatch.
+# i.e. don't dispatch on type of gate at runtime.
 @inline function _apply_gate(gate::Symbol, matrix)
     if gate === :H
         Gate1(:H) * matrix
-    elseif gate === :S
-        Gate1(:S) * matrix
     elseif gate === :T
         Gate1(:T) * matrix
+    elseif gate === :S
+        Gate1(:S) * matrix
     elseif gate === :Q  # We restrict gates in string to one char. So Q == Tdg
         Gate1(:Tdg) * matrix
     elseif gate === :X
         Gate1(:X) * matrix
     elseif gate === :W
         Gate1(:W) * matrix
-    elseif gate == :I
+    elseif gate === :I
         Gate1(:I) * matrix
-    elseif gate == :Y
+    elseif gate === :Y
         Gate1(:Y) * matrix
-    elseif gate == :Z
+    elseif gate === :Z
         Gate1(:Z) * matrix
     else
+#        matrix
         nothing
     end
 end
-
 
 """
     get_theta(m::Matrix2x2)
@@ -145,10 +178,6 @@ and `m[4] = cis(theta/2 + phi)`. Return `theta`.
 function get_theta(m::Matrix2x2)
     zsq = m[4] / m[1]
     angle(zsq)
-    # @show angle(m[1])
-    # @show angle(m[4])
-    # @show angle(zsq)
-#    angle(sqrt(zsq)) * 2
 end
 
 get_theta(m::Matrix2x2{<:DOmega}) = get_theta(big(m))
@@ -236,7 +265,6 @@ function isUapprox(m::Matrix2x2; kwargs...)
     isapprox(abs2(u) + abs2(t), 1; kwargs...) || return false
     return true
 end
-
 
 # using ..Dyadics: Dyadic
 # function TSH()
