@@ -4,6 +4,7 @@ using ..Utils: PRETTY
 import ..Matrices2x2: Matrix2x2, SU2, ScaleMatrix2x2
 using ..Singletons: Imag, RootImag, InvRootTwo
 using ..RootOnes: omega
+using ..CyclotomicRings: coeffs, div_half, mul_root_two
 
 export Gate1
 
@@ -114,6 +115,14 @@ end
 function Base.:*(::Gate1{:H}, m::Matrix2x2)
     (a,b,c,d) = m.data
     s = InvRootTwo
+
+    # println("Here")
+    # x = a + b
+    # y = c + d
+    # if all(iseven, coeffs(x)) && all(iseven, coeffs(y))
+    #     println("even")
+    # end
+
     Matrix2x2(s*(a + b), s*(a-b), s*(c+d), s*(c-d))
 end
 
@@ -137,10 +146,23 @@ end
 Base.:*(::Gate1{:W}, m::ScaleMatrix2x2) =  ScaleMatrix2x2(omega * m.m, m.s)
 Base.:*(m::ScaleMatrix2x2, ::Gate1{:W}) = Gate1(:W) * m
 
+# Trying different, equivalent ways to do this multiplication.
+# This seems to be correct. Agrees with version using Matrix2x2.
+# However the coefficients are 10^14 times larger. This is unacceptable and uneeded
 function Base.:*(::Gate1{:H}, m::ScaleMatrix2x2)
-    s_new = InvRootTwo * m.s
     (a,b,c,d) = m.m.data
-    m_new = Matrix2x2(a + b, a - b, c + d, c - d)
+
+    x = a + b
+    y = c + d
+    if all(iseven, coeffs(x)) && all(iseven, coeffs(y))
+#        print("1")
+        (a2, b2, c2, d2) = (a + b, a - b, c + d, c - d)
+        (an, bn, cn, dn) = map(x -> mul_root_two(div_half(x)), (a2, b2, c2, d2))
+        return ScaleMatrix2x2(Matrix2x2(an, bn, cn, dn), m.s)
+    end
+
+    s_new = InvRootTwo * m.s
+    m_new = Matrix2x2(x, a - b, y, c - d)
     ScaleMatrix2x2(m_new, s_new)
 end
 

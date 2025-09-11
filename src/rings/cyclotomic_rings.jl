@@ -641,6 +641,7 @@ Multiply `cyc` by `√2ⁿ`
 """
 function mul_root_two(cyc::CyclotomicRing{4})
     (a,b,c,d) = cyc.coeffs
+#    print("0")
     coeffs = (b-d, c+a, b+d, c-a)
     typeof(cyc)(coeffs)
 end
@@ -677,8 +678,13 @@ function mul_half(cyc::CyclotomicRing{4, <:Dyadic}, n::Integer=1)
     CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
 end
 
+# Hmm. This promotes ZOmega to DOmega
 function mul_half(cyc::CyclotomicRing{4, <: Integer}, n::Integer=1)
     CyclotomicRing(map(x -> Dyadic(x, n), coeffs(cyc)))
+end
+
+function div_half(cyc::CyclotomicRing{4, <: Integer})
+    CyclotomicRing(map(x -> div(x, 2), coeffs(cyc)))
 end
 
 @inline function Base.:*(::InvTwoT, cyc::CyclotomicRing{4}, n::Integer=1)

@@ -36,7 +36,7 @@ Reexport.@reexport import .QuadraticRings: QuadraticRing, ZRootD, ZRoot2, DRoot2
 
 include("rings/cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOmega, least_denominator_exponent,
-    rnorm
+    rnorm, div_half
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices2x2:

@@ -71,6 +71,7 @@ function scalematrix(m::AbstractMatrix{<:DOmega})
     m = RootTwo^k * m
     T = typeof(ZOmega(m[1]))
     mz = Matrix2x2{T}(m)
+#    @show typeof(mz)
     ScaleMatrix2x2(mz, InvRootTwo^k)
 end
 

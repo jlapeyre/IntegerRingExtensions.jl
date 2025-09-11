@@ -74,6 +74,11 @@ Base.adjoint(d::Dyadic) = d
 conj_root_two(d::Dyadic) = d
 Base.transpose(d::Dyadic) = d
 
+function Base.iseven(d::Dyadic)
+    dc = canonical(d)
+    iszero(dc.k) && iseven(dc.a)
+end
+
 Base.:*(::InvTwoT, f::Dyadic) = mul_half(f)
 Base.:*(::TwoT, f::Dyadic) = mul_half(f, -1)
 

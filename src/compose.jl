@@ -1,11 +1,11 @@
 module Compose
 
-using ..Matrices2x2: Matrix2x2, GPID
+using ..Matrices2x2: Matrix2x2, GPID, ScaleMatrix2x2
 import ..Matrices2x2: get_theta
 import ..RingMatrices: scalematrix
 import ..Gates: Gate1, RZ
 using ..Common: canonical
-using ..CyclotomicRings: DOmega
+using ..CyclotomicRings: DOmega, ZOmega
 using ..Utils: PRETTY
 using ..Angles: random_angle
 
@@ -29,13 +29,17 @@ julia> compose("TSHTHTHTHT")
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
 """
-function compose(gates::AbstractString; chunklen=200, reduce_fractions=true)
+function compose(gates::AbstractString; chunklen=300, reduce_fractions=true)
     gates = reverse(gates)
     length(codeunits(gates)) <= chunklen && return compose_one(gates, false; reduce_fractions=reduce_fractions)
     chunks = reverse(chunkstring(gates, chunklen))
     mats = [map(DOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
-#    mats = [compose_one(chunk, false) for chunk in chunks]
-    canonical(prod(mats))
+    scalematrix(canonical(prod(mats)))
+    # TODO: Ugh need to map ZOmega in for ScaleMatrix2x2 and DOmega for Matrix2x2
+    # Needs better organization
+#    mats = [map(ZOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
+#    mats = [map(ZOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
+    #    mats = [compose_one(chunk, false) for chunk in chunks]
 end
 
 """
