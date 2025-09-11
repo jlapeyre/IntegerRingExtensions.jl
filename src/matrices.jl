@@ -136,6 +136,7 @@ import Base: real, imag, big, complex, float
 
 for f in (:real, :imag, :float, :big, :complex, :canonical)
     @eval ($f)(m::Matrix2x2) = map($f, m)
+    @eval ($f)(m::ScaleMatrix2x2) = map($f, Matrix2x2(m))
 end
 
 
