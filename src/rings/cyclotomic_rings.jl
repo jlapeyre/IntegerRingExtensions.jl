@@ -542,7 +542,7 @@ function Base.:*(r::Real, c::CyclotomicRing)
     # These two are same speed.
     #    cs = map(x -> r * x, c.coeffs)
     cs = c.coeffs .* r
-
+    # Use NTuple to avoid big perf hit
     # cs = Tuple(r * x for x in c.coeffs) slow
     CyclotomicRing(cs)
 end
