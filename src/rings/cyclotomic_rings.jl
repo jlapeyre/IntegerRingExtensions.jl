@@ -534,6 +534,10 @@ function Base.:*(c1::CyclotomicRing{4}, c2::CyclotomicRing{4})
     CyclotomicRing{4, typeof(first(coeffs))}(coeffs)
 end
 
+function Base.:*(r::Rational, c::CyclotomicRing)
+    Dyadic(r) * c
+end
+
 function Base.:*(r::Real, c::CyclotomicRing)
     # These two are same speed.
     #    cs = map(x -> r * x, c.coeffs)
@@ -568,6 +572,26 @@ end
 
 function Base.:*(x::DRoot2, c::CyclotomicRing)
     error("not implemented")
+end
+
+function Base.:+(r::RootOne{8}, s::RootOne{8})
+    DOmega(r) + DOmega(s)
+end
+
+function Base.:-(r::RootOne{8}, s::RootOne{8})
+    ZOmega(r) - ZOmega(s)
+end
+
+function Base.:*(x::Integer, r::RootOne{8})
+    x * ZOmega(r)
+end
+
+function Base.:*(x::Dyadic, r::RootOne{8})
+    x * DOmega(r)
+end
+
+function Base.:*(x::Rational, r::RootOne{8})
+    Dyadic(x) * DOmega(r)
 end
 
 function Base.:*(r::RootOne{8}, cyc::CyclotomicRing{4})
@@ -686,6 +710,7 @@ end
 #     CyclotomicRing(map(x -> pow * x, cyc.coeffs))
 # end
 
+# sqrt(2) == omega - omega^3
 function Base.:*(::RootTwoT, cyc::CyclotomicRing{4})
     (a,b,c,d) = cyc.coeffs
     coeffs = (b-d, c+a, b+d, c-a)
@@ -839,7 +864,7 @@ function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
     CyclotomicRing{4, typeof(cs[1])}(cs)
 end
 
-ZOmega(r::RootOne{8}) = CyclotomicRing{4}(r)
+ZOmega(r::RootOne{8}) = CyclotomicRing{4, Int}(r)
 DOmega(r::RootOne{8}) = DOmega{Int}(r)
 
 # function CyclotomicRing{4}(r::RootOne{8})
@@ -865,9 +890,23 @@ DOmega(r::RootOne{8}) = DOmega{Int}(r)
 # end
 
 # With respect to base sqrt(2)
-function least_denominator_exponent(cyc::CyclotomicRing{<:Any, <:Dyadic})
-    lde2 = maximum(map(x -> x.k, canonical(cyc).coeffs))
-    lde2 << 1
+# Eg. lde( (omega - omega^3)/2) is one, not two
+function least_denominator_exponent(cyc::CyclotomicRing{4, <:Dyadic})
+    ccyc = canonical(cyc)
+    ks = map(x -> x.k, ccyc.coeffs)
+    (a, b, c, d) = map(x -> x.a, ccyc.coeffs)
+    k = maximum(ks)
+    (ka, kb, kc, kd) = ks
+    z = zero(a)
+    ap = k == ka ? a : z
+    bp = k == kb ? b : z
+    cp = k == kc ? c : z
+    dp = k == kd ? d : z
+    if k > 0 && iseven(ap - cp) && iseven(bp - dp)
+        2 * k - 1
+    else
+        2 * k
+    end
 end
 
 """
