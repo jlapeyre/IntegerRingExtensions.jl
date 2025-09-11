@@ -134,11 +134,6 @@ Base.AbstractFloat(m::Matrix2x2) = map(float, m)
 
 import Base: real, imag, big, complex, float
 
-for f in (:real, :imag, :float, :big, :complex, :canonical)
-    @eval ($f)(m::Matrix2x2) = map($f, m)
-    @eval ($f)(m::ScaleMatrix2x2) = map($f, Matrix2x2(m))
-end
-
 
 """
     canonical(m::Matrix2x2)
@@ -1013,6 +1008,15 @@ struct ScaleMatrix2x2{V, MatrixT <: AbstractMatrix2x2, ScaleT} <: AbstractMatrix
     m::MatrixT
     s::ScaleT
 end
+
+for f in (:real, :imag, :float, :big, :complex, :canonical)
+    @eval ($f)(m::Matrix2x2) = map($f, m)
+end
+
+for f in (:real, :imag, :float, :big, :complex)
+    @eval ($f)(m::ScaleMatrix2x2) = map($f, Matrix2x2(m))
+end
+
 
 function Base.getindex(sm::ScaleMatrix2x2, i::Integer)
     sm.s * sm.m[i]
