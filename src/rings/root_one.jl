@@ -164,9 +164,15 @@ function Base.:(==)(r1::RootOne{N1}, r2::RootOne{N2}) where {N1,N2}
     r1.k // N1 == r2.k // N2
 end
 
-(::Type{T})(r::RootOne{1}) where {T <: Number} = one(T)
-(::Type{T})(r::RootOne{1}) where {T <: Complex} = one(T)
-Base.Complex(r::RootOne{1}) = Complex{Float64}(r)
+# (::Type{T})(r::RootOne{1}) where {T <: Number} = one(T)
+# (::Type{T})(r::RootOne{1}) where {T <: Complex} = one(T)
+
+Base.real(::RootOne{1}) = 1
+Base.imag(::RootOne{1}) = 0
+Base.Complex(r::RootOne{1}) = Complex{Int}(r)
+Base.Complex{T}(r::RootOne{1}) where {T<:Number} = (one(T), zero(T))
+Base.Complex{T}(r::RootOne{1}) where {T<:Integer} = (one(T), zero(T))
+Base.Complex{Int}(r::RootOne{1}) = Complex(1, 0)
 
 function (::Type{T})(r::RootOne{M}; maybe::Bool=false) where {M, T <: Real}
     iszero(r.k) && return one(T)
