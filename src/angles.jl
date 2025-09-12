@@ -157,7 +157,7 @@ function Ang{T}(z::Float64) where {T<:Integer}
     elseif zp == -1
         Ang(-typemax(T))
     else
-        Ang(T(zp * typemax(T)))
+        Ang(round(T, zp * typemax(T)))
     end
 end
 
@@ -182,6 +182,11 @@ for FT in (:Float64, :Float32)
  @eval function $FT(a::Ang{T}) where {T}
      $FT(a.x / typemax(T))
  end
+end
+
+# For now, we use Float64 for everything
+function Base.AbstractFloat(a::Ang)
+    Float64(a)
 end
 
 function Base.:/(a::Ang, n::Integer)

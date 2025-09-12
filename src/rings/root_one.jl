@@ -1,9 +1,10 @@
 module RootOnes
 
-import ..Utils: subscript, superscript
-import ..Common: sqrt_imaginary, imaginary, isunit, conj_root_two, norm_root_two
 import Base: convert, show
 import Random
+
+import ..Utils: subscript, superscript
+import ..Common: sqrt_imaginary, imaginary, isunit, conj_root_two, norm_root_two
 
 export RootOne, Omega
 
@@ -210,11 +211,14 @@ Base.big(r::RootOne) = Complex{BigFloat}(r)
 
 # Base.Complex(r::RootOne) = Complex{Float64}(r)
 
-Base.Complex(r::RootOne) = complex(r)
+
 Base.Complex{T}(r::RootOne{N}) where {T, N} = cispi((T(2) * T(r.k)) / T(N))
 
 # Method for `Base.complex(r::RootOne{8})` defined in quadratic_ring.jl.
-Base.complex(r::RootOne) = Complex{Float64}(r)
+
+#Base.Complex(r::RootOne) = complex(r)
+Base.Complex(r::RootOne) = Complex{Float64}(r)
+Base.complex(r::RootOne) = Complex(r)
 
 Base.angle(r::RootOne) = angle(Float64, r)
 function Base.angle(::Type{T}, r::RootOne{N}) where {N, T}

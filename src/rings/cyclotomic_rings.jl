@@ -2,11 +2,11 @@ module CyclotomicRings
 
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
+
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, mul_two
 import ..Utils: superscript, iszero_strong, isone_strong, PRETTY
 import ..RootOnes: RootOne
-
 import ..Dyadics: Dyadic
 import ..QuadraticRings: DRoot2, ZRoot2
 import ..Singletons: InvTwo, InvTwoT,

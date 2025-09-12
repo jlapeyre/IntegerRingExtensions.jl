@@ -4,10 +4,11 @@ import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, norm, normalize,
     dot
 import LinearAlgebra
+import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx
+
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
-import ..Angles: radtodar, Dar, Ang, scalepi, unscalepi, intdiv, random_angle
-import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx
+import ..Angles: radtodar, Dar, Ang, intdiv, random_angle
 
 export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4
 
