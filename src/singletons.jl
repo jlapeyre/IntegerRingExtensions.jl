@@ -568,6 +568,7 @@ Base.:*(x::SingleNum, y::Number) = typeof(y)(x) * y
 
 Base.:*(::OneT, ::RootImagT) = RootImag
 Base.:*(x::SingleNum, ::RootImagT) = RootImag * x
+Base.:*(::ZeroT, ::RootImagT) = Zero
 
 Base.:*(::ImagT, x::T) where {T<:Number} = complex(T)(im) * x
 # Base.:*(x, ::ImagT) = Imag * x

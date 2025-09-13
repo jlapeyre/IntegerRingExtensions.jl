@@ -21,6 +21,8 @@ function Base.:*(r::RootOne{8}, m::MatrixNxN{<:DOmega})
     map(x -> r * x, m)
 end
 
+Base.:*(m::AbstractMatrixNxN, r::RootOne{8}) = throw(MethodError(Base.:*, (m, r)))
+Base.:*(m::AbstractMatrixNxN{<:ZOmega}, r::RootOne{8}) = r * m
 Base.:*(m::AbstractMatrixNxN{<:DOmega}, r::RootOne{8}) = r * m
 
 Base.:*(n::SingleNum, m::AbstractMatrixNxN) = map(x -> n * x, m)

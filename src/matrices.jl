@@ -120,9 +120,8 @@ function Base.map(f, m::AbstractMatrixNxN)
     MatrixNxN(map(f, elements(m)))
 end
 
-
-elements(m::Matrix2x2) = m.data
-elements(m::AbstractMatrix2x2) = elements(Matrix2x2(m))
+elements(m::MatrixNxN) = m.data
+elements(m::AbstractMatrixNxN{T,N}) where {T, N} = elements(Matrix2x2{T,N}(m))
 
 ##
 ## Conversion and related construction
@@ -289,9 +288,14 @@ end
     Matrix2x2(a1*a2 + c1*b2, a2*b1 + d1*b2, a1*c2 + c1*d2, b1*c2 + d1*d2)
 end
 
-@inline function Base.:*(m::AbstractMatrix2x2, x::Number)
-    (a, b, c, d) = elements(m)
-    Matrix2x2(x * a, x * b, x * c, x * d)
+# @inline function Base.:*(m::AbstractMatrix2x2, x::Number)
+#     (a, b, c, d) = elements(m)
+#     Matrix2x2(x * a, x * b, x * c, x * d)
+# end
+
+@inline function Base.:*(m::AbstractMatrixNxN{<:Number, N}, x::Number) where {N}
+    els = map(z -> x * z, elements(m))
+    MatrixNxN{typeof(first(els)), N}(els)
 end
 
 @inline Base.:*(x::Number, m::AbstractMatrix2x2) = m * x
