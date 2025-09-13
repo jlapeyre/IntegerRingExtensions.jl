@@ -161,6 +161,12 @@ Construct `RootOne{N}(k)`.
 RootOne(k, N) = RootOne{N}(k)
 Base.one(::Type{RootOne{N}}) where {N} = RootOne{N}(0)
 Base.one(x::RootOne) = one(typeof(x))
+Base.isone(x::RootOne) = iszero(x.k) # fallback is probably ok, too
+
+function Base.zero(::Type{<:RootOne})
+    throw(ArgumentError("Type RootOne has no additive inverse"))
+end
+Base.zero(::T) where {T<:RootOne} = zero(RootOne)
 
 RootOne{N}(r::RootOne{N}) where {N} = r
 function RootOne{M}(rt::RootOne{N}) where {M, N}
