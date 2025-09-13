@@ -72,6 +72,8 @@ RootOne{8}(5)
 """
 struct RootOne{N} <: Number
     function RootOne{N}(k) where {N}
+        N isa Integer || throw(ArgumentError(lazy"In RootOne{N}, N must be an integer"))
+        N > 0 || throw(ArgumentError(lazy"In RootOne{N}, N must be > 0"))
         new{N}(mod(k, N))
     end
     k::Int # Could use smaller `k`.
