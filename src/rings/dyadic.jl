@@ -55,6 +55,16 @@ struct Dyadic{aT<:Integer, kT<:Integer} <: Real
     k::kT
 end
 
+function Dyadic{T, K}(n::T1)  where {T <: Integer, T1 <: Integer, K <: Integer}
+    Dyadic{T, K}(convert(T, n), zero(K))
+end
+
+function Dyadic{T}(n::T1)  where {T <: Integer, T1 <: Integer}
+    Dyadic{T, Int}(convert(T, n), 0)
+end
+
+Dyadic(n::Integer) = Dyadic(n, zero(n))
+
 """
     params(d::Dyadic)
 
@@ -298,10 +308,6 @@ end
 
 convert(::Type{Dyadic{T, K}}, n::T1) where {T <: Integer, T1 <: Integer, K} = Dyadic{T, K}(n)
 
-function Dyadic{T, K}(n::T1)  where {T <: Integer, T1 <: Integer, K}
-    Dyadic{T, K}(convert(T, n), 0)
-end
-
 function convert(::Type{Rational{T}}, f::Dyadic) where {T}
     #  Rational{T}(convert(T, f.a), convert(T, 2)^f.k)
     # shifting is a bit faster than power of two (even though 2 is literal)
@@ -319,7 +325,6 @@ function Dyadic{T, V}(r::Rational) where {T<:Integer, V<:Integer}
 end
 
 #Dyadic(r::Rational) = convert(Dyadic, r)
-Dyadic(n::Integer) = Dyadic(n, zero(n))
 Dyadic(x::Dyadic) = x
 Dyadic{T,V}(x::Dyadic{T,V}) where {T,V} = x
 

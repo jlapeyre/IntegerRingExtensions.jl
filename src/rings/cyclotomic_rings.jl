@@ -866,7 +866,7 @@ function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
             (0,0,0,val)
         end
     #    println(T)
-    cs = map(Dyadic, coeffs)
+    cs = map(T, coeffs)
     CyclotomicRing{4, typeof(cs[1])}(cs)
 end
 
