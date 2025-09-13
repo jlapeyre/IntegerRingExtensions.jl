@@ -181,13 +181,6 @@ function Base.:(==)(r1::RootOne{N1}, r2::RootOne{N2}) where {N1,N2}
     r1.k // N1 == r2.k // N2
 end
 
-Base.real(::RootOne{1}) = 1
-Base.imag(::RootOne{1}) = 0
-Base.Complex(r::RootOne{1}) = Complex{Int}(r)
-Base.Complex{T}(r::RootOne{1}) where {T<:Number} = (one(T), zero(T))
-Base.Complex{T}(r::RootOne{1}) where {T<:Integer} = (one(T), zero(T))
-Base.Complex{Int}(r::RootOne{1}) = Complex(1, 0)
-
 function (::Type{T})(r::RootOne{M}; maybe::Bool=false) where {M, T <: Real}
     iszero(r.k) && return one(T)
     if !(iseven(M) && div(M, r.k) == 2)
@@ -274,6 +267,10 @@ function Base.:*(r1::RootOne{N}, r2::RootOne{M}) where {N, M}
     return RootOne{rat.den}(rat.num)
 end
 
+function Base.:/(r1::RootOne{N}, r2::RootOne{M}) where {N, M}
+    r1 * inv(r2)
+end
+
 function Base.sqrt(r::RootOne{N}) where N
     k = r.k
     iseven(k) || throw(ArgumentError(lazy"Inexact error: sqrt($r)"))
@@ -299,19 +296,31 @@ function Base.:-(r::RootOne{N}; maybe=false) where {N}
     RootOne{N}(r.k + (N >> 1))
 end
 
+Base.real(::RootOne{1}) = 1
+Base.imag(::RootOne{1}) = 0
+Base.Complex(r::RootOne{1}) = Complex{Int}(r)
+Base.Complex{T}(r::RootOne{1}) where {T<:Number} = (one(T), zero(T))
+Base.Complex{T}(r::RootOne{1}) where {T<:Integer} = (one(T), zero(T))
+Base.Complex{Int}(r::RootOne{1}) = Complex(1, 0)
+
+Base.real(::Type{T}, r::RootOne{2}) where T <: Number = T(real(r))
+Base.real(r::RootOne{2}) = Int(r)
 Base.Complex(r::RootOne{2}) = Complex{Int}(r)
 
-function Base.complex(r::RootOne{4})
+Base.Complex(r::RootOne{4}) = Complex{Int}(r)
+function Base.Complex{T}(r::RootOne{4}) where {T <: Integer}
     k = r.k
+    o = one(T)
+    z = zero(T)
     tup =
         if k == 0
-            (1, 0)
+            (o, z)
         elseif k == 1
-            (0, 1)
+            (z, o)
         elseif k == 2
-            (-1, 0)
+            (-o, z)
         elseif k == 3
-            (0, -1)
+            (z, -o)
         end
     Complex(tup...)
 end
