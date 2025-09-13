@@ -9,8 +9,6 @@ using ..CyclotomicRings: DOmega, ZOmega
 using ..Utils: PRETTY
 using ..Angles: random_angle
 
-export benchmark_compose
-
 """
     compose(gates::AbstractString; chunklen=300)
 

@@ -55,7 +55,11 @@ struct CyclotomicRing{M, CoeffT <: Number} <: Number
     coeffs::NTuple{M, CoeffT}
 end
 
-CyclotomicRing(coeffs::NTuple{M, T}) where {M, T} = CyclotomicRing{M,T}(coeffs)
+# Thank you Elrod
+# https://discourse.julialang.org/t/is-this-test-detect-unbound-args-result-valid-or-a-bug/96987
+function CyclotomicRing(coeffs::Tuple{T,Vararg{T,nMinus1}}) where {T<:Number, nMinus1}
+    CyclotomicRing{nMinus1 + 1, T}(coeffs)
+end
 
 ###
 ### Aliases for special cases: DOmega, ZOmega
@@ -107,6 +111,10 @@ function CyclotomicRing{M, T}(x::Number) where {M, T}
     z = zero(T)
     val = T(x)
     return CyclotomicRing{M, T}(ntuple(i -> i == 1 ? val : z, Val(M)))
+end
+
+function CyclotomicRing()
+    throw(MethodError(CyclotomicRing, ()))
 end
 
 function CyclotomicRing(coeffs::T...) where {T <: Number}
@@ -232,13 +240,37 @@ function Base.show(io::IO, ::PRETTY, cr::CyclotomicRing)
     end
 end
 
-function Base.show(io::IO, ::PRETTY, tup::NTuple{<:Any, T}) where {T<:CyclotomicRing}
+# This is just a desperate attempt to avoid unbound args error from Aqua
+# function Base.show(io::IO, ::PRETTY, tup::NTuple{0, <:CyclotomicRing})
+#     print(io, "()")
+# end
+
+#function Base.show(io::IO, ::PRETTY, tup::NTuple{<:Any, T}) where {T<:CyclotomicRing}
+
+# function Base.show(io::IO, ::PRETTY, rings::T...) where {T<:CyclotomicRing}
+#     print(io, "(")
+#     for i in 1:length(rings)
+#         if i > 1
+#             print(io, ", ")
+#         end
+#         show(io, PRETTY(), rings[i])
+#     end
+#     print(io, ")")
+# end
+
+# Seems I have to do this piracy
+# function Base.show(io::IO, m::MIME{Symbol("text/plain")}, t::Tuple{})
+#     invoke(show, Tuple{IO,MIME{Symbol("text/plain")},Any}, stdout, m, t)
+# end
+
+#function Base.show(io::IO, ::PRETTY, rings::NTuple{<:Any, T}) where {T<:CyclotomicRing}
+function Base.show(io::IO, ::PRETTY, rings::Tuple{T, Vararg{T, nMinus1}}) where {T<:CyclotomicRing, nMinus1}
     print(io, "(")
-    for i in 1:length(tup)
+    for i in 1:length(rings)
         if i > 1
             print(io, ", ")
         end
-        show(io, PRETTY(), tup[i])
+        show(io, PRETTY(), rings[i])
     end
     print(io, ")")
 end

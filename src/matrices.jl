@@ -58,13 +58,11 @@ function Matrix2x2(tup::NTuple{4, T}) where T
     Matrix2x2{T}(tup)
 end
 
-function Matrix4x4(tup::NTuple{16, T}) where T
-    Matrix4x4{T}(tup)
-end
-
-function MatrixNxN(tup::NTuple{N2, T}) where {N2, T}
-    N = isqrt(N2)
-    MatrixNxN{T, N, N2}(tup)
+# Thank you Elrod
+# https://discourse.julialang.org/t/is-this-test-detect-unbound-args-result-valid-or-a-bug/96987
+function MatrixNxN(tup::Tuple{T, Vararg{T, N2mOne}}) where {N2mOne, T}
+    N = isqrt(N2mOne+1)
+    MatrixNxN{T, N, N2mOne+1}(tup)
 end
 
 struct Vector2{T} <: AbstractVector2{T}

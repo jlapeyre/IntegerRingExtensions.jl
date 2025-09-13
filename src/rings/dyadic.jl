@@ -163,7 +163,12 @@ function promote_rule(::Type{Dyadic{Int,Int}}, ::Type{Int})
     Dyadic{Int, Int}
 end
 
-function Base.show(io::IO, ::PRETTY, tup::NTuple{N, <:Dyadic}) where {N}
+# Thank you Elrod
+# https://discourse.julialang.org/t/is-this-test-detect-unbound-args-result-valid-or-a-bug/96987
+function Base.show(io::IO, ::PRETTY, tup::Tuple{T, Vararg{T, nMinus1}}) where {T<:Dyadic, nMinus1}
+    if isempty(tup)
+        return Base.show_default(io, tup)
+    end
     print(io, "(")
     for (i, d) in enumerate(tup)
         show(io, PRETTY(), d)

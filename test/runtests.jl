@@ -1,7 +1,7 @@
 using IntegerExtensions
 using Test
 
-#include("test_aqua.jl")
+include("test_aqua.jl")
 
 include("rootone_tests.jl")
 include("singleton_conversion_tests.jl")
