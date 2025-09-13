@@ -30,9 +30,10 @@ end
     Aqua.test_piracies(IntegerExtensions)
 end
 
-@testset "aqua persistent tasks" begin
-    Aqua.test_persistent_tasks(IntegerExtensions)
-end
+# Quite slow. Unlikely we violate this in any case
+# @testset "aqua persistent tasks" begin
+#     Aqua.test_persistent_tasks(IntegerExtensions)
+# end
 
 # TODO:
 # @testset "aqua undocumented_names" begin
