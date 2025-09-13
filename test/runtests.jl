@@ -1,7 +1,7 @@
 using IntegerExtensions
 using Test
 
-include("rootonetests.jl")
+include("rootone_tests.jl")
 include("singleton_conversion_tests.jl")
 include("composition_tests.jl")
 include("quadratic_ring_tests.jl")
