@@ -160,12 +160,24 @@ RootOne(k, N) = RootOne{N}(k)
 Base.one(::Type{RootOne{N}}) where {N} = RootOne{N}(0)
 Base.one(x::RootOne) = one(typeof(x))
 
+RootOne{N}(r::RootOne{N}) where {N} = r
+function RootOne{M}(rt::RootOne{N}) where {M, N}
+    if M < N
+        (n, r) = divrem(N, M)
+        r == 0 || throw(ArgumentError(lazy"InexactError converting $rt to RootOne{$M}"))
+        (q, r) = divrem(rt.k, n)
+        r == 0 || throw(ArgumentError(lazy"InexactError converting $rt to RootOne{$M}"))
+        return RootOne{M}(q)
+    else
+        (n, r) = divrem(M, N)
+        r == 0 || throw(ArgumentError(lazy"InexactError converting $rt to RootOne{$M}"))
+        return RootOne{M}(rt.k * n)
+    end
+end
+
 function Base.:(==)(r1::RootOne{N1}, r2::RootOne{N2}) where {N1,N2}
     r1.k // N1 == r2.k // N2
 end
-
-# (::Type{T})(r::RootOne{1}) where {T <: Number} = one(T)
-# (::Type{T})(r::RootOne{1}) where {T <: Complex} = one(T)
 
 Base.real(::RootOne{1}) = 1
 Base.imag(::RootOne{1}) = 0
@@ -252,6 +264,13 @@ Base.isinteger(r::RootOne) = isreal(r)
 
 Base.:*(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k + r2.k)
 Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)
+
+# This can probably be very slow at times.
+# The type parameter must be computed at runtime.
+function Base.:*(r1::RootOne{N}, r2::RootOne{M}) where {N, M}
+    rat = r1.k // N + r2.k // M
+    return RootOne{rat.den}(rat.num)
+end
 
 function Base.sqrt(r::RootOne{N}) where N
     k = r.k
