@@ -1,3 +1,32 @@
+@testset "QuadraticRing{2, Int}" begin
+    # Don't follow this example in real code!
+    # If D is not literal or `const`, performance degrades by orders of magnitude!
+    D = 2
+    q = QuadraticRing{D}(1, 1)
+    @test q === QuadraticRing{D}(1, 1) # different ways to instantiate.
+    @test iszero(zero(q))
+    @test iszero(zero(QuadraticRing{D, Int}))
+    @test iszero(q - q)
+    @test q^2 == q * q
+    @test q^5 == q * q * q * q * q
+    @test norm_root_two(q^5) == norm_root_two(q)
+    @test conj_root_two(q) * q == norm_root_two(q)
+
+    q2 = QuadraticRing2(1, 2)
+    @test norm_root_two(q2) == -7
+    @test conj_root_two(q2) * q2 == norm_root_two(q2)
+    @test conj_root_two(q2) * q2 == -7.0
+
+    u1 = QuadraticRing{D}(1, 1)
+    u2 = QuadraticRing{D}(1, 0)
+    @test isunit(u1)  # Units are not unique
+    @test isunit(u2)
+
+    @test convert(Int, QuadraticRing{D}(3, 0)) == 3
+    @test_throws ArgumentError convert(Int, QuadraticRing{D}(3, 1)) # Can't convert 3 + sqrt(2) to Int
+    @test float(QuadraticRing{D}(3, 2)) == 3 + 2 * sqrt(2)
+end
+
 @testset "ZRoot2" begin
     x = ZRoot2(3)
     @test x == 3
@@ -29,9 +58,16 @@ end
 end
 
 @testset "DRoot2" begin
+    x = DRoot2(1, Dyadic(3, 2))
+    @test typeof(x) === DRoot2{Int64, Int64}
+    @test typeof(big(x)) === QuadraticRing{2, BigFloat}
+    @test typeof(big(big(x))) === BigFloat
+end
+
+#@testset "DRoot2" begin
     # x = ZRoot2(3)
     # @test x == 3
     # @test Int(x) == 3
     # r2 = root_two(ZRoot2{Int})
     # @test float(r2) == sqrt(2)
-end
+#end

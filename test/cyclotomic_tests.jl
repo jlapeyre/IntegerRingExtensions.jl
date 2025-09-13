@@ -14,6 +14,27 @@ import IntegerExtensions.CyclotomicRings: mul_root_two
 
 end
 
+@testset "DOmega" begin
+    cr = CyclotomicRing(1,2,3,4)
+    @test isa(cr, CyclotomicRing{4, Int64})
+    cromega = DOmega((1,2,3,4))
+    @test cromega === DOmega(1,2,3,4)
+    @test typeof(cromega) === DOmega{Int}
+    @test cromega === DOmega{Int}(cr)
+    z = DOmega(1,2,3,Dyadic(1,1))
+    @test typeof(z) === DOmega{Int}
+    @test typeof(DOmega(1,2,3,4)) === DOmega{Int}
+
+    @test cromega == cromega
+    @test DOmega(1,0,0,0) == one(cromega)
+    @test isone(one(cr))
+    @test isone(one(cromega))
+
+    azf = float(z * conj(z))
+    @test isreal(azf)
+    @test real(azf) > 0
+end
+
 @testset "cyclotomic conversion" begin
     d = DOmega(1,2,3,4)
     @test isa(d, DOmega)
