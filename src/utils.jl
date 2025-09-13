@@ -67,7 +67,8 @@ function _show_with_fieldnames(io::IO, obj)
     print(io, ")")
 end
 
-
+# JET complains because AbstractString can be all kinds of crazy shit
+# in Base that causes some return value to be nothing
 function cpad(s::AbstractString, width::Integer, pad::AbstractString=" ")
     len = length(s)
     padlen = width - len
@@ -76,7 +77,8 @@ function cpad(s::AbstractString, width::Integer, pad::AbstractString=" ")
     end
     lpadlen = padlen ÷ 2 + padlen % 2
     rpadlen = padlen ÷ 2
-    return lpad(s, len + lpadlen, pad) |> x -> rpad(x, width, pad)
+    return rpad(lpad(s, len + lpadlen, pad), width, pad)
+#    return lpad(s, len + lpadlen, pad) |> x -> rpad(x, width, pad)
 end
 
 function iszero_strong(x)

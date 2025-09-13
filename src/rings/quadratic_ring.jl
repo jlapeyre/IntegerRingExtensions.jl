@@ -591,7 +591,7 @@ function Base.imag(r::RootOne{8})
         DRoot2(0, Dyadic(-1, 1))
     elseif k == 6
         DRoot2(-1, Dyadic(0, 0))
-    elseif k == 7
+    else k == 7
         DRoot2(0, Dyadic(-1, 1))
     end
 end
@@ -612,7 +612,7 @@ function Base.real(r::RootOne{8})
         DRoot2(0, Dyadic(-1, 1))
     elseif k == 6
         DRoot2(0, 0)
-    elseif k == 7
+    else
         DRoot2(0, Dyadic(1, 1))
     end
 end

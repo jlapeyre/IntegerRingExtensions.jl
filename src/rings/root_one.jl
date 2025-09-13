@@ -271,6 +271,7 @@ Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)
 
 # This can probably be very slow at times.
 # The type parameter must be computed at runtime.
+# Indeed, JET finds runtime dispatch.
 function Base.:*(r1::RootOne{N}, r2::RootOne{M}) where {N, M}
     rat = r1.k // N + r2.k // M
     return RootOne{rat.den}(rat.num)
@@ -328,7 +329,7 @@ function Base.Complex{T}(r::RootOne{4}) where {T <: Integer}
             (z, o)
         elseif k == 2
             (-o, z)
-        elseif k == 3
+        else k == 3
             (z, -o)
         end
     Complex(tup...)
