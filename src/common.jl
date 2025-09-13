@@ -47,8 +47,8 @@ end
 
 The imaginary unit as type `T`.
 
-If the imaginary unit cannot be represented as `T`, for example
-when `T` is `Real`, then `Complex{T}` is returned.
+If the imaginary unit cannot be represented as `T`, for example when `T` is `Real`,
+then a value of type `Complex{T}` is returned.
 """
 function imaginary(::Type{T}) where {T <: Real}
     complex(zero(T), one(T))
@@ -109,7 +109,6 @@ However, we call this multiplication to emphasize that this function can be call
 function mul_one_over_root_two(x)
     x * inv(sqrt(typeof(x)(2)))
 end
-
 
 """
     mul_half(x, n::Integer=1)
@@ -193,7 +192,7 @@ If no such `y` exists, throw an error.
 """
 function invstrict end
 
-invstrict(x::Union{AbstractFloat}) = inv(x)
+invstrict(x::AbstractFloat) = inv(x)
 invstrict(x::Complex{T}) where {T <: Union{AbstractFloat, Rational}} = inv(x)
 
 # Base.inv(::Rational) returns 1//0 for inv(0//n)

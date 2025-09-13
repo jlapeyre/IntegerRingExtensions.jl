@@ -220,7 +220,6 @@ function (::Type{Complex{T}})(r::RootOne{M}; maybe::Bool=false) where {M, T <: I
 end
 
 Base.float(r::RootOne) = float(complex(r))
-
 Base.big(r::RootOne) = Complex{BigFloat}(r)
 
 # We don't want these. Rather convert to: Complex{QuadraticRing{2, Dyadic{Int64, Int64}}}
@@ -229,7 +228,6 @@ Base.big(r::RootOne) = Complex{BigFloat}(r)
 # convert(::Type{Complex{T}}, r::RootOne{N}) where {T, N} = Complex{T}(r)
 
 # Base.Complex(r::RootOne) = Complex{Float64}(r)
-
 
 Base.Complex{T}(r::RootOne{N}) where {T, N} = cispi((T(2) * T(r.k)) / T(N))
 
@@ -243,6 +241,11 @@ Base.angle(r::RootOne) = angle(Float64, r)
 function Base.angle(::Type{T}, r::RootOne{N}) where {N, T}
     k = r.k <= N/2 ? r.k : r.k - N
     2 * T(pi) * T(k) / T(N)
+end
+
+Base.log(r::RootOne) = log(Float64, r)
+function Base.log(::Type{T}, r::RootOne) where {T}
+    Complex(zero(T), angle(T, r))
 end
 
 Base.adjoint(r::RootOne) = conj(r)

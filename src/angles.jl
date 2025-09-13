@@ -1,7 +1,8 @@
 module Angles
 
 import Random
-using ..Utils: PRETTY
+
+const PRETTY = MIME"text/plain"
 
 """
     Dar{T}

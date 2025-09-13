@@ -514,6 +514,7 @@ end
 # We use `Number` to avoid dispatching to these when calling
 # with singletons
 
+Base.:*(pow::Pow{T}, x::Pow) where {T} = NT(T())^pow.n * x
 Base.:*(pow::Pow{T}, x::NT) where {NT <: Number, T} = NT(T())^pow.n * x
 Base.:*(x::Number, pow::Pow) = x * pow
 
@@ -538,6 +539,7 @@ Base.:*(::InvRootTwoT, y::Pow{InvRootTwoT}) = Pow{InvRootTwoT}(y.n + 1)
 Base.inv(x::Pow{T}) where {T} = inv(T()) ^ (x.n)
 Base.inv(::OneT) = One
 
+Base.:*(::ZeroT, ::ZeroT) = Zero
 Base.:*(::ZeroT, ::SingleNum) = Zero
 Base.:*(::SingleNum, ::ZeroT) = Zero
 Base.:*(::OneT, ::ZeroT) = Zero
@@ -564,7 +566,8 @@ end
 
 Base.:*(x::SingleNum, y::Number) = typeof(y)(x) * y
 
-Base.:*(x, ::RootImagT) = RootImag * x
+Base.:*(::OneT, ::RootImagT) = RootImag
+Base.:*(x::SingleNum, ::RootImagT) = RootImag * x
 
 Base.:*(::ImagT, x::T) where {T<:Number} = complex(T)(im) * x
 # Base.:*(x, ::ImagT) = Imag * x

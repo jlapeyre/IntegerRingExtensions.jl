@@ -852,6 +852,9 @@ end
 
 # Huh. I did this twice
 
+ZOmega(r::RootOne{8}) = CyclotomicRing{4, Int}(r)
+DOmega(r::RootOne{8}) = DOmega{Int}(r)
+
 function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
     val = r.k == 4 ? -1 : sign(4 - r.k)
     pos = mod(r.k, 4)
@@ -869,9 +872,6 @@ function CyclotomicRing{4, T}(r::RootOne{8}) where {T}
     cs = map(T, coeffs)
     CyclotomicRing{4, typeof(cs[1])}(cs)
 end
-
-ZOmega(r::RootOne{8}) = CyclotomicRing{4, Int}(r)
-DOmega(r::RootOne{8}) = DOmega{Int}(r)
 
 # function CyclotomicRing{4}(r::RootOne{8})
 #     k = r.k
