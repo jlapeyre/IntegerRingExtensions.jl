@@ -1,4 +1,6 @@
-module Gates
+@stable module Gates
+
+using DispatchDoctor: @unstable
 
 using ..Utils: PRETTY
 import ..Matrices2x2: Matrix2x2, SU2, ScaleMatrix2x2
@@ -43,7 +45,7 @@ julia> Matrix2x2{DOmega{Int}}(Gate1(:T))
 ```
 """
 struct Gate1{Name}
-    function Gate1(name::Symbol)
+    @unstable function Gate1(name::Symbol)
         new{name}()
     end
     function Gate1{name}() where {name}
