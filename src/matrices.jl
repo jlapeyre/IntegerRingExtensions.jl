@@ -1067,20 +1067,17 @@ end
 
 det(sm::ScaleMatrix2x2) = (sm.s * sm.s) * det(sm.m)
 
+const I2x2 = Matrix2x2(1, 0, 0, 1)
+const X = Matrix2x2(0, 1, 1, 0)
+const Y = Matrix2x2(complex(0), 1im, -1im, complex(0))
+const Z = Matrix2x2(1, 0, 0, -1)
+
 # This is pure at the moment
 function random_density_matrix2x2()
     (px, py, pz) = rand(3)
     s = sqrt(px*px + py*py + pz*pz)
-    px /= s
-    py /= s
-    pz /= s
-    tx = px .* (0., 1., 1., 0.)
-    ty = py .* (complex(0.), 1.0im, -1.0im, complex(0.0))
-    tz = pz .* (1., 0., 0., -1.)
-    tone = (1., 0., 0., 1.)
-    res = 0.5 .* (tx .+ ty .+ tz .+ tone)
-#    res = ntuple(i -> 0.5 * (tx[i] + ty[i] + tz[i] + tone[i]), 4)
-    Matrix2x2(res)
+    (px, py, pz) = (px, py, pz) ./ s
+    return 0.5 * (I2x2 + px * X + py * Y + pz * Z)
 end
 
 end # module Matrices2x2
