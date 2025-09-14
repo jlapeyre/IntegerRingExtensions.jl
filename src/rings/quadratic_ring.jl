@@ -1,4 +1,5 @@
-module QuadraticRings
+@stable module QuadraticRings
+
 
 import LinearAlgebra
 import Base: promote_rule, show, convert

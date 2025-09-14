@@ -1,4 +1,4 @@
-module Common
+@stable module Common
 
 # TODO: cleanup, prolly remove, root_two, etc. in favor of T(singleton)
 # Design using `root_two` agrees Julia Base use of zero() and one().

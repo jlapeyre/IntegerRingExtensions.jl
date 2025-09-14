@@ -1,5 +1,7 @@
 module GridSynth
 
+using DispatchDoctor: @stable
+
 using ..Utils: PRETTY, superscript
 import ..Utils: countmap
 import ..Compose: Compose, compose, rotation_error

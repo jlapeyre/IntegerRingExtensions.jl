@@ -1,4 +1,4 @@
-module Angles
+@stable module Angles
 
 import Random
 

@@ -1,4 +1,7 @@
 module Dyadics
+#@stable module Dyadics
+
+#using DispatchDoctor: @stable, @unstable
 
 import Base: zero, iszero, one, convert, promote_rule, show
 import Random

@@ -1,4 +1,7 @@
 module Matrices2x2
+#@stable module Matrices2x2
+
+# using DispatchDoctor: @stable
 
 import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, norm, normalize,
@@ -455,6 +458,7 @@ function LinearAlgebra.norm(m::AbstractMatrix2x2, n::Real=2)
     n == 2 && return norm2(m)
     n == 1 && return norm1(m)
     n == Inf && return normInf(m)
+    throw(ArgumentError(lazy"Unsupported l-norm $n"))
 end
 
 # We may need to scale for accuracy, as is done in LinearAlgebra code.

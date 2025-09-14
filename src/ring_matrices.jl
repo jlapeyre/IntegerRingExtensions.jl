@@ -1,4 +1,4 @@
-module RingMatrices
+@stable module RingMatrices
 
 import ..CyclotomicRings: DOmega, ZOmega, least_denominator_exponent
 import ..Matrices2x2: MatrixNxN, Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2

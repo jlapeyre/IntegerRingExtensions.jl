@@ -1,4 +1,4 @@
-module GridSynthExtra
+@stable module GridSynthExtra
 
 using ..CyclotomicRings: DOmega
 using ..GridSynth: GridSynthMatrix, GridSynthResults, gridsynth_matrix

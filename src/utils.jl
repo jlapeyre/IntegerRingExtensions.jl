@@ -1,4 +1,4 @@
-module Utils
+@stable module Utils
 
 import LinearAlgebra
 import ILog2: ilog2

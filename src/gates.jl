@@ -42,11 +42,23 @@ julia> Matrix2x2{DOmega{Int}}(Gate1(:T))
  0    ω
 ```
 """
-struct Gate1{Name} end
+struct Gate1{Name}
+    function Gate1(name::Symbol)
+        new{name}()
+    end
+    function Gate1{name}() where {name}
+        isa(name, Symbol) || throw(MethodError(Gate1, name))
+        new{name}()
+    end
+    function Gate1(name::Val{S}) where S
+        new{S}()
+    end
+end
 
-Gate1(name) = Gate1{name}()
+#Gate1(name::Symbol) = Gate1{name}()
+
 function Base.show(io::IO, ::PRETTY, ::Gate1{Name}) where {Name}
-    print(io, "Gate1($(repr(Name)))")
+    print(io, "Gate1{$(repr(Name))}()")
 end
 Base.show(io::IO, g::Gate1) = show(io, PRETTY(), g)
 
@@ -80,7 +92,7 @@ end
 # end
 
 Base.:*(::Gate1{:W}, m::Matrix2x2) =  map(x-> RootImag * x, m)
-Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1(:W) * m
+Base.:*(m::Matrix2x2, ::Gate1{:W}) = Gate1{:W}() * m
 
 function Base.:*(::Gate1{:X}, m::Matrix2x2)
     (a,b,c,d) = m.data
@@ -115,14 +127,6 @@ end
 function Base.:*(::Gate1{:H}, m::Matrix2x2)
     (a,b,c,d) = m.data
     s = InvRootTwo
-
-    # println("Here")
-    # x = a + b
-    # y = c + d
-    # if all(iseven, coeffs(x)) && all(iseven, coeffs(y))
-    #     println("even")
-    # end
-
     Matrix2x2(s*(a + b), s*(a-b), s*(c+d), s*(c-d))
 end
 
@@ -144,7 +148,7 @@ end
 #################
 
 Base.:*(::Gate1{:W}, m::ScaleMatrix2x2) =  ScaleMatrix2x2(omega * m.m, m.s)
-Base.:*(m::ScaleMatrix2x2, ::Gate1{:W}) = Gate1(:W) * m
+Base.:*(m::ScaleMatrix2x2, ::Gate1{:W}) = Gate1{:W}() * m
 
 # Trying different, equivalent ways to do this multiplication.
 # This seems to be correct. Agrees with version using Matrix2x2.

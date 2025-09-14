@@ -1,4 +1,4 @@
-module Singletons
+@stable module Singletons
 
 import Base: show, inv, sqrt, isone, iszero, isinteger, iseven, isreal
 import ..Utils: PRETTY, superscript

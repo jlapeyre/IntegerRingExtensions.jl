@@ -1,4 +1,6 @@
-module Compose
+@stable module Compose
+
+using DispatchDoctor: @stable, @unstable
 
 using ..Matrices2x2: Matrix2x2, GPID, ScaleMatrix2x2
 import ..Matrices2x2: get_theta
@@ -27,9 +29,11 @@ julia> compose("TSHTHTHTHT")
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
 """
-function compose(gates::AbstractString; chunklen=300, reduce_fractions=true)
+@unstable function compose(gates::AbstractString; chunklen=300, reduce_fractions=true)
     gates = reverse(gates)
-    length(codeunits(gates)) <= chunklen && return compose_one(gates, false; reduce_fractions=reduce_fractions)
+    if length(codeunits(gates)) <= chunklen
+        return scalematrix(compose_one(gates, false; reduce_fractions=reduce_fractions))
+    end
     chunks = reverse(chunkstring(gates, chunklen))
     mats = [map(DOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
     scalematrix(canonical(prod(mats)))
@@ -103,27 +107,28 @@ function _alt_compose_one(gates::AbstractString, rev::Bool=true; reduce_fraction
         gate = Symbol(Char(gate))
         new_result =
             if gate === :H
-                Gate1(:H) * matrix
+                Gate1{:H}() * matrix
             elseif gate === :T
-                Gate1(:T) * matrix
+                Gate1{:T}() * matrix
             elseif gate === :S
-                Gate1(:S) * matrix
+                Gate1{:S}() * matrix
             elseif gate === :Q  # We restrict gates in string to one char. So Q == Tdg
-                Gate1(:Tdg) * matrix
+                Gate1{:Tdg}() * matrix
             elseif gate === :X
-                Gate1(:X) * matrix
+                Gate1{:X}() * matrix
             elseif gate === :W
-                Gate1(:W) * matrix
+                Gate1{:W}() * matrix
             elseif gate === :I
-                Gate1(:I) * matrix
+                Gate1{:I}() * matrix
             elseif gate === :Y
-                Gate1(:Y) * matrix
+                Gate1{:Y}() * matrix
             elseif gate === :Z
-                Gate1(:Z) * matrix
+                Gate1{:Z}() * matrix
             else
-                nothing
+                throw(ArgumentError(lazy"Unsupported gate $gate"))
+#                nothing
             end
-        isnothing(new_result) && error(lazy"unknown gate $gate")
+ #       isnothing(new_result) && error(lazy"unknown gate $gate")
         matrix = reduce_func(new_result)
     end
     return matrix
@@ -138,8 +143,8 @@ function apply_HT(n)
     matrix = one(Matrix2x2{DOmega{Int}})
     reduce = canonical
     for _ in 1:n
-        matrix = reduce(Gate1(:H) * matrix)
-        matrix = reduce(Gate1(:T) * matrix)
+        matrix = reduce(Gate1{:H}() * matrix)
+        matrix = reduce(Gate1{:T}() * matrix)
     end
     matrix
 end
@@ -148,28 +153,52 @@ end
 # i.e. don't dispatch on type of gate at runtime.
 @inline function _apply_gate(gate::Symbol, matrix)
     if gate === :H
-        Gate1(:H) * matrix
+        Gate1{:H}() * matrix
     elseif gate === :T
-        Gate1(:T) * matrix
+        Gate1{:T}() * matrix
     elseif gate === :S
-        Gate1(:S) * matrix
+        Gate1{:S}() * matrix
     elseif gate === :Q  # We restrict gates in string to one char. So Q == Tdg
-        Gate1(:Tdg) * matrix
+        Gate1{:Tdg}() * matrix
     elseif gate === :X
-        Gate1(:X) * matrix
+        Gate1{:X}() * matrix
     elseif gate === :W
-        Gate1(:W) * matrix
+        Gate1{:W}() * matrix
     elseif gate === :I
-        Gate1(:I) * matrix
+        Gate1{:I}() * matrix
     elseif gate === :Y
-        Gate1(:Y) * matrix
+        Gate1{:Y}() * matrix
     elseif gate === :Z
-        Gate1(:Z) * matrix
+        Gate1{:Z}() * matrix
     else
-#        matrix
-        nothing
+        throw(ArgumentError(lazy"Unsupported gate $gate"))
     end
 end
+
+#     if gate === :H
+#         Gate1(:H) * matrix
+#     elseif gate === :T
+#         Gate1(:T) * matrix
+#     elseif gate === :S
+#         Gate1(:S) * matrix
+#     elseif gate === :Q  # We restrict gates in string to one char. So Q == Tdg
+#         Gate1(:Tdg) * matrix
+#     elseif gate === :X
+#         Gate1(:X) * matrix
+#     elseif gate === :W
+#         Gate1(:W) * matrix
+#     elseif gate === :I
+#         Gate1(:I) * matrix
+#     elseif gate === :Y
+#         Gate1(:Y) * matrix
+#     elseif gate === :Z
+#         Gate1(:Z) * matrix
+#     else
+#         throw(ArgumentError(lazy"Unsupported gate $gate"))
+# #        matrix
+# #        nothing
+#     end
+# end
 
 """
     get_theta(m::Matrix2x2)
