@@ -1,4 +1,4 @@
-@stable module Gates
+module Gates
 
 using DispatchDoctor: @unstable
 

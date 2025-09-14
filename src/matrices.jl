@@ -398,7 +398,7 @@ end
 function LinearAlgebra.isposdef(m::AbstractMatrix2x2)
     LinearAlgebra.ishermitian(m) || return false
     evs = eigvals(m)
-    evs[1] > 0 && evs[2] > 0
+    real(evs[1]) > 0 && real(evs[2]) > 0
 end
 
 # Generic fallback is not less efficient
@@ -1066,5 +1066,21 @@ function Base.:^(sm::ScaleMatrix2x2, n::Integer)
 end
 
 det(sm::ScaleMatrix2x2) = (sm.s * sm.s) * det(sm.m)
+
+# This is pure at the moment
+function random_density_matrix2x2()
+    (px, py, pz) = rand(3)
+    s = sqrt(px*px + py*py + pz*pz)
+    px /= s
+    py /= s
+    pz /= s
+    tx = px .* (0., 1., 1., 0.)
+    ty = py .* (complex(0.), 1.0im, -1.0im, complex(0.0))
+    tz = pz .* (1., 0., 0., -1.)
+    tone = (1., 0., 0., 1.)
+    res = 0.5 .* (tx .+ ty .+ tz .+ tone)
+#    res = ntuple(i -> 0.5 * (tx[i] + ty[i] + tz[i] + tone[i]), 4)
+    Matrix2x2(res)
+end
 
 end # module Matrices2x2
