@@ -1,4 +1,7 @@
+# @stable module CyclotomicRings
 module CyclotomicRings
+
+#using DispatchDoctor: @stable, @unstable
 
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
@@ -117,8 +120,8 @@ function CyclotomicRing()
     throw(MethodError(CyclotomicRing, ()))
 end
 
-function CyclotomicRing(coeffs::T...) where {T <: Number}
-    CyclotomicRing{length(coeffs), typeof(coeffs[1])}(coeffs)
+function CyclotomicRing(coeff::T, coeffs::T...) where {T <: Number}
+    CyclotomicRing((coeff, coeffs...))
 end
 
 function CyclotomicRing{M}(c1::Number, c2, coeffs...) where M
@@ -130,11 +133,6 @@ function CyclotomicRing(c1::Dyadic, coeffs::Dyadic...)
     cs = promote(c1, coeffs...)
     CyclotomicRing{length(cs), typeof(cs[1])}(cs)
 end
-
-# function CyclotomicRing(coeffs::NTuple{N, <:Number}) where {N}
-#     CyclotomicRing{N}(coeffs)
-# end
-
 
 function CyclotomicRing{4}(a::Number,b,c,d)
     cs = promote(a,b,c,d)
@@ -843,11 +841,11 @@ Base.complex(cyc::CyclotomicRing) = Complex(cyc)
 
 function Base.Complex(cyc::CyclotomicRing{D, T}) where {D, T}
     Tc = float(T)
-    _convert_cyc(cyc, D, Complex{Tc})
+    _convert_cyc(cyc, Val(D), Complex{Tc})
 end
 
 function Base.Complex{Tc}(cyc::CyclotomicRing{D}) where {D, Tc}
-    _convert_cyc(cyc, D, Complex{Tc})
+    _convert_cyc(cyc, Val(D), Complex{Tc})
 end
 
 function (::Type{T})(cyc::CyclotomicRing{D}) where {T<:Real, D}
@@ -861,16 +859,16 @@ Base.float(cyc::CyclotomicRing) = complex(cyc)
 # Faster than using any kind of iterative or reduce scheme
 # This is only slightly slower 2.7 vs 3.5 ns than the explicit
 # expression above for D = 4
-@inline function _convert_cyc(c, D, func)
-    _add_term(func, 0, D, coeffs(c)...)
+@inline function _convert_cyc(c, ::Val{D}, func) where {D}
+    _add_term(func, 0, Val(D), coeffs(c)...)
 end
 
-@inline function _add_term(func, i, D, c)
+@inline function _add_term(func, i, ::Val{D}, c) where {D}
     func(RootOne{2*D}(i)) * func(c)
 end
 
-@inline function _add_term(func, i, D, c, _coeffs...)
-    func(RootOne{2*D}(i)) * func(c) + _add_term(func, i+1, D, _coeffs...)
+@inline function _add_term(func, i, ::Val{D}, c, _coeffs...) where {D}
+    func(RootOne{2*D}(i)) * func(c) + _add_term(func, i+1, Val(D), _coeffs...)
 end
 
 # Slightly faster than the general method: 3.6ns vs 2.6ns

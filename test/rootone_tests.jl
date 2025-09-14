@@ -57,4 +57,5 @@
     @test Int32(RootOne{2}(0)) === Int32(1)
     @test Int32(RootOne{2}(1)) === Int32(-1)
 
+    @test RootOne{5}(1) * RootOne{3}(1) === RootOne{15}(8)
 end

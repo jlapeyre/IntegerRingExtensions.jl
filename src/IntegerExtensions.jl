@@ -1,6 +1,8 @@
 module IntegerExtensions
 import Reexport
 
+using DispatchDoctor: @stable, @unstable
+
 export imaginary, sqrt_imaginary
 export DRoot2
 export DOmega

@@ -1,7 +1,13 @@
 module RootOnes
 
+# IDK how to use Revise with this. Always errors on every edit
+# @stable module RootOnes
+
+
 import Base: convert, show
 import Random
+
+using DispatchDoctor: @stable, @unstable
 
 import ..Utils: subscript, superscript
 import ..Common: sqrt_imaginary, imaginary, isunit, conj_root_two, norm_root_two
@@ -79,6 +85,11 @@ struct RootOne{N} <: Number
     k::Int # Could use smaller `k`.
 end
 
+function base(r::RootOne{N}) where {N}
+#     @assert isa(N, Int) # try to calm DispatchDoctor ?
+#     N
+end
+
 """
     RootOne{N}(n=1)
 
@@ -151,6 +162,7 @@ end
 function show(io::IO, ::MIME"text/plain", r::RootOne{N}) where {N}
     print(io, "ω" * subscript(N))
     isone(r.k) || print(io, superscript(r.k))
+    nothing
 end
 
 """
@@ -272,7 +284,8 @@ Base.:/(r1::RootOne{N}, r2::RootOne{N}) where {N} = RootOne{N}(r1.k - r2.k)
 # This can probably be very slow at times.
 # The type parameter must be computed at runtime.
 # Indeed, JET finds runtime dispatch.
-function Base.:*(r1::RootOne{N}, r2::RootOne{M}) where {N, M}
+# Also DispatchDoctor finds instability
+@unstable function Base.:*(r1::RootOne{N}, r2::RootOne{M}) where {N, M}
     rat = r1.k // N + r2.k // M
     return RootOne{rat.den}(rat.num)
 end
