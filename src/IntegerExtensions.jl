@@ -53,11 +53,11 @@ Reexport.@reexport import .Matrices2x2:
     SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
     get_theta, unitary_u, unitary_t,
     random_ZRot, columns, opnormdistance, alt_random_unitary2x2,
-    isantidiag
+    isantidiag, eigvals_hermitian
 
 include("qm_matrices.jl")
 Reexport.@reexport import .QMMatrices: random_density_matrix2x2, DensityMatrix2x2,
-    ispure, X, Y, Z, I2x2, polarization, polarization_norm
+    ispure, X, Y, Z, I2x2, polarization, polarization_norm, isdensitymatrix
 
 include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor, scalematrix

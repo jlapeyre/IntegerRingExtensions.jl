@@ -6,8 +6,8 @@ module Matrices2x2
 import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, norm, normalize,
     dot
-import LinearAlgebra
-import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx
+import LinearAlgebra: LinearAlgebra, isposdef, ishermitian
+import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef
 
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
@@ -293,17 +293,18 @@ end
     Matrix2x2(a1*a2 + c1*b2, a2*b1 + d1*b2, a1*c2 + c1*d2, b1*c2 + d1*d2)
 end
 
-# @inline function Base.:*(m::AbstractMatrix2x2, x::Number)
-#     (a, b, c, d) = elements(m)
-#     Matrix2x2(x * a, x * b, x * c, x * d)
-# end
-
 @inline function Base.:*(m::AbstractMatrixNxN{<:Number, N}, x::Number) where {N}
     els = map(z -> x * z, elements(m))
     MatrixNxN{typeof(first(els)), N}(els)
 end
 
+@inline function Base.:+(m::AbstractMatrixNxN{<:Number, N}, x::Number) where {N}
+    els = map(z -> x + z, elements(m))
+    MatrixNxN{typeof(first(els)), N}(els)
+end
+
 @inline Base.:*(x::Number, m::AbstractMatrix2x2) = m * x
+@inline Base.:+(x::Number, m::AbstractMatrix2x2) = m + x
 
 @inline function _pair_op(op, m1, m2)
     (a1, b1, c1, d1) = elements(m1)
@@ -368,11 +369,33 @@ Return a tuple of the eigenvalues of `m`.
 """
 function eigvals(m::AbstractMatrix2x2)
     (a, b, c, d) = elements(m)
-    discr = sqrt((a-d)^2 + 4*b*c)
-    (
-        (a + d + discr)/2,
-        (a + d - discr)/2,
-    )
+    amd = a - d
+    apd = a + d
+    discr = sqrt(amd * amd + 4*b*c)
+    ((apd + discr)/2, (apd - discr)/2)
+end
+
+"""
+    eigvals_hermitian(m::Matrix2x2)::NTuple{2}
+
+Return a tuple of the eigenvalues of `m`, assuming `m` is Hermitian.
+
+Return type is `<: Real`.
+"""
+function eigvals_hermitian(m::AbstractMatrix2x2)
+    (a, b, c, d) = elements(m)
+    amd = real(a - d)
+    apd = real(a + d)
+    discr = sqrt(amd * amd + 4*abs2(b))
+    ((apd + discr)/2, (apd - discr)/2)
+end
+
+function eigvals_hermitian_traceone(m::AbstractMatrix2x2)
+    (a, b, c, d) = elements(m)
+    amd = real(2*a - 1)
+    apd = one(real(a))
+    discr = sqrt(amd * amd + 4*abs2(b))
+    ((apd + discr)/2, (apd - discr)/2)
 end
 
 function LinearAlgebra.norm(v::AbstractVector2)
@@ -397,18 +420,46 @@ function LinearAlgebra.normalize(v::Vector2{T}) where {T}
 end
 
 # Several times faster than generic fallback
-function LinearAlgebra.isposdef(m::AbstractMatrix2x2)
-    LinearAlgebra.ishermitian(m) || return false
-    evs = eigvals(m)
-    real(evs[1]) > 0 && real(evs[2]) > 0
+
+"""
+    ispossemidef(m::AbstractMatrix2x2, approx::AbstractApprox=Equal())
+
+Return `true` if `m` is positive semi-definite.
+"""
+@inline ispossemidef(m::AbstractMatrix2x2, approx::AbstractApprox) = _isposdef(m, approx, >=)
+@inline ispossemidef(m::AbstractMatrix2x2) = ispossemidef(m, Equal())
+@inline ispossemidef(m::AbstractMatrix2x2, approx::Equal) = _isposdef(m, approx, >=)
+
+"""
+    isposdef(m::AbstractMatrix2x2, approx::AbstractApprox=Equal())
+
+Return `true` if `m` is positive definite.
+"""
+@inline isposdef(m::AbstractMatrix2x2, approx::AbstractApprox) = _isposdef(m, approx, >)
+@inline isposdef(m::AbstractMatrix2x2) = isposdef(m, Equal())
+@inline isposdef(m::AbstractMatrix2x2, approx::Equal) = _isposdef(m, approx, >)
+
+# Not straightforward to approx compare to zero
+@inline function _isposdef(m, approx, cmpf::F) where {F}
+    if ishermitian(m) # take fast path if possible
+        (ev1, ev2) = eigvals_hermitian(m)
+        return cmpf(ev1, 0) && cmpf(ev2, 0)
+    end
+    ishermitian(m, approx) || return false
+    (ev1, ev2) = eigvals(m)
+    return cmpf(real(ev1), 0) && cmpf(real(ev2), 0)
 end
 
-# Generic fallback is not less efficient
-# function LinearAlgebra.ishermitian(m::AbstractMatrix2x2)
-#     (a,b,c,d) = elements(m)
-#     (isreal(a) && isreal(d)) || return false
-#     c == adjoint(b)
-# end
+ishermitian(m::AbstractMatrix2x2, approx::AbstractApprox=Equal()) = _ishermitian(m, approx)
+ishermitian(m::AbstractMatrix2x2, approx::Approx) = _ishermitian(m, approx)
+
+# Generic fallback is not less efficient, if we are not using Approx.
+# But, with approx, this specialized method is more performant.
+function _ishermitian(m::AbstractMatrix2x2, approx::AbstractApprox)
+    (a,b,c,d) = elements(m)
+    (isreal(a, approx) && isreal(d, approx)) || return false
+    isapprox(c, adjoint(b), approx)
+end
 
 function eigvecs(m::AbstractMatrix2x2)
     (v1, v2) = eigvals(m)

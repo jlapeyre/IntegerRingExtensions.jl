@@ -2,7 +2,7 @@ module QMMatrices
 
 import LinearAlgebra
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, norm, normalize
-import IsApprox:  AbstractApprox, Equal, Approx # isunitary, isinvolution
+import IsApprox:  AbstractApprox, Equal, Approx, isposdef, ispossemidef, isidempotent # isunitary, isinvolution
 
 import ..Matrices2x2: AbstractMatrix2x2, Matrix2x2, AbstractNormalNxN, elements
 
@@ -15,7 +15,7 @@ random_density_matrix2x2(;pure=false) = random_density_matrix2x2(Float64;pure=pu
 function random_density_matrix2x2(::Type{T} ;pure=false) where {T <: AbstractFloat}
     (px, py, pz) = rand(T, 3)
     s = sqrt(px*px + py*py + pz*pz)
-    pure || (s = s * rand(T))
+    pure || (s = s / rand(T))
     (px, py, pz) = (px, py, pz) ./ s
     return 0.5 * (I2x2 + px * X + py * Y + pz * Z)
 end
@@ -24,7 +24,8 @@ abstract type AbstractDensityMatrixNxN{T, N} <: AbstractNormalNxN{Complex{T}, N}
 
 const AbstractDensityMatrix2x2{T} = AbstractDensityMatrixNxN{T, 2} where {T}
 
-struct DensityMatrix2x2{T<:AbstractFloat} <: AbstractDensityMatrix2x2{T}
+# We can try to not require AbstractFloat, so that we can use symbolic matrices
+struct DensityMatrix2x2{T} <: AbstractDensityMatrix2x2{T}
     px::T
     py::T
     pz::T
@@ -33,6 +34,13 @@ end
 struct PureDensityMatrix2x2{T<:AbstractFloat} <: AbstractDensityMatrix2x2{T}
     px::T
     py::T
+end
+
+isdensitymatrix(::AbstractDensityMatrixNxN, a::AbstractApprox=Equal()) = true
+@inline isdensitymatrix(m::AbstractMatrix2x2) = isdensitymatrix(m, Equal())
+@inline function isdensitymatrix(m::AbstractMatrix2x2, approx::AbstractApprox)
+    ispossemidef(m, approx) || return false
+    isapprox(tr(m), 1, approx)
 end
 
 polarization_norm(rho::PureDensityMatrix2x2) = 1
@@ -65,8 +73,11 @@ function polarization_norm(rho::DensityMatrix2x2)
     x*x + y*y + z*z
 end
 
-function DensityMatrix2x2(m::AbstractMatrix2x2)
-   DensityMatrix2x2(real(tr(X * m)), real(tr(Y * m)), real(tr(Z * m)))
+function DensityMatrix2x2(m::AbstractMatrix2x2; check::Bool=false, approx::AbstractApprox = Equal())
+    if check || !isa(approx, Equal)
+        isdensitymatrix(m, approx) || throw(ArgumentError(lazy"Argument is not a density matrix"))
+    end
+    DensityMatrix2x2(real(tr(X * m)), real(tr(Y * m)), real(tr(Z * m)))
 end
 
 function PureDensityMatrix2x2(m::AbstractMatrix2x2)
@@ -123,13 +134,19 @@ diag(rho::DensityMatrix2x2) = Vector2(real(1+rho.pz)/2, real(1-rho.pz)/2)
 
 ispure(::PureDensityMatrix2x2) = true
 ispure(::PureDensityMatrix2x2, ::AbstractApprox) = true
-det(::PureDensityMatrix2x2) = 0
-
 ispure(rho::DensityMatrix2x2) = ispure(rho, Equal())
 function ispure(rho::DensityMatrix2x2, approx::AbstractApprox)
     isapprox(1 + polarization_norm(rho), 2, approx)
 end
 
+function ispure(m::AbstractMatrix, approx::AbstractApprox=Equal())
+    isdensitymatrix(m, approx)
+    a = @inbounds m[1,1]
+    b = @inbounds m[1,2]
+    isapprox(a*a + (1 - a)*(1 - a) + 2*abs2(b), 1, approx)
+end
+
+det(::PureDensityMatrix2x2) = 0
 function det(rho::DensityMatrix2x2)
     1 - polarization_norm(rho)
 end
