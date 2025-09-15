@@ -864,6 +864,26 @@ function (::Type{T})(cyc::CyclotomicRing{D}) where {T<:Real, D}
     T(f)
 end
 
+function Complex{T}(cyc::CyclotomicRing{D}) where {T<:Integer, D}
+    (f, rest...) = coeffs(cyc)
+    all(iszero, rest) || throw(ArgumentError(lazy"Inexact error converting $cyc to Complex{$T}."))
+    Complex{T}(f)
+end
+
+function Complex{T}(cyc::CyclotomicRing{4}) where {T<:Integer}
+    (a, b, c, d) = coeffs(cyc)
+    if all(iszero, (b, c, d))
+        return Complex{T}(a)
+    end
+    if all(iszero, (a, b, d))
+        return Complex{T}(zero(T), T(c))
+    end
+    if all(iszero, (b, d))
+        return Complex{T}(a) + Complex{T}(zero(T), T(c))
+    end
+    throw(ArgumentError(lazy"Inexact error converting $cyc to Complex{$T}."))
+end
+
 Base.float(cyc::CyclotomicRing) = complex(cyc)
 
 # Faster than using any kind of iterative or reduce scheme
