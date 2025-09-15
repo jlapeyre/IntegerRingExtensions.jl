@@ -6,7 +6,7 @@ module Matrices2x2
 import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, eigen, norm, normalize,
     dot
-import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermitian
+import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermitian, issymmetric
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
     isnormal
 
@@ -116,7 +116,9 @@ end
 
 Base.Matrix(m::AbstractMatrix2x2) = reshape([elements(m)...,], (2,2))
 
-Matrix2x2{T}(m::AbstractMatrix2x2) where {T} = Matrix2x2(map(x -> T(x), elements(m))...,)
+function Matrix2x2{T}(m::AbstractMatrix2x2) where {T}
+    Matrix2x2(map(x -> T(x), elements(m))...,)
+end
 
 Matrix2x2(m::Matrix2x2) = m
 
@@ -125,7 +127,7 @@ function Base.map(f, m::AbstractMatrixNxN)
 end
 
 elements(m::MatrixNxN) = m.data
-elements(m::AbstractMatrixNxN{T,N}) where {T, N} = elements(MatrixNxN{T,N, N*N}(m))
+elements(m::AbstractMatrixNxN{T,N}) where {T, N} = elements(MatrixNxN{T, N, N*N}(m))
 
 ##
 ## Conversion and related construction
@@ -212,6 +214,12 @@ function Base.getindex(m::AbstractSU2, i::Integer)
     i == 2 && return unitary_t(m)
     i == 3 && return -conj(unitary_t(m))
     return conj(unitary_u(m))
+end
+
+function elements(m::AbstractSU2)
+    a = unitary_u(m)
+    b = unitary_t(m)
+    (a, b, -conj(b), conj(a))
 end
 
 Base.size(::AbstractMatrixNxN{T, N}) where{T, N} = (N, N)
@@ -496,6 +504,14 @@ function _ishermitian(m::AbstractMatrix2x2, approx::AbstractApprox)
     (a,b,c,d) = elements(m)
     (isreal(a, approx) && isreal(d, approx)) || return false
     isapprox(c, adjoint(b), approx)
+end
+
+issymmetric(m::AbstractMatrix2x2, approx::AbstractApprox=Equal()) = _issymmetric(m, approx)
+issymmetric(m::AbstractMatrix2x2, approx::Approx) = _issymmetric(m, approx)
+
+function _issymmetric(m::AbstractMatrix2x2, approx::AbstractApprox)
+    (b,c) = (m[2], m[3])
+    isapprox(c, b, approx)
 end
 
 function eigen(m::AbstractMatrix2x2)

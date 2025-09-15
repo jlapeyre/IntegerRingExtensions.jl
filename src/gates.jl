@@ -56,6 +56,8 @@ The square root of the `2x2` Hadamard matrix
 """
 const SH = InvTwo * Matrix2x2(-ZOmega(omega^3) + (RootTwo * ZOmega(omega)), -ZOmega(omega^3), -ZOmega(omega^3), ZOmega(omega^3) + (RootTwo * ZOmega(omega)))
 
+commutator(x, y) = x * y - y * x
+
 """
     struct Gate1{Name} end
 
