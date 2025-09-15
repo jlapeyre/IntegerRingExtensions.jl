@@ -1,5 +1,4 @@
-@stable module QuadraticRings
-
+module QuadraticRings
 
 import LinearAlgebra
 import Base: promote_rule, show, convert
@@ -7,7 +6,7 @@ import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_half, conj_root_two, norm_root_two, norm_root_D, conj_root_D, isrational, isunit, invstrict
 import ..Dyadics: Dyadic
-import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo
+import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo, SingleNum
 import ..RootOnes: RootOne
 import ..Utils: PRETTY, issquarefree
 
@@ -465,7 +464,14 @@ Base.:-(n::Integer, q::QuadraticRing) = typeof(q)(typeof(q.a)(n) - q.a, -q.b)
 Base.:*(q::QuadraticRing{D}, n::Integer) where {D} = QuadraticRing{D}(n * q.a, n * q.b)
 Base.:*(n::Integer, q::QuadraticRing{D}) where {D} = q * n
 
-Base.:*(::RootTwoT, q::QuadraticRing{2}) = QuadraticRing{2}(Two * q.b, q.a)
+#Base.:*(::RootTwoT, q::QuadraticRing{2}) = QuadraticRing{2}(Two * q.b, q.a)
+Base.:*(::RootTwoT, q::T) where {T <: QuadraticRing{2}} = QuadraticRing{2}(Two * q.b, q.a)
+
+function Base.:*(s::SingleNum, q::Complex{T}) where {T <: QuadraticRing{2}}
+    (r, i) = (real(q), imag(q))
+    Complex(s * r, s * i)
+end
+Base.:*(q::Complex{T}, s::SingleNum) where {T <: QuadraticRing{2}} = s * q
 Base.:*(q::QuadraticRing{2}, ::RootTwoT) = RootTwo * q
 
 Base.:*(::RootTwoT, n::Integer) = QuadraticRing{2}(zero(n), n)
