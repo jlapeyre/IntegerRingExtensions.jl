@@ -57,8 +57,7 @@ Reexport.@reexport import .Matrices2x2:
 
 include("qm_matrices.jl")
 Reexport.@reexport import .QMMatrices: random_density_matrix2x2, DensityMatrix2x2,
-    ispure, polarization, polarization_norm, isdensitymatrix
-#     X, Y, Z, I2x2
+    ispure, polarization, polarization_norm, depolarize, isdensitymatrix
 
 include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor

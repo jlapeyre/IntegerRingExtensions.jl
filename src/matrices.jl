@@ -418,7 +418,7 @@ Return type is `<: Real`. If `m` is Hermitian, then `hermitianpart(m)`
 is essientially the identity.
 """
 function eigvals_hermitian(m::AbstractMatrix2x2)
-    (a, b, c, d) = elements(hermitianpart(m))
+    (a, b, c, d) = elements(hermitianpart(Matrix2x2(m)))
     amd = real(a - d)
     apd = real(a + d)
     discr = sqrt(amd * amd + 4*abs2(b))

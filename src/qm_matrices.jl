@@ -27,6 +27,11 @@ const AbstractDensityMatrix2x2{T} = AbstractDensityMatrixNxN{T, 2} where {T}
 
 # We can try to not require AbstractFloat, so that we can use symbolic matrices
 struct DensityMatrix2x2{T} <: AbstractDensityMatrix2x2{T}
+    function DensityMatrix2x2(px::T, py::T, pz::T) where T
+        pn = _polarization_norm((px,py,pz))
+        pn <= 1 && pn >= 0 || throw(ArgumentError(lazy"Polarization vector norm not between 0 and 1."))
+        new{T}(px, py, pz)
+    end
     px::T
     py::T
     pz::T
@@ -71,7 +76,11 @@ polarization(rho::DensityMatrix2x2) = (rho.px, rho.py, rho.pz)
 Return the square of the norm of the polarization vector of `rho`.
 """
 function polarization_norm(rho::DensityMatrix2x2)
-    (x, y, z) = polarization(rho)
+    _polarization_norm(polarization(rho))
+end
+
+function _polarization_norm(tup::NTuple{3})
+    (x, y, z) = tup
     x*x + y*y + z*z
 end
 
@@ -151,6 +160,15 @@ end
 det(::PureDensityMatrix2x2) = 0
 function det(rho::DensityMatrix2x2)
     1 - polarization_norm(rho)
+end
+
+function depolarize(prob::Real, pol::NTuple{3,<:Any})
+    f = 1 - (prob * 4) / 3
+    map(x -> f*x, pol)
+end
+
+function depolarize(p::Real, m::DensityMatrix2x2)
+    DensityMatrix2x2(depolarize(p, polarization(m))...)
 end
 
 end # module QMMatrices
