@@ -314,15 +314,6 @@ Base.length(cyc::CyclotomicRing) = length(cyc.coeffs)
 Base.lastindex(::CyclotomicRing{M}) where M = M - 1
 Base.transpose(cyc::CyclotomicRing) = cyc
 
-# This looks wrong
-function promote_rule(::Type{CyclotomicRing{<:Any, T}}, ::Type{V}) where {T, V <: Base.BitInteger}
-    promote_type(promote_type(T, AbstractFloat), V)
-end
-
-function promote_rule(::Type{T}, ::Type{<:RootOne{8}}) where {T}
-    T
-end
-promote_rule(::Type{<:RootOne{8}}, ::Type{T}) where {T} = T
 
 function Base.conj(cyc::DOmega{T}) where T
     (a, b, c, d) = cyc.coeffs
@@ -355,6 +346,23 @@ end
 function promote_rule(::Type{<:ZRoot2}, ::Type{T}) where {T <: ZOmega}
     T
 end
+
+# This looks wrong
+# In addition nothing seems to dispatch to this. Although I expect it should
+function promote_rule(::Type{CyclotomicRing{<:Any, T}}, ::Type{V}) where {T, V <: Base.BitInteger}
+    promote_type(promote_type(T, AbstractFloat), V)
+end
+
+# This works. Why we need the hard coded order, 4?
+function promote_rule(::Type{CyclotomicRing{4, T}}, ::Type{V}) where {T, V <: Base.BitInteger}
+    CyclotomicRing{4, promote_type(T, V)}
+end
+
+function promote_rule(::Type{T}, ::Type{<:RootOne{8}}) where {T}
+    T
+end
+promote_rule(::Type{<:RootOne{8}}, ::Type{T}) where {T} = T
+
 
 # Base.:(==)(a::ZRoot2, b::ZOmega) = ZOmega(a) == b
 # Base.:(==)(a::ZOmega, b::ZRoot2) = b == a
