@@ -6,7 +6,7 @@ module Matrices2x2
 import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, eigen, norm, normalize,
     dot
-import LinearAlgebra: LinearAlgebra, isposdef, ishermitian
+import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermitian
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
     isnormal
 
@@ -377,14 +377,40 @@ function eigvals(m::AbstractMatrix2x2)
 end
 
 """
+    hermitianpart(m::Matrix2x2)::Matrix2x2
+
+Return `(m + m')/2`
+"""
+function hermitianpart(m::Matrix2x2)
+    (a, b, c, d) = elements(m)
+    b2 = (b + conj(c)) / 2
+    Matrix2x2(real(a), b2, conj(b2), real(d))
+end
+
+"""
+    hermitian(m::Matrix2x2)::Matrix2x2
+
+Return an instance of `m` converted to a Hermitian matrix.
+
+Because `Matrix2x2` is small and immutable, a new instance is returned rather
+than a view. The imaginary parts of `m[1,1]` and `m[2,2]` are set to zero.
+`m[2,1]` is set to `conj(m[1,2])`.
+"""
+function hermitian(m::Matrix2x2)
+    (a, b, c, d) = elements(m)
+    Matrix2x2(real(a), conj(c), c, real(d))
+end
+
+"""
     eigvals_hermitian(m::Matrix2x2)::NTuple{2}
 
-Return a tuple of the eigenvalues of `m`, assuming `m` is Hermitian.
+Return a tuple of the eigenvalues of `hermitianpart(m)`
 
-Return type is `<: Real`.
+Return type is `<: Real`. If `m` is Hermitian, then `hermitianpart(m)`
+is essientially the identity.
 """
 function eigvals_hermitian(m::AbstractMatrix2x2)
-    (a, b, c, d) = elements(m)
+    (a, b, c, d) = elements(hermitianpart(m))
     amd = real(a - d)
     apd = real(a + d)
     discr = sqrt(amd * amd + 4*abs2(b))
@@ -392,7 +418,7 @@ function eigvals_hermitian(m::AbstractMatrix2x2)
 end
 
 function eigvals_hermitian_traceone(m::AbstractMatrix2x2)
-    (a, b, c, d) = elements(m)
+    (a, b, c, d) = elements(hermitianpart(m))
     amd = real(2*a - 1)
     apd = one(real(a))
     discr = sqrt(amd * amd + 4*abs2(b))
