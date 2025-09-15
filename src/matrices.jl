@@ -453,6 +453,8 @@ end
 ishermitian(m::AbstractMatrix2x2, approx::AbstractApprox=Equal()) = _ishermitian(m, approx)
 ishermitian(m::AbstractMatrix2x2, approx::Approx) = _ishermitian(m, approx)
 
+# We should probably be using Frobenius norm here rather than
+# testing elements individually.
 # Generic fallback is not less efficient, if we are not using Approx.
 # But, with approx, this specialized method is more performant.
 function _ishermitian(m::AbstractMatrix2x2, approx::AbstractApprox)

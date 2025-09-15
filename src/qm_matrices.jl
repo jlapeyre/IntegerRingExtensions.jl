@@ -39,8 +39,9 @@ end
 isdensitymatrix(::AbstractDensityMatrixNxN, a::AbstractApprox=Equal()) = true
 @inline isdensitymatrix(m::AbstractMatrix2x2) = isdensitymatrix(m, Equal())
 @inline function isdensitymatrix(m::AbstractMatrix2x2, approx::AbstractApprox)
-    ispossemidef(m, approx) || return false
-    isapprox(tr(m), 1, approx)
+    # Do the fast test first!
+    isapprox(tr(m), 1, approx) || return false
+    ispossemidef(m, approx)
 end
 
 polarization_norm(rho::PureDensityMatrix2x2) = 1
