@@ -4,10 +4,11 @@ module Matrices2x2
 # using DispatchDoctor: @stable
 
 import Random
-import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, norm, normalize,
+import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, eigen, norm, normalize,
     dot
 import LinearAlgebra: LinearAlgebra, isposdef, ishermitian
-import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef
+import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
+    isnormal
 
 import ..Common: canonical
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
@@ -463,12 +464,28 @@ function _ishermitian(m::AbstractMatrix2x2, approx::AbstractApprox)
     isapprox(c, adjoint(b), approx)
 end
 
-function eigvecs(m::AbstractMatrix2x2)
+function eigen(m::AbstractMatrix2x2)
     (v1, v2) = eigvals(m)
     (a, b, c, d) = elements(m)
     vec1 = normalize(Vector2(c, v1 - a))
     vec2 = normalize(Vector2(v2 - d, b))
-    Matrix2x2(vec1[1], vec1[2], vec2[1], vec2[2])
+    vecs = Matrix2x2(vec1[1], vec1[2], vec2[1], vec2[2])
+    ((v1, v2), vecs)
+end
+
+function eigen_hermitian(m::AbstractMatrix2x2)
+    (v1, v2) = eigvals_hermitian(m)
+    (ai, b, c, di) = elements(m)
+    (a, d) = (real(ai), real(di))
+    vec1 = normalize(Vector2(c, v1 - a))
+    vec2 = normalize(Vector2(v2 - d, b))
+    vecs = Matrix2x2(vec1[1], vec1[2], vec2[1], vec2[2])
+    ((v1, v2), vecs)
+end
+
+function eigvecs(m::AbstractMatrix2x2)
+    (evs, vecs) = eigen(m)
+    return vecs
 end
 
 function eigvals(U::AbstractSU2)
@@ -479,6 +496,20 @@ function eigvals(U::AbstractSU2)
     rdiscr = sqrt(ri^2 + abs2t)
     discr = Complex(zero(rdiscr), rdiscr)
     (ru + discr, ru - discr)
+end
+
+# If m is normal, compute func(m).
+# Else throw an error.
+function _matrix_func(m, func)
+    if ishermitian(m)
+        ((v1,v2), vecs) = eigen_hermitian(m)
+        d = diagm(Vector2(func(v1), func(v2)))
+        return vecs * d * vecs'
+    end
+    isnormal(m) || throw(ArgumentError(lazy"Non-normal matrices not supported"))
+    ((v1,v2), vecs) = eigen(m)
+    d = diagm(Vector2(func(v1), func(v2)))
+    vecs * d * vecs'
 end
 
 Base.:*(v::AbstractVector2, z::Number) = z * b
