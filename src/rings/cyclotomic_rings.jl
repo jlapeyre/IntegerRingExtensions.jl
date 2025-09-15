@@ -56,6 +56,9 @@ struct CyclotomicRing{M, CoeffT <: Number} <: Number
     function CyclotomicRing{M, CoeffT}(coeffs::NTuple{M, CoeffT}) where {M, CoeffT <: Number}
         new{M, CoeffT}(coeffs)
     end
+    function CyclotomicRing{M, CoeffT}(coeffs::NTuple{M, CoeffT}) where {M, CoeffT <: Union{AbstractFloat, Complex{<:AbstractFloat}}}
+        throw(ArgumentError(lazy"Coefficients of type $CoeffT not supported."))
+    end
     coeffs::NTuple{M, CoeffT}
 end
 
