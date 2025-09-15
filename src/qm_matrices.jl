@@ -10,6 +10,7 @@ const I2x2 = Matrix2x2(1, 0, 0, 1)
 const X = Matrix2x2(0, 1, 1, 0)
 const Y = Matrix2x2(complex(0), 1im, -1im, complex(0))
 const Z = Matrix2x2(1, 0, 0, -1)
+const S = Matrix2x2(1, 0, 0, im)
 
 random_density_matrix2x2(;pure=false) = random_density_matrix2x2(Float64;pure=pure)
 function random_density_matrix2x2(::Type{T} ;pure=false) where {T <: AbstractFloat}
