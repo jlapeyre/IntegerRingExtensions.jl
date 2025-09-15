@@ -6,7 +6,7 @@ import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_half, conj_root_two, norm_root_two, norm_root_D, conj_root_D, isrational, isunit, invstrict
 import ..Dyadics: Dyadic
-import ..Singletons: RootTwoT, RootTwo, Two, InvRootTwo, InvRootTwoT, InvTwo, SingleNum
+import ..Singletons: RootTwoT, RootTwo, Two, TwoT, InvRootTwo, InvRootTwoT, InvTwo, SingleNum
 import ..RootOnes: RootOne
 import ..Utils: PRETTY, issquarefree
 
@@ -466,6 +466,8 @@ Base.:*(n::Integer, q::QuadraticRing{D}) where {D} = q * n
 
 #Base.:*(::RootTwoT, q::QuadraticRing{2}) = QuadraticRing{2}(Two * q.b, q.a)
 Base.:*(::RootTwoT, q::T) where {T <: QuadraticRing{2}} = QuadraticRing{2}(Two * q.b, q.a)
+
+Base.:*(::TwoT, q::T) where {T <: QuadraticRing{2}} = QuadraticRing{2}(Two * q.a, Two * q.a)
 
 function Base.:*(s::SingleNum, q::Complex{T}) where {T <: QuadraticRing{2}}
     (r, i) = (real(q), imag(q))
