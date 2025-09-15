@@ -45,7 +45,7 @@ Reexport.@reexport import .Matrices2x2:
     AbstractUnitaryNxN,AbstractNormalNxN,
     AbstractMatrix2x2, AbstractMatrixNxN,  AbstractMatrix4x4,
     AbstractUnitary2x2, AbstractSU2,
-    MatrixNxN, Matrix4x4, ScaleMatrix2x2,
+    MatrixNxN, Matrix4x4, ScaleMatrix2x2, scalematrix,
     Matrix2x2, Vector2,
     GPID, random_diagonal_unitary,
     tracenorm, tracedistance,
@@ -57,13 +57,14 @@ Reexport.@reexport import .Matrices2x2:
 
 include("qm_matrices.jl")
 Reexport.@reexport import .QMMatrices: random_density_matrix2x2, DensityMatrix2x2,
-    ispure, X, Y, Z, I2x2, polarization, polarization_norm, isdensitymatrix
+    ispure, polarization, polarization_norm, isdensitymatrix
+#     X, Y, Z, I2x2
 
 include("ring_matrices.jl")
-Reexport.@reexport import .RingMatrices: compute_phase_factor, scalematrix
+Reexport.@reexport import .RingMatrices: compute_phase_factor
 
 include("gates.jl")
-Reexport.@reexport import .Gates: Gate1, RZ # , random_RZ
+Reexport.@reexport import .Gates: Gate1, RZ, X, Y, Z, I2x2, S, T, H, SX # , random_RZ
 
 include("compose.jl")
 Reexport.@reexport import .Compose: compose, compose_one, get_global_phase,

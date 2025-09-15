@@ -5,10 +5,27 @@ using DispatchDoctor: @unstable
 using ..Utils: PRETTY
 import ..Matrices2x2: Matrix2x2, SU2, ScaleMatrix2x2
 using ..Singletons: Imag, RootImag, InvRootTwo
-using ..RootOnes: omega
-using ..CyclotomicRings: coeffs, div_half, mul_root_two
+using ..RootOnes: omega, Omega
+using ..CyclotomicRings: coeffs, div_half, mul_root_two, ZOmega
 
 export Gate1
+
+# TODO: This is the square root of X
+# om = Matrix2x2(ZOmega(Omega(0)), 0, 0,  ZOmega(Omega(0)))
+# xm = Matrix2x2(0, ZOmega(Omega(0)), ZOmega(Omega(0)), 0)
+# sx = Imag * (InvRootTwo * (omega * om) + InvRootTwo * (omega^3 * xm))
+#
+
+const _onez = one(ZOmega)
+
+const I2x2 = Matrix2x2(_onez, 0, 0, _onez)
+const X = Matrix2x2(0, _onez, _onez, 0)
+const Y = Matrix2x2(0, Imag * _onez, -(Imag * _onez), 0)
+const Z = Matrix2x2(_onez, 0, 0, -_onez)
+const S = Matrix2x2(_onez, 0, 0, omega^2)
+const T = Matrix2x2(_onez, 0, 0, omega)
+const H = InvRootTwo * (X + Z)
+const SX = Imag * (InvRootTwo * (omega * I2x2) + InvRootTwo * (omega^3 * X))
 
 """
     struct Gate1{Name} end

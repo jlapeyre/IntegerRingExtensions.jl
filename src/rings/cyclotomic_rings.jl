@@ -5,6 +5,7 @@ module CyclotomicRings
 
 import LinearAlgebra
 import Base: convert, zero, one, promote_rule
+import IsApprox: AbstractApprox, Equal
 
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, mul_two
@@ -493,7 +494,8 @@ function Base.imag(cyc::DOmega{<:Integer})
     DRoot2(c, mul_half(b + d))
 end
 
-function Base.isreal(cyc::DOmega{<:Integer})
+#function Base.isreal(cyc::DOmega{<:Integer})
+function Base.isreal(cyc::CyclotomicRing{4}, approx::AbstractApprox=Equal())
     (a, b , c, d) = coeffs(cyc)
     iszero(c) && iszero(b + d)
 end

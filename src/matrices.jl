@@ -10,7 +10,7 @@ import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermi
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
     isnormal
 
-import ..Common: canonical
+import ..Common: canonical, isunit
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, Dar, Ang, intdiv, random_angle
 
@@ -237,9 +237,17 @@ Base.zero(::Matrix2x2{T}) where {T} = zero(Matrix2x2{T})
 
 Base.iszero(m::MatrixNxN) = all(iszero, elements(m))
 
+# This is too liberal in general. i.e. will be wrong
+# This is a necessary condition. But there may exist no
+# inverse of the same type
+function isunit(m::AbstractMatrixNxN)
+    !iszero(det(m))
+end
+
 ##
 ## Further properties.
 ##
+
 
 ##
 ## IsApprox.isunitary
@@ -1128,6 +1136,8 @@ struct ScaleMatrix2x2{V, MatrixT <: AbstractMatrix2x2, ScaleT} <: AbstractMatrix
     s::ScaleT
 end
 
+function scalematrix end
+
 for f in (:real, :imag, :float, :big, :complex, :canonical)
     @eval ($f)(m::Matrix2x2) = map($f, m)
 end
@@ -1171,6 +1181,14 @@ function Base.:*(sm1::ScaleMatrix2x2, sm2::ScaleMatrix2x2)
     m = sm1.m * sm2.m
     ScaleMatrix2x2(m, s)
 end
+
+function Base.:*(m1::Matrix2x2, sm2::ScaleMatrix2x2)
+    sm1 = scalematrix(m1)
+    s = sm1.s *  sm2.s
+    m = sm1.m * sm2.m
+    ScaleMatrix2x2(m, s)
+end
+Base.:*(sm2::ScaleMatrix2x2, m1::Matrix2x2) = m1 * sm2
 
 # Fallback in dense.jl is no less performant in at least some cases.
 function Base.:^(sm::ScaleMatrix2x2, n::Integer)

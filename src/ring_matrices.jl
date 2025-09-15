@@ -1,7 +1,7 @@
-@stable module RingMatrices
+module RingMatrices
 
-import ..CyclotomicRings: DOmega, ZOmega, least_denominator_exponent
-import ..Matrices2x2: MatrixNxN, Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2
+import ..CyclotomicRings: DOmega, ZOmega, least_denominator_exponent, CyclotomicRing
+import ..Matrices2x2: MatrixNxN, Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2, scalematrix
 import ..RootOnes: RootOne
 import ..Common: canonical
 import IsApprox: isinvolution, Approx, AbstractApprox, Equal
@@ -17,11 +17,13 @@ import ..Singletons: InvTwo, InvTwoT,
 # The modules for rings and groups on one hand, and `MatrixNxN` on the other, are independent.
 # This module mixes them.
 
-function Base.:*(r::RootOne{8}, m::MatrixNxN{<:DOmega})
+function Base.:*(r::RootOne{8}, m::MatrixNxN{<:CyclotomicRing{4}})
     map(x -> r * x, m)
 end
 
 Base.:*(m::AbstractMatrixNxN, r::RootOne{8}) = throw(MethodError(Base.:*, (m, r)))
+
+# Organize better. These should only be more generic methods, in say, matrices.jla
 Base.:*(m::AbstractMatrixNxN{<:ZOmega}, r::RootOne{8}) = r * m
 Base.:*(m::AbstractMatrixNxN{<:DOmega}, r::RootOne{8}) = r * m
 
@@ -75,6 +77,10 @@ function scalematrix(m::AbstractMatrix{<:DOmega})
     mz = Matrix2x2{T}(m)
 #    @show typeof(mz)
     ScaleMatrix2x2(mz, InvRootTwo^k)
+end
+
+function scalematrix(m::AbstractMatrix{<:ZOmega})
+    ScaleMatrix2x2(m, InvRootTwo^0)
 end
 
 function canonical(sm::ScaleMatrix2x2)
