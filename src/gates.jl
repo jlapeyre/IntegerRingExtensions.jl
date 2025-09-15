@@ -12,14 +12,48 @@ export Gate1
 
 const _onez = one(ZOmega)
 const I2x2 = Matrix2x2(_onez, 0, 0, _onez)
+
+"""
+    X::Matrix2x2{ZOmega{Int64}}
+
+The Pauli `X` matrix.
+```
+2×2 Matrix2x2{ZOmega{Int64}}:
+ 0  ω⁰
+ω⁰   0
+```
+"""
 const X = Matrix2x2(0, _onez, _onez, 0)
+
 const Y = Matrix2x2(0, Imag * _onez, -(Imag * _onez), 0)
 const Z = Matrix2x2(_onez, 0, 0, -_onez)
 const S = Matrix2x2(_onez, 0, 0, omega^2)
 const T = Matrix2x2(_onez, 0, 0, omega)
 const H = InvRootTwo * (X + Z)
+
+"""
+    SX::Matrix2x2{DOmega{Int64}}
+
+The square root of the Pauli `X` matrix.
+```
+2×2 Matrix2x2{DOmega{Int64}}:
+ -1/2ω⁰ + 1/2ω²  -1/2ω⁰ + -1/2ω²
+-1/2ω⁰ + -1/2ω²   -1/2ω⁰ + 1/2ω²
+```
+"""
 const SX = Imag * (InvRootTwo * (omega * I2x2) + InvRootTwo * (omega^3 * X))
 const SY = InvRootTwo * (omega * Matrix2x2(_onez, _onez, -_onez, _onez))
+
+"""
+    SH::Matrix2x2{DOmega{Int64}}
+
+The square root of the `2x2` Hadamard matrix
+```
+2×2 Matrix2x2{DOmega{Int64}}:
+1/2ω⁰ + 1/2ω² + -1/2ω³          -1/2ω³
+        -1/2ω³          1/2ω⁰ + 1/2ω² + 1/2ω³
+```
+"""
 const SH = InvTwo * Matrix2x2(-ZOmega(omega^3) + (RootTwo * ZOmega(omega)), -ZOmega(omega^3), -ZOmega(omega^3), ZOmega(omega^3) + (RootTwo * ZOmega(omega)))
 
 """
