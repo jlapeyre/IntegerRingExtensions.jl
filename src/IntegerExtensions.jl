@@ -64,7 +64,7 @@ include("ring_matrices.jl")
 Reexport.@reexport import .RingMatrices: compute_phase_factor
 
 include("gates.jl")
-Reexport.@reexport import .Gates: Gate1, RZ, X, Y, Z, I2x2, S, T, H, SX # , random_RZ
+Reexport.@reexport import .Gates: Gate1, RZ, X, Y, Z, I2x2, S, T, H, SX, SY, SH # , random_RZ
 
 include("compose.jl")
 Reexport.@reexport import .Compose: compose, compose_one, get_global_phase,
