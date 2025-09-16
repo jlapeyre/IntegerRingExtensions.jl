@@ -10,11 +10,12 @@ import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermi
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
     isnormal
 
-import ..Common: canonical, isunit
+import ..Common: canonical, isunit, isimag
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, Dar, Ang, intdiv, random_angle
 
-export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4
+export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4, antihermitianpart,
+    isantihermitian
 
 abstract type AbstractMatrixNxN{T, N} <: AbstractMatrix{T} end
 abstract type AbstractNormalNxN{T, N} <: AbstractMatrixNxN{T, N} end
@@ -222,6 +223,7 @@ function elements(m::AbstractSU2)
     (a, b, -conj(b), conj(a))
 end
 
+
 Base.size(::AbstractMatrixNxN{T, N}) where{T, N} = (N, N)
 Base.eltype(::AbstractMatrixNxN{T, N}) where{T, N} = T
 Base.IndexStyle(::Type{<:AbstractMatrixNxN}) = IndexLinear()
@@ -404,6 +406,17 @@ function hermitianpart(m::Matrix2x2)
 end
 
 """
+    antihermitianpart(m::Matrix2x2)::Matrix2x2
+
+Return `(m - m')/2`
+"""
+function antihermitianpart(m::Matrix2x2)
+    (a, b, c, d) = elements(m)
+    b2 = (b - conj(c)) / 2
+    Matrix2x2(im * imag(a), b2, -conj(b2), im * imag(d))
+end
+
+"""
     hermitian(m::Matrix2x2)::Matrix2x2
 
 Return an instance of `m` converted to a Hermitian matrix.
@@ -504,6 +517,14 @@ function _ishermitian(m::AbstractMatrix2x2, approx::AbstractApprox)
     (a,b,c,d) = elements(m)
     (isreal(a, approx) && isreal(d, approx)) || return false
     isapprox(c, adjoint(b), approx)
+end
+
+isantihermitian(m::AbstractMatrix2x2, approx::AbstractApprox=Equal()) = _isantihermitian(m, approx)
+isantihermitian(m::AbstractMatrix2x2, approx::Approx) = _isantihermitian(m, approx)
+function _isantihermitian(m::AbstractMatrix2x2, approx::AbstractApprox)
+    (a,b,c,d) = elements(m)
+    (isimag(a, approx) && isimag(d, approx)) || return false
+    isapprox(c, -adjoint(b), approx)
 end
 
 issymmetric(m::AbstractMatrix2x2, approx::AbstractApprox=Equal()) = _issymmetric(m, approx)
@@ -1025,6 +1046,11 @@ end
 
 function Unitary2x2(su::AbstractSU2{T}) where T
     Unitary2x2(su, zero(T))
+end
+
+function elements(m::Unitary2x2)
+    ph = cis(m.phi)
+    map(x -> ph * x, elements(m.su2))
 end
 
 det(U::Unitary2x2) = cis(2 * U.phi)

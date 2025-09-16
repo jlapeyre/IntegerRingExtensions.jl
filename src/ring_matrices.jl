@@ -1,11 +1,11 @@
 module RingMatrices
 
+import LinearAlgebra
+import IsApprox: isinvolution, Approx, AbstractApprox, Equal
 import ..CyclotomicRings: DOmega, ZOmega, least_denominator_exponent, CyclotomicRing
 import ..Matrices2x2: MatrixNxN, Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2, scalematrix
-import ..RootOnes: RootOne
+import ..RootOnes: RootOne, Omega
 import ..Common: canonical
-import IsApprox: isinvolution, Approx, AbstractApprox, Equal
-
 
 import ..Singletons: InvTwo, InvTwoT,
     RootTwo, RootTwoT, Two, TwoT,
@@ -92,5 +92,12 @@ function Base.:*(r::RootOne{8}, sm::ScaleMatrix2x2{<:DOmega})
     ScaleMatrix2x2(r * sm.m, sm.s)
 end
 
+# Convert m to SU2 by multiplying second column by a power of omega.
+# We could represent unitary m by this SU2 and the power.
+function getsu2(m::Matrix2x2{<:CyclotomicRing{4}})
+    ph = inv(Omega(LinearAlgebra.det(m)))
+    (a, b, c, d) = elements(m)
+    Matrix2x2(a, b, ph * c, ph * d)
+end
 
 end #module RingMatrices

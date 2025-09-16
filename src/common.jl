@@ -1,12 +1,14 @@
 module Common
 
+import IsApprox: IsApprox, AbstractApprox, Equal, Approx
+
 # TODO: cleanup, prolly remove, root_two, etc. in favor of T(singleton)
 # Design using `root_two` agrees Julia Base use of zero() and one().
 # But, I think using T(singleton) is more robust and flexible.
 # It allows defining method for, say :*(::SingletonType, obj)
 # The conversions are decide on in the :* method, where they belong.
 
-export canonical, isrational, coeffs, params, isunit, invstrict
+export canonical, isrational, coeffs, params, isunit, invstrict, isimag
 
 """
     canonical(x)
@@ -216,6 +218,36 @@ function invstrict(c::Complex{T}) where {T<:Integer}
         isone(-i) && return Complex{T}(0, one(T))
     end
     throw(ArgumentError(lazy"$c has no inverse of type $(typeof(c))"))
+end
+
+"""
+    isimag(x)
+
+Return `true` if `real(x)` is `false`.
+"""
+function isimag end
+
+# TODO: What to do with Approx.
+# We can't compare something small to zero.
+
+# Note that Complex(0, 0) is both isreal and isimag
+isimag(::Real, app::AbstractApprox=Equal()) = false
+
+isimag(z::Complex) = isimag(z, Equal())
+function isimag(z::Complex, app::AbstractApprox)
+    iszero(real(z))
+end
+
+function isimag(z::Complex, app::Approx)
+    isimag(z, Equal()) && return true
+    isapprox(abs(z), abs(imag(z)), app)
+end
+
+# TODO: Move isimag to IsApprox. It belongs there.
+# TODO: Better to use norm, unless we implement for EachApprox
+function isimag(a::AbstractArray, app::AbstractApprox=Equal())
+    eltype(a) <: Real && return false
+    return all(x -> isimag(x, app), a)
 end
 
 end # module Common

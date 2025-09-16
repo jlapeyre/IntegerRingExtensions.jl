@@ -15,7 +15,8 @@ Reexport.@reexport import .Utils: subscript, superscript, lobit, small, countmap
 
 include("common.jl")
 Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
-    mul_root_two, mul_one_over_root_two, mul_half, mul_two, conj_root_two, norm_root_two, norm_root_D, isrational, isunit, invstrict
+    mul_root_two, mul_one_over_root_two, mul_half, mul_two, conj_root_two, norm_root_two, norm_root_D, isrational, isunit, invstrict,
+    isimag
 
 include("singletons.jl")
 Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
@@ -53,7 +54,7 @@ Reexport.@reexport import .Matrices2x2:
     SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
     get_theta, unitary_u, unitary_t,
     random_ZRot, columns, opnormdistance, alt_random_unitary2x2,
-    isantidiag, eigvals_hermitian
+    isantidiag, eigvals_hermitian, antihermitianpart, isantihermitian
 
 include("qm_matrices.jl")
 Reexport.@reexport import .QMMatrices: random_density_matrix2x2, DensityMatrix2x2,
