@@ -227,9 +227,6 @@ Return `true` if `real(x)` is `false`.
 """
 function isimag end
 
-# TODO: What to do with Approx.
-# We can't compare something small to zero.
-
 # Note that Complex(0, 0) is both isreal and isimag
 isimag(::Real, app::AbstractApprox=Equal()) = false
 

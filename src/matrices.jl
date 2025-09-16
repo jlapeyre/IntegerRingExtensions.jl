@@ -227,11 +227,6 @@ end
 Base.size(::AbstractMatrixNxN{T, N}) where{T, N} = (N, N)
 Base.eltype(::AbstractMatrixNxN{T, N}) where{T, N} = T
 Base.IndexStyle(::Type{<:AbstractMatrixNxN}) = IndexLinear()
-
-#Base.size(::AbstractMatrix2x2) = (2, 2)
-# Base.eltype(::Type{<:AbstractMatrix2x2{T}}) where T = T
-# Base.eltype(::Type{AbstractMatrix2x2{T}}) where T = T
-#Base.IndexStyle(::Type{<:AbstractMatrix2x2}) = IndexLinear()
 Base.one(::Type{Matrix2x2{T}}) where T = Matrix2x2(one(T), zero(T), zero(T), one(T))
 Base.one(::Matrix2x2{T}) where {T} = one(Matrix2x2{T})
 Base.zero(::Type{Matrix2x2{T}}) where T = Matrix2x2(zero(T), zero(T), zero(T), zero(T))
@@ -253,11 +248,6 @@ Base.iszero(m::MatrixNxN) = all(iszero, elements(m))
 function isunit(m::AbstractMatrixNxN)
     !iszero(det(m))
 end
-
-##
-## Further properties.
-##
-
 
 ##
 ## IsApprox.isunitary
