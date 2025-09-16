@@ -476,6 +476,12 @@ end
 Base.:*(q::Complex{T}, s::SingleNum) where {T <: QuadraticRing{2}} = s * q
 Base.:*(q::QuadraticRing{2}, ::RootTwoT) = RootTwo * q
 
+function Base.:*(::RootTwoT, r::Rational)
+    d = Dyadic(r)
+    DRoot2(zero(d), d)
+end
+Base.:*(r::Rational, ::RootTwoT) = RootTwo * r
+
 Base.:*(::RootTwoT, n::Integer) = QuadraticRing{2}(zero(n), n)
 Base.:*(n::Integer, ::RootTwoT) = RootTwo * n
 
