@@ -1,4 +1,4 @@
-@stable module Utils
+module Utils
 
 import LinearAlgebra
 import ILog2: ilog2
@@ -193,8 +193,17 @@ function random_special_unitary(n::Integer)
     phase * u
 end
 
-function prettylist(items)
-    foreach(x->(show(stdout, PRETTY(), x); println("\n")), items)
+"""
+    prettylist(items)
+
+Print all items in iterator `items`, showing each one with MIME"text/plain".
+
+Usually, at the REPL, each item in a `Vector` of objects is `show`n with
+a plain method.
+"""
+function prettylist(io::IO, items)
+    foreach(x->(show(io, PRETTY(), x); println("\n")), items)
 end
+prettylist(items) = prettylist(stdout, itemss)
 
 end # module Utils

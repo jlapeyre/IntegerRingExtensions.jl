@@ -265,39 +265,39 @@ function rotation_error_GPID(m::Matrix2x2, alpha::Number)
     return GPID(mb, expected_m)
 end
 
-# I do not have a good name for this!
-"""
-    Uapprox(theta, alpha, beta)::Matrix2x2
+# # I do not have a good name for this!
+# """
+#     Uapprox(theta, alpha, beta)::Matrix2x2
 
-Return a one-qubit unitary of the following type
-```
-u    -t^*
+# Return a one-qubit unitary of the following type
+# ```
+# u    -t^*
 
-t    u^*
-```
-where `u = cis(alpha)cos(theta)` and `t = cis(beta)sin(theta)`
+# t    u^*
+# ```
+# where `u = cis(alpha)cos(theta)` and `t = cis(beta)sin(theta)`
 
-A more restricted case of this class of unitaries are those obtainable with
-a finite string of `H`, `S` and `cispi(1/4)`.
-"""
-function Uapprox(theta, alpha, beta)
-    u = cis(alpha) * cos(theta)
-    t = cis(beta) * sin(theta)
-    Matrix2x2(u, t, -conj(t), conj(u))
-end
+# A more restricted case of this class of unitaries are those obtainable with
+# a finite string of `H`, `S` and `cispi(1/4)`.
+# """
+# function Uapprox(theta, alpha, beta)
+#     u = cis(alpha) * cos(theta)
+#     t = cis(beta) * sin(theta)
+#     Matrix2x2(u, t, -conj(t), conj(u))
+# end
 
-function random_Uapprox(::Type{T}=Float64) where {T}
-    (theta, alpha, beta) = random_angle(T, 3)
-    Uapprox(theta, alpha, beta)
-end
+# function random_Uapprox(::Type{T}=Float64) where {T}
+#     (theta, alpha, beta) = random_angle(T, 3)
+#     Uapprox(theta, alpha, beta)
+# end
 
-function isUapprox(m::Matrix2x2; kwargs...)
-    (u, t, mtconj, uconj) = m.data
-    isapprox(conj(u), uconj; kwargs...) || return false
-    isapprox(-conj(t), mtconj; kwargs...) || return false
-    isapprox(abs2(u) + abs2(t), 1; kwargs...) || return false
-    return true
-end
+# function isUapprox(m::Matrix2x2; kwargs...)
+#     (u, t, mtconj, uconj) = m.data
+#     isapprox(conj(u), uconj; kwargs...) || return false
+#     isapprox(-conj(t), mtconj; kwargs...) || return false
+#     isapprox(abs2(u) + abs2(t), 1; kwargs...) || return false
+#     return true
+# end
 
 # using ..Dyadics: Dyadic
 # function TSH()

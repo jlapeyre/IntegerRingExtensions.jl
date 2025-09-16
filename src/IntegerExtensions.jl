@@ -69,8 +69,7 @@ Reexport.@reexport import .Gates: Gate1, RZ, X, Y, Z, I2x2, S, T, H, SX, SY, SH,
 
 include("compose.jl")
 Reexport.@reexport import .Compose: compose, compose_one, get_global_phase,
-    correct_global_phase, rotation_error, rotation_error_GPID, Uapprox, random_Uapprox,
-    isUapprox
+    correct_global_phase, rotation_error, rotation_error_GPID
 
 include("gate_matrix.jl")
 Reexport.@reexport import .GateMatrix: XF64, YF64, ZF64, SF64, TF64,
