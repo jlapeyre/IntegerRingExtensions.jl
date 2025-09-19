@@ -4,9 +4,14 @@ using DispatchDoctor: @unstable
 
 using ..Utils: PRETTY
 import ..Matrices2x2: Matrix2x2, SU2, ScaleMatrix2x2
-using ..Singletons: Imag, RootImag, InvRootTwo, InvTwo, RootTwo
 using ..RootOnes: omega, Omega
 using ..CyclotomicRings: coeffs, div_half, mul_root_two, ZOmega
+
+#using ..Singletons: Imag, RootImag, InvRootTwo, InvTwo, RootTwo
+using ..Singletons: InvRootTwo, InvTwo, RootTwo
+
+const RootImag = Omega(1)
+const Imag = Omega(2)
 
 export Gate1
 
@@ -151,7 +156,7 @@ end
 
 function Base.:*(::Gate1{:Y}, m::Matrix2x2)
     (a,b,c,d) = m.data
-    Matrix2x2(b, Imag * a, -(Imag * d), c)
+    Matrix2x2(- Imag *b, Imag * a, -(Imag * d), Imag * c)
 end
 
 function Base.:*(::Gate1{:Z}, m::Matrix2x2)

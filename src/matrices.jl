@@ -564,7 +564,7 @@ end
 function _matrix_func(m, func)
     if ishermitian(m)
         ((v1,v2), vecs) = eigen_hermitian(m)
-        d = diagm(Vector2(func(v1), func(v2)))
+        d = diagm(Vector2(func(complex(v1)), func(complex(v2))))
         return vecs * d * vecs'
     end
     isnormal(m) || throw(ArgumentError(lazy"Non-normal matrices not supported"))
@@ -1080,17 +1080,31 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Matrix4x4})
     rand(rng, Matrix4x4{Float64})
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Matrix2x2{T}}) where {T}
-    rand(rng, MatrixNxN{T, 2})
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{MatrixNxN{T, N, M}}) where {T, N, M}
+    # Using ntuple is very slow and allocates. Even with compile time length
+    # tup = ntuple(_  -> rand(T), M)
+    # This is a bit faster, even though it allocates
+    tup = NTuple{M, T}(rand(T, M))
+    MatrixNxN{T, N, M}(tup)
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Matrix4x4{T}}) where {T}
-    rand(rng, MatrixNxN{T, 4})
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{MatrixNxN{T, 4, 16}}) where {T}
+    # ntuple is very slow. allocating with rand(16) is less slow, but still slow
+    #    tup = ntuple(_  -> rand(T), 16)
+    #    MatrixNxN(NTuple{16, T}(tup))
+    # Writing rand(T) sixteen times is efficient. Maybe use st like a generated function?
+    tup = (rand(T),rand(T),rand(T),rand(T),
+           rand(T),rand(T),rand(T),rand(T),
+           rand(T),rand(T),rand(T),rand(T),
+           rand(T),rand(T),rand(T),rand(T))
+    MatrixNxN{T, 4, 16}(tup)
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{MatrixNxN{T, N}}) where {T, N}
-    n = N * N
-    MatrixNxN(NTuple{n, T}(rand(T, n)))
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{MatrixNxN{T, 2, 4}}) where {T}
+    # Both ntuple and unrolled are equally performant
+    # tup = ntuple(_  -> rand(T), 4)
+    tup = (rand(T),rand(T),rand(T),rand(T))
+    MatrixNxN{T, 2, 4}(NTuple{4, T}(tup))
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2})

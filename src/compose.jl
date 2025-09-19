@@ -1,4 +1,4 @@
-@stable module Compose
+module Compose
 
 using DispatchDoctor: @stable, @unstable
 
@@ -208,12 +208,13 @@ Find `theta` from a Z-rotation matrix `m` with possible global phase.
 Assume `m` is diagonal, with `m[1] = cis(-theta/2 + phi)`
 and `m[4] = cis(theta/2 + phi)`. Return `theta`.
 """
-function get_theta(m::Matrix2x2)
+function get_theta(m::Matrix2x2{Complex{T}}) where {T <:AbstractFloat}
     zsq = m[4] / m[1]
     angle(zsq)
 end
 
-get_theta(m::Matrix2x2{<:DOmega}) = get_theta(big(m))
+get_theta(m::Matrix2x2) = get_theta(big(m))
+get_theta(m::ScaleMatrix2x2) = get_theta(big(m))
 
 """
     get_global_phase(m::Matrix2x2)
@@ -225,8 +226,9 @@ Assume `m` is diagonal, with `m[1] = cis(-theta/2 + alpha)` and `m[4] = cis(thet
 It's not possible to distinguish global phases that differ by addition of π. This is because
 2α is extracted, and 2(α + π) will give the same argument of the phase factor.
 """
-get_global_phase(m::Matrix2x2) = angle(m[4] * m[1]) / 2
-get_global_phase(m::Matrix2x2{<:DOmega}) = get_global_phase(big(m))
+get_global_phase(m::Matrix2x2{Complex{T}}) where {T <:AbstractFloat} = angle(m[4] * m[1]) / 2
+get_global_phase(m::Matrix2x2) = get_global_phase(big(m))
+get_global_phase(m::ScaleMatrix2x2) = get_global_phase(big(m))
 
 """
     correct_global_phase(m::Matrix2x2)

@@ -240,6 +240,11 @@ This is also the principal eight root of one.
 """
 RootImag
 
+function Base.conj(x::SingleNum)
+    isreal(s) || throw(ArgumentError(lazy"Unsupported"))
+    x
+end
+
 """
     struct Pow{T}
         n::Int

@@ -136,7 +136,14 @@ function store_results(lines, opts)
     )
 end
 
+# TODO: Convert float inputs to strings
 function gridsynth(;kwargs...)
+    # @show typeof(kwargs)
+    # @show kwargs
+    # if haskey(kwargs, :theta)
+    #     kwargs[:theta] = string(kwargs[:theta])
+    # end
+#    kwargs = Tuple(
     opts = GridSynthOpts(;kwargs...)
     run_gridsynth(opts)
 end
