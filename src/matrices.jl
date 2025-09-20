@@ -525,23 +525,58 @@ function _issymmetric(m::AbstractMatrix2x2, approx::AbstractApprox)
     isapprox(c, b, approx)
 end
 
+"""
+    check_eigen(m, eg::Eigen)
+
+Check that `eigen(m)` is approximately equal to `eg`.
+"""
+function check_eigen(m, eg::LinearAlgebra.Eigen)
+    check_eigen(m, eg.values, eg.vectors)
+end
+
+"""
+    check_eigen(m, vals, vecs)
+
+Check that `eigen(m)` yields approximately `vals` and `vecs`.
+"""
+function check_eigen(m, vals, vecs)
+    v1 = vecs[:,1]
+    v2 = vecs[:,2]
+    isapprox(m * v1, vals[1] * v1) &&
+        isapprox(m * v2, vals[2] * v2)
+end
+
+function _maybe_normalize(v::Vector2)
+    iszero(v) ? v : normalize(v)
+end
+
+"""
+    eigen(m::AbstractMatrix2x2)::Eigen
+
+Return eigenvalues and eigenvectors of `m`.
+"""
 function eigen(m::AbstractMatrix2x2)
     (v1, v2) = eigvals(m)
     (a, b, c, d) = elements(m)
-    vec1 = normalize(Vector2(c, v1 - a))
-    vec2 = normalize(Vector2(v2 - d, b))
+    if (iszero(c) && iszero(v1 - a)) ||
+        (iszero(b) && iszero(v2 - d))
+        (v1, v2) = (v2, v1)
+    end
+    _inner_eigen(a, b, c, d, v1, v2)
+end
+
+@inline function _inner_eigen(a, b, c, d, v1, v2)
+    vec1 = _maybe_normalize(Vector2(c, v1 - a))
+    vec2 = _maybe_normalize(Vector2(v2 - d, b))
     vecs = Matrix2x2(vec1[1], vec1[2], vec2[1], vec2[2])
-    ((v1, v2), vecs)
+    LinearAlgebra.Eigen(Vector2(v1, v2), vecs)
 end
 
 function eigen_hermitian(m::AbstractMatrix2x2)
     (v1, v2) = eigvals_hermitian(m)
     (ai, b, c, di) = elements(m)
     (a, d) = (real(ai), real(di))
-    vec1 = normalize(Vector2(c, v1 - a))
-    vec2 = normalize(Vector2(v2 - d, b))
-    vecs = Matrix2x2(vec1[1], vec1[2], vec2[1], vec2[2])
-    ((v1, v2), vecs)
+    _inner_eigen(a, b, c, d, v1, v2)
 end
 
 function eigvecs(m::AbstractMatrix2x2)
@@ -549,6 +584,7 @@ function eigvecs(m::AbstractMatrix2x2)
     return vecs
 end
 
+# TODO: It might be faster to convert this to Matrix2x2
 function eigvals(U::AbstractSU2)
     u = unitary_u(U)
     ru = real(u)

@@ -4,7 +4,7 @@ using DispatchDoctor: @stable
 
 using ..Utils: PRETTY, superscript
 import ..Utils: countmap
-import ..Compose: Compose, compose, rotation_error
+import ..Compose: Compose, compose, compose_scale, rotation_error
 
 # Parameters disables the default constructor :(
 # Also does not allow forwarding keywords args with (;kwargs...)
@@ -195,6 +195,10 @@ end
 
 function compose(gr::GridSynthResults; chunklen=nothing)
     return isnothing(chunklen) ? compose(gr.gates) : compose(gr.gates; chunklen)
+end
+
+function compose_scale(gr::GridSynthResults; chunklen=nothing)
+    return isnothing(chunklen) ? compose_scale(gr.gates) : compose_scale(gr.gates; chunklen)
 end
 
 function rotation_error(gr::GridSynthResults)

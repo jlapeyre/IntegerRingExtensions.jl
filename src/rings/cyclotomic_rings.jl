@@ -195,9 +195,8 @@ DOmega(a::T) where {T<:Integer} = DOmega{T}(a)
 
 # Resolves ambiguity
 function CyclotomicRing{4, CT1}(c::CyclotomicRing{4, CT2}) where {CT1 <: Number, CT2 <: Number}
-    M = 4
     coeffs = convert.(CT1, c.coeffs)
-    CyclotomicRing{M, CT1}(coeffs)
+    CyclotomicRing{4, CT1}(coeffs)
 end
 
 function CyclotomicRing{M, CT1}(c::CyclotomicRing{M, CT2}) where {M, CT1 <: Number, CT2 <: Number}

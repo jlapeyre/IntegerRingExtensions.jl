@@ -29,19 +29,29 @@ julia> compose("TSHTHTHTHT")
 1/2² ω³ + 1/2² ω² + 1/2² ω + -1/2² ω⁰  -1/2² ω³ + -3/2² ω² + 1/2² ω + -1/2² ω⁰
 ```
 """
-@unstable function compose(gates::AbstractString; chunklen=300, reduce_fractions=true)
+function compose(gates::AbstractString; chunklen=300, reduce_fractions=true)
     gates = reverse(gates)
     if length(codeunits(gates)) <= chunklen
         return scalematrix(compose_one(gates, false; reduce_fractions=reduce_fractions))
-#        return scalematrix(compose_one(gates, false; reduce_fractions=reduce_fractions))
     end
     chunks = reverse(chunkstring(gates, chunklen))
-    # TODO: Ugh need to map ZOmega in for ScaleMatrix2x2 and DOmega for Matrix2x2
-#    mats = [map(ZOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
     mats = [map(DOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
     res = canonical(prod(mats))
     scalematrix(res)
-    # Needs better organization
+end
+
+# Matrix is numerically equal to `compose`, but differs sometimes by moving one
+# factor of sqrt(2) from coeff to matrix.
+# compose_scale is also much slower. I implemented in the hope that it would
+# be faster
+function compose_scale(gates::AbstractString; chunklen=300, reduce_fractions=true)
+    gates = reverse(gates)
+    if length(codeunits(gates)) <= chunklen
+        return compose_one_scale(gates, false; reduce_fractions=reduce_fractions)
+    end
+    chunks = reverse(chunkstring(gates, chunklen))
+    mats = [map(ZOmega{BigInt}, compose_one_scale(chunk, false)) for chunk in chunks]
+    canonical(prod(mats))
 end
 
 """
@@ -100,7 +110,21 @@ function compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=tru
      return matrix
 end
 
-function _alt_compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=true)
+# Using  scalematrix is a huge PITA
+# For now, it's a separate function
+function compose_one_scale(gates::AbstractString, rev::Bool=true; reduce_fractions=true)
+    gates = rev ? reverse(gates) : gates
+    matrix = scalematrix(one(Matrix2x2{DOmega{Int}}))
+    reduce_func = reduce_fractions ? canonical : identity
+    for gate in codeunits(gates)
+        new_matrix = _apply_gate(Symbol(Char(gate)), matrix)
+        isnothing(new_matrix) && error(lazy"unknown gate $(Symbol(Char(gate)))")
+        matrix = reduce_func(new_matrix)
+    end
+    return matrix
+end
+
+function _alt_apply_gate(gates::AbstractString, rev::Bool=true; reduce_fractions=true)
     gates = rev ? reverse(gates) : gates
     matrix = one(Matrix2x2{DOmega{Int}})
     reduce_func = reduce_fractions ? canonical : identity

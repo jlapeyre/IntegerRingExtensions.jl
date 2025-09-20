@@ -54,7 +54,8 @@ Reexport.@reexport import .Matrices2x2:
     SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
     get_theta, unitary_u, unitary_t,
     random_ZRot, columns, opnormdistance, alt_random_unitary2x2,
-    isantidiag, eigvals_hermitian, antihermitianpart, isantihermitian
+    isantidiag, eigvals_hermitian, antihermitianpart, isantihermitian,
+    eigen_hermitian, check_eigen
 
 include("qm_matrices.jl")
 Reexport.@reexport import .QMMatrices: random_density_matrix2x2, DensityMatrix2x2,
@@ -68,7 +69,7 @@ Reexport.@reexport import .Gates: Gate1, RZ, X, Y, Z, I2x2, S, T, H, SX, SY, SH,
     commutator
 
 include("compose.jl")
-Reexport.@reexport import .Compose: compose, compose_one, get_global_phase,
+Reexport.@reexport import .Compose: compose, compose_one, compose_scale, get_global_phase,
     correct_global_phase, rotation_error, rotation_error_GPID
 
 include("gate_matrix.jl")

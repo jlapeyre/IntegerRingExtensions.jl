@@ -53,6 +53,7 @@ function least_denominator_exponent(m::AbstractMatrix2x2{<:DOmega})
 end
 
 # This is, of course, very fast. Because the lde is stored in a field.
+# It is also in general not equal to LDE of Matrix2x2(m). But it should be.
 function least_denominator_exponent(m::ScaleMatrix2x2{<: DOmega, <: Matrix2x2{<:ZOmega}, <: Pow{InvRootTwoT}})
     m.s.n
 end
