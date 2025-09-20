@@ -5,7 +5,7 @@ using DispatchDoctor: @unstable
 using ..Utils: PRETTY
 import ..Matrices2x2: Matrix2x2, SU2, ScaleMatrix2x2
 using ..RootOnes: omega, Omega
-using ..CyclotomicRings: coeffs, div_half, mul_root_two, ZOmega
+using ..CyclotomicRings: coeffs, div_half, mul_root_two, ZOmega, DOmega, div_coefficients
 
 #using ..Singletons: Imag, RootImag, InvRootTwo, InvTwo, RootTwo
 using ..Singletons: InvRootTwo, InvTwo, RootTwo
@@ -208,21 +208,26 @@ Base.:*(m::ScaleMatrix2x2, ::Gate1{:W}) = Gate1{:W}() * m
 # Trying different, equivalent ways to do this multiplication.
 # This seems to be correct. Agrees with version using Matrix2x2.
 # However the coefficients are 10^14 times larger. This is unacceptable and uneeded
+#function Base.:*(::Gate1{:H}, m::ScaleMatrix2x2{<:DOmega, <:Matrix2x2{<:ZOmega}, <:Any})
 function Base.:*(::Gate1{:H}, m::ScaleMatrix2x2)
     (a,b,c,d) = m.m.data
-
     x = a + b
     y = c + d
     if all(iseven, coeffs(x)) && all(iseven, coeffs(y))
-#        print("1")
         (a2, b2, c2, d2) = (a + b, a - b, c + d, c - d)
-        (an, bn, cn, dn) = map(x -> mul_root_two(div_half(x)), (a2, b2, c2, d2))
+#        (an, bn, cn, dn) = map(z -> mul_root_two(mul_half(z)), (a2, b2, c2, d2))
+        (an, bn, cn, dn) = map(z -> mul_root_two(div_coefficients(z, 2)), (a2, b2, c2, d2))
+#        (an, bn, cn, dn) = map(x -> mul_root_two(div_half(x)), (a2, b2, c2, d2))
         return ScaleMatrix2x2(Matrix2x2(an, bn, cn, dn), m.s)
     end
-
+    # @info "2"
+    # @show m.s
     s_new = InvRootTwo * m.s
     m_new = Matrix2x2(x, a - b, y, c - d)
-    ScaleMatrix2x2(m_new, s_new)
+#    @show s_new
+    smnew = ScaleMatrix2x2(m_new, s_new)
+#    show(stdout, PRETTY(), smnew)
+    smnew
 end
 
 function Base.:*(g::Gate1, m::ScaleMatrix2x2)

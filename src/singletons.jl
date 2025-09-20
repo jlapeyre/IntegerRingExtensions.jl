@@ -1,4 +1,4 @@
-@stable module Singletons
+module Singletons
 
 import Base: show, inv, sqrt, isone, iszero, isinteger, iseven, isreal
 import ..Utils: PRETTY, superscript
@@ -241,9 +241,11 @@ This is also the principal eight root of one.
 RootImag
 
 function Base.conj(x::SingleNum)
-    isreal(s) || throw(ArgumentError(lazy"Unsupported"))
+    isreal(x) || throw(ArgumentError(lazy"Unsupported"))
     x
 end
+
+Base.adjoint(x::SingleNum) = conj(x)
 
 """
     struct Pow{T}
@@ -263,6 +265,13 @@ function show(io::IO, ::PRETTY, p::Pow{T}) where {T}
     show(io, PRETTY(), T())
     print(io, superscript(p.n))
 end
+
+function Base.conj(x::Pow{T}) where {T <: SingleNum}
+    isreal(T()) || throw(ArgumentError(lazy"Unsupported"))
+    x
+end
+
+Base.adjoint(x::Pow) = conj(x)
 
 function Base.AbstractFloat(p::Pow{T}) where {T}
     AbstractFloat(T())^p.n
@@ -536,7 +545,12 @@ Base.:*(x::Pow{TwoT}, ::InvTwoT) = Pow{TwoT}(x.n - 1)
 Base.:*(x::Pow{InvTwoT}, ::TwoT) = Pow{InvTwoT}(x.n + 1)
 Base.:*(x::Pow{TwoT}, y::Pow{TwoT}) = Pow{TwoT}(x.n + y.n)
 Base.:*(x::Pow{TwoT}, y::Pow{InvTwoT}) = Pow{TwoT}(x.n - y.n)
+Base.:*(x::Pow{InvTwoT}, y::Pow{TwoT}) = Pow{TwoT}(y.n - x.n)
 Base.:*(x::Pow{InvTwoT}, y::Pow{InvTwoT}) = Pow{InvTwoT}(x.n + y.n)
+
+Base.:*(x::Pow{TwoT}, y::Pow{InvRootTwoT}) = Pow{InvRootTwoT}(y.n - 2 * x.n)
+Base.:*(x::Pow{InvRootTwoT}, y::Pow{TwoT}) = y * x
+
 Base.:*(x::Pow{InvRootTwoT}, y::Pow{InvRootTwoT}) = Pow{InvRootTwoT}(x.n + y.n)
 
 Base.:*(::InvRootTwoT, y::Pow{InvRootTwoT}) = Pow{InvRootTwoT}(y.n + 1)

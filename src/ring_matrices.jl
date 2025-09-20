@@ -2,10 +2,11 @@ module RingMatrices
 
 import LinearAlgebra
 import IsApprox: isinvolution, Approx, AbstractApprox, Equal
-import ..CyclotomicRings: DOmega, ZOmega, least_denominator_exponent, CyclotomicRing
+import ..CyclotomicRings: DOmega, ZOmega, least_denominator_exponent, CyclotomicRing, div_coefficients
 import ..Matrices2x2: MatrixNxN, Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2, scalematrix
 import ..RootOnes: RootOne, Omega
-import ..Common: canonical
+import ..Common: canonical, coeffs
+import ..Utils: lobit
 
 import ..Singletons: InvTwo, InvTwoT,
     RootTwo, RootTwoT, Two, TwoT,
@@ -75,7 +76,6 @@ function scalematrix(m::AbstractMatrix{<:DOmega})
     m = RootTwo^k * m
     T = typeof(ZOmega(m[1]))
     mz = Matrix2x2{T}(m)
-#    @show typeof(mz)
     ScaleMatrix2x2(mz, InvRootTwo^k)
 end
 
@@ -83,8 +83,34 @@ function scalematrix(m::AbstractMatrix{<:ZOmega})
     ScaleMatrix2x2(m, InvRootTwo^0)
 end
 
-function canonical(sm::ScaleMatrix2x2)
-    ScaleMatrix2x2(canonical(sm.m), sm.s)
+# Hmm this does not depend on rings at all
+# function canonical(sm::ScaleMatrix2x2)
+#     ScaleMatrix2x2(canonical(sm.m), sm.s)
+# end
+
+# Keep getting DOmega as the matrix inside scale matrix
+function canonical(sm::ScaleMatrix2x2{<:DOmega, <: Any, <: Any})
+    throw(MethodError(canonical, (sm,)))
+end
+
+# This seems to work, but I did not test much, because it is a PITA
+# to integrate into compose
+function canonical(sm::ScaleMatrix2x2{<:DOmega, Matrix2x2{V}, Pow{T}}) where {T, V <: ZOmega}
+    # Number of inverse factors of two in the coefficient.
+    num_twos_coeff = div(sm.s.n, 2) # Assume this is pow of sqrt(2)
+    iszero(num_twos_coeff) && return sm
+    m = canonical(sm.m)
+    # Smallest power of two in factorization over coefficients and elements of matrix
+    minpowtwo = minimum(xx -> minimum(lobit, coeffs(xx)), m)
+    if minpowtwo >= num_twos_coeff
+        newm = map(x -> div_coefficients(x, 2^num_twos_coeff), m)
+        new_s = sm.s * Two^num_twos_coeff
+        return ScaleMatrix2x2(newm, new_s)
+    end
+    new_s = Two^minpowtwo * sm.s
+    newm = map(x -> div_coefficients(x, 2^minpowtwo), m)
+    @assert !isa(newm, Matrix2x2{<:DOmega})
+    return ScaleMatrix2x2(newm, new_s)
 end
 
 function Base.:*(r::RootOne{8}, sm::ScaleMatrix2x2{<:DOmega})

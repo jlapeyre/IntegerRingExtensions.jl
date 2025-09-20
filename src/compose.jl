@@ -8,7 +8,7 @@ import ..RingMatrices: scalematrix
 import ..Gates: Gate1, RZ
 using ..Common: canonical
 using ..CyclotomicRings: DOmega, ZOmega
-using ..Utils: PRETTY
+using ..Utils: PRETTY, pretty
 using ..Angles: random_angle
 
 """
@@ -33,15 +33,15 @@ julia> compose("TSHTHTHTHT")
     gates = reverse(gates)
     if length(codeunits(gates)) <= chunklen
         return scalematrix(compose_one(gates, false; reduce_fractions=reduce_fractions))
+#        return scalematrix(compose_one(gates, false; reduce_fractions=reduce_fractions))
     end
     chunks = reverse(chunkstring(gates, chunklen))
-    mats = [map(DOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
-    scalematrix(canonical(prod(mats)))
     # TODO: Ugh need to map ZOmega in for ScaleMatrix2x2 and DOmega for Matrix2x2
+#    mats = [map(ZOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
+    mats = [map(DOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
+    res = canonical(prod(mats))
+    scalematrix(res)
     # Needs better organization
-#    mats = [map(ZOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
-#    mats = [map(ZOmega{BigInt}, compose_one(chunk, false)) for chunk in chunks]
-    #    mats = [compose_one(chunk, false) for chunk in chunks]
 end
 
 """
@@ -88,6 +88,7 @@ of longer compositions with smaller data types.
 """
 function compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=true)
     gates = rev ? reverse(gates) : gates
+# Using  scalematrix is a huge PITA
 #    matrix = scalematrix(one(Matrix2x2{DOmega{Int}}))
     matrix = one(Matrix2x2{DOmega{Int}})
     reduce_func = reduce_fractions ? canonical : identity
@@ -96,7 +97,7 @@ function compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=tru
         isnothing(new_matrix) && error(lazy"unknown gate $(Symbol(Char(gate)))")
         matrix = reduce_func(new_matrix)
     end
-    return matrix
+     return matrix
 end
 
 function _alt_compose_one(gates::AbstractString, rev::Bool=true; reduce_fractions=true)

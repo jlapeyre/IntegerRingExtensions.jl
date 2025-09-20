@@ -96,13 +96,15 @@ end
 greater_than_strong(x, y) = false
 
 """
-    lobit(z)
+    lobit(z)::Int
 
-Return the position of the lowest set bit in `z`.
+Return the number of 2's in the factorization of `z`.
 
+This returns the position (bit index)n of the lowest set bit in `z`.
 The rightmost bit (lsb) has position zero.
 """
-function lobit(z)
+function lobit(z::Integer)
+    z == 0 && return zero(Int) # ilog2 returns Int
     ilog2(z & -z)
 end
 
@@ -205,5 +207,10 @@ function prettylist(io::IO, items)
     foreach(x->(show(io, PRETTY(), x); println("\n")), items)
 end
 prettylist(items) = prettylist(stdout, itemss)
+
+# Rather frustrating to have to do this.
+function pretty(obj)
+    show(stdout, PRETTY(), obj)
+end
 
 end # module Utils

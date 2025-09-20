@@ -1174,6 +1174,9 @@ end
 
 struct ScaleMatrix2x2{V, MatrixT <: AbstractMatrix2x2, ScaleT} <: AbstractMatrix2x2{V}
     function ScaleMatrix2x2(m::AbstractMatrix2x2, s)
+        if isa(m, ScaleMatrix2x2)
+            throw(ArgumentError(lazy"Nesting ScaleMatrix not supported."))
+        end
         V = typeof(s * m[1])
         new{V, typeof(m), typeof(s)}(m, s)
     end

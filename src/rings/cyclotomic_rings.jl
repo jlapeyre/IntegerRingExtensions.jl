@@ -721,11 +721,25 @@ function mul_half(cyc::CyclotomicRing{4, <:Dyadic}, n::Integer=1)
     CyclotomicRing(map(x -> mul_half(x, n), cyc.coeffs))
 end
 
-# Hmm. This promotes ZOmega to DOmega
+# TODO: This should check that each coeff is divisible by 2^n
+# Intentionally convert ZOmega to DOmega
 function mul_half(cyc::CyclotomicRing{4, <: Integer}, n::Integer=1)
     CyclotomicRing(map(x -> Dyadic(x, n), coeffs(cyc)))
+    # newc = map(x -> div(x, 2^n), coeffs(cyc))
+    # @show newc
+    # CyclotomicRing(newc)
 end
 
+# BAD BAD
+# function mul_half(cyc::CyclotomicRing{4, <: Integer})
+#     CyclotomicRing(map(x -> div(x, 2), coeffs(cyc)))
+# end
+
+function div_coefficients(cyc::CyclotomicRing{4, <: Integer}, fac)
+    typeof(cyc)(map(x -> div(x, fac), coeffs(cyc)))
+end
+
+# BAD!
 function div_half(cyc::CyclotomicRing{4, <: Integer})
     CyclotomicRing(map(x -> div(x, 2), coeffs(cyc)))
 end
