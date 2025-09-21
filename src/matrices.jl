@@ -5,7 +5,7 @@ module Matrices2x2
 
 import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, eigen, norm, normalize,
-    dot
+    dot, schur
 import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermitian, issymmetric
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
     isnormal
@@ -202,6 +202,26 @@ end
 ##
 ## Required, and standard, `Base` properties
 ##
+
+# Annoying to do this piecemeal!!
+# unsustainable
+function Base.getindex(m::Matrix2x2, ::Colon, i::Integer)
+    if i == 1
+        return Vector2(m[1,1], m[2,1])
+    elseif i == 2
+        return Vector2(m[1,2], m[2,2])
+    end
+    throw(BoundsError(m, i))
+end
+
+function Base.getindex(m::Matrix2x2, i::Integer, ::Colon)
+    if i == 1
+        return Vector2(m[1,1], m[1,2])
+    elseif i == 2
+        return Vector2(m[2,1], m[2,2])
+    end
+    throw(BoundsError(m, i))
+end
 
 @inline function Base.getindex(m::MatrixNxN, i::Integer)
     @boundscheck checkbounds(m, i)
@@ -579,6 +599,50 @@ function eigen_hermitian(m::AbstractMatrix2x2)
     _inner_eigen(a, b, c, d, v1, v2)
 end
 
+function schur(m::AbstractMatrix2x2)
+    (vals, vecs) = eigen(m)
+    v1 = vecs[1]
+    v2 = vecs[2]
+    U = Matrix2x2(v1, v2, -conj(v2), conj(v1))
+    T = U' * m * U
+    (a, b, c, d) = elements(T)
+    T = Matrix2x2(a, zero(b), c, d)
+    return (U, T)
+end
+
+# If m is normal, compute func(m).
+function _normal_matrix_func(m, func)
+    if ishermitian(m)
+        ((v1,v2), vecs) = eigen_hermitian(m)
+        d = diagm(Vector2(func(complex(v1)), func(complex(v2))))
+        return vecs * d * vecs'
+    end
+    isnormal(m) || return nothing
+    ((v1,v2), vecs) = eigen(m)
+    d = diagm(Vector2(func(v1), func(v2)))
+    vecs * d * vecs'
+end
+
+function _matrix_func(m::Matrix2x2, func)
+    normsol = _normal_matrix_func(m, func)
+    isnothing(normsol) || return normsol
+    (U, T) = schur(m)
+    (x, b, y, z) = T
+    a = func(x)
+    d = func(z)
+    c = y * (a - d)/(x - z) # From Mathematica
+    md = Matrix2x2(a, zero(b), c, d)
+    U * md * U'
+end
+
+for func in (:sqrt, :exp, :log, :cos, :sin, :tan, :sinpi, :cospi, :cis, :cispi, :cbrt, :inv,
+             :cosh, :sinh, :tanh, :acos, :asin, :atan, :acosh, :asinh, :atanh)
+    bfunc = :(Base.$func)
+    @eval @inline function $bfunc(m::Matrix2x2)
+        _matrix_func(m, $func)
+    end
+end
+
 function eigvecs(m::AbstractMatrix2x2)
     (evs, vecs) = eigen(m)
     return vecs
@@ -595,19 +659,6 @@ function eigvals(U::AbstractSU2)
     (ru + discr, ru - discr)
 end
 
-# If m is normal, compute func(m).
-# Else throw an error.
-function _matrix_func(m, func)
-    if ishermitian(m)
-        ((v1,v2), vecs) = eigen_hermitian(m)
-        d = diagm(Vector2(func(complex(v1)), func(complex(v2))))
-        return vecs * d * vecs'
-    end
-    isnormal(m) || throw(ArgumentError(lazy"Non-normal matrices not supported"))
-    ((v1,v2), vecs) = eigen(m)
-    d = diagm(Vector2(func(v1), func(v2)))
-    vecs * d * vecs'
-end
 
 Base.:*(v::AbstractVector2, z::Number) = z * b
 function Base.:*(z::Number, v::AbstractVector2)
