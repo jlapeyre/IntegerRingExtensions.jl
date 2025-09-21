@@ -5,7 +5,7 @@ module Matrices2x2
 
 import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, eigen, norm, normalize,
-    dot, schur
+    dot, schur, isdiag
 import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermitian, issymmetric
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
     isnormal
@@ -398,6 +398,10 @@ end
 Return a tuple of the eigenvalues of `m`.
 """
 function eigvals(m::AbstractMatrix2x2)
+    if LinearAlgebra.isdiag(m)
+        (v1, v2) = (m[1], m[4])
+        return real(v1) > real(v2) ? (v1, v2) : (v2, v1)
+    end
     (a, b, c, d) = elements(m)
     amd = a - d
     apd = a + d
@@ -577,13 +581,27 @@ end
 Return eigenvalues and eigenvectors of `m`.
 """
 function eigen(m::AbstractMatrix2x2)
-    (v1, v2) = eigvals(m)
+    LinearAlgebra.isdiag(m) && return _eigen_diag(m)
     (a, b, c, d) = elements(m)
+    (v1, v2) = eigvals(m)
     if (iszero(c) && iszero(v1 - a)) ||
         (iszero(b) && iszero(v2 - d))
         (v1, v2) = (v2, v1)
     end
     _inner_eigen(a, b, c, d, v1, v2)
+end
+
+function _eigvals_diag(m)
+    (v1, v2) = (m[1], m[4])
+    (v1, v2) = real(v1) > real(v2) ? (v1, v2) : (v2, v1)
+    Vector2(v1, v2)
+end
+
+function _eigen_diag(m)
+    evs = _eigvals_diag(m)
+    z = zero(evs[1])
+    o = one(z)
+    return LinearAlgebra.Eigen(evs, Matrix2x2(o, z, z, o))
 end
 
 @inline function _inner_eigen(a, b, c, d, v1, v2)
@@ -615,6 +633,12 @@ function schur(m::AbstractMatrix2x2)
     return (U, T)
 end
 
+function _diag_matrix_func(m, func)
+    (m1, m4) = (m[1], m[4])
+    z = zero(m1)
+    Matrix2x2(func(m1), z, z, func(m4))
+end
+
 # The wrapper Hermitian can actually expose a Hermitian matrix
 # if the input is approx Hermitian.
 # But a wrapper Normal... ?
@@ -622,15 +646,18 @@ end
 # If it's close enough for you, wrap it in Normal
 # If m is normal, compute func(m).
 function _normal_matrix_func(m, func)
+    isdiag(m) && return _diag_matrix_func(m, func)
     if ishermitian(m)
         ((v1,v2), vecs) = eigen_hermitian(m)
         d = diagm(Vector2(func(complex(v1)), func(complex(v2))))
-        return vecs * d * vecs'
+        result = vecs * d * vecs'
+    else
+        isnormal(m) || return nothing # AbstractUnitary2x2 takes this path
+        ((v1,v2), vecs) = eigen(m)
+        D = diagm(Vector2(func(v1), func(v2)))
+        result = vecs * D * vecs'
     end
-    isnormal(m) || return nothing
-    ((v1,v2), vecs) = eigen(m) # eigen(Matrix2x2(m))
-    D = diagm(Vector2(func(v1), func(v2)))
-    vecs * D * vecs'
+    result
 end
 
 function _matrix_func(m, func)
@@ -638,11 +665,7 @@ function _matrix_func(m, func)
     isnothing(normsol) || return normsol
     (U, T) = schur(m)
     (x, b, y, z) = T
-    # if x == z
-    # if (x == z)
-    # Need deriv of func: func'(x)
-    # This will happen when eigenvalues of m are equal
-    # else
+    # Need deriv of func: func'(x) if x == z
     (a, d) = (func(x), func(z))
     c = y * (a - d)/(x - z) # From Mathematica
     md = Matrix2x2(a, zero(b), c, d)
@@ -672,7 +695,6 @@ function eigvals(U::AbstractSU2)
     discr = Complex(zero(rdiscr), rdiscr)
     (ru + discr, ru - discr)
 end
-
 
 Base.:*(v::AbstractVector2, z::Number) = z * b
 function Base.:*(z::Number, v::AbstractVector2)
