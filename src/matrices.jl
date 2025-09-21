@@ -660,16 +660,69 @@ function _normal_matrix_func(m, func)
     result
 end
 
-function _matrix_func(m, func)
-    normsol = _normal_matrix_func(m, func)
-    isnothing(normsol) || return normsol
+function secant_line(::typeof(cis), x, y)
+    w = (x + y) / 2
+    d = (x - y) / 2
+    return im * cis(w) * sinc(d / pi)
+end
+
+function secant_line_full(::typeof(cis), x, y)
+    return (cis(x), cis(y), secant_line(cis, x, y))
+end
+
+function secant_line(::typeof(sin), x, y)
+    w = (x + y) / 2
+    d = (x - y) / 2
+    return cos(w) * sinc(d / pi)
+end
+
+function secant_line_full(::typeof(sin), x, y)
+    return (sin(x), sin(y), secant_line(sin, x, y))
+end
+
+# secant line of cos
+function secant_line(::typeof(cos), x, y)
+    w = (x + y) / 2
+    d = (x - y) / 2
+    return -sin(w) * sinc(d / pi)
+end
+
+function secant_line_full(::typeof(cos), x, y)
+    return (cos(x), cos(y), secant_line(cos, x, y))
+end
+
+function _approx_diff(f, x, z, h=1e-6)
+    w = (x + z)/2
+    (f(w+h) - f(w-h)) / (2*h)
+end
+
+fastabs(x::Number) = abs(x)
+fastabs(z::Complex) = abs(real(z)) + abs(imag(z))
+
+function secant_line_full(f::F, x, y) where {F}
+    fx = f(x)
+    fy = f(y)
+    dl = x - y
+    if fastabs(dl) < sqrt(eps(real(typeof(x))))
+        sl = _approx_diff(f, x, y)
+    else
+        sl = (fx - fy) / (x - y)
+    end
+    return (fx, fy, sl)
+end
+
+# Need this ::F for inference.
+# Whether we really need it depends on details of what we return in an unpredicatable way.
+function _matrix_func(m, func::F) where {F}
+    let normsol = _normal_matrix_func(m, func)
+        isnothing(normsol) || return normsol
+    end
     (U, T) = schur(m)
     (x, b, y, z) = T
-    # Need deriv of func: func'(x) if x == z
-    (a, d) = (func(x), func(z))
-    c = y * (a - d)/(x - z) # From Mathematica
+    (a, d, sline) = secant_line_full(func, x, z)
+    c = y * sline
     md = Matrix2x2(a, zero(b), c, d)
-    U * md * U'
+    return U * md * U'
 end
 
 for func in (:sqrt, :exp, :log, :cos, :sin, :tan, :sinpi, :cospi, :cis, :cispi, :cbrt, :inv,
@@ -1155,6 +1208,10 @@ struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
 
     su2::SUT
     phi::V
+end
+
+function Base.adjoint(u::Unitary2x2)
+    Unitary2x2(adjoint(u.su2), -u.phi)
 end
 
 function Unitary2x2(su::AbstractSU2{T}) where T
