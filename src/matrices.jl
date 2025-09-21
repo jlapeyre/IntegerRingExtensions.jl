@@ -392,6 +392,10 @@ end
 
 @inline tr(m::AbstractSU2) = 2*real(m[1])
 
+# Ugh. Going through gymnastics to try to get small union splitting.
+# It works in LinearAlgebra because `Vector` is returned.
+# These `Tuple`s are more complicated.
+#
 """
     eigvals(m::Matrix2x2)::NTuple{2}
 
@@ -405,9 +409,40 @@ function eigvals(m::AbstractMatrix2x2)
     (a, b, c, d) = elements(m)
     amd = a - d
     apd = a + d
-    discr = sqrt(amd * amd + 4*b*c)
-    ((apd + discr)/2, (apd - discr)/2)
+    d = amd * amd + 4*b*c
+    d >= 0 ? _evals(apd, d) : _evals(complex(apd), complex(d))
 end
+
+function _eigvals(m::AbstractMatrix2x2)
+    (a, b, c, d) = elements(m)
+    amd = a - d
+    apd = a + d
+    discr_arg = amd * amd + 4*b*c
+    _evals(apd, discr_arg)
+end
+
+function eigvals(m::AbstractMatrix2x2{<:Complex})
+    _eigvals(m)
+end
+
+function _evals(apd::Real, darg::Real)
+    disc = _csqrt(darg)
+    ((apd + disc)/2, (apd - disc)/2)
+end
+
+function _evals(apd::Complex, darg::Complex)
+    disc = _csqrt(darg)
+    ((apd + disc)/2, (apd - disc)/2)
+end
+
+function _csqrt(x::Real)
+    x < 0 ? sqrt(complex(x)) : sqrt(x)
+end
+
+function _csqrt(x::Complex)
+    sqrt(x)
+end
+
 
 """
     hermitianpart(m::Matrix2x2)::Matrix2x2
@@ -660,6 +695,16 @@ function _normal_matrix_func(m, func)
     result
 end
 
+function secant_line(::typeof(exp), x, y)
+    w = (x + y) / 2
+    d = (x - y) / 2
+    return exp(w) * sinc(im * d / pi)
+end
+
+function secant_line_full(f::typeof(exp), x, y)
+    return (f(x), f(y), secant_line(f, x, y))
+end
+
 function secant_line(::typeof(cis), x, y)
     w = (x + y) / 2
     d = (x - y) / 2
@@ -714,9 +759,9 @@ end
 # Need this ::F for inference.
 # Whether we really need it depends on details of what we return in an unpredicatable way.
 function _matrix_func(m, func::F) where {F}
-    let normsol = _normal_matrix_func(m, func)
-        isnothing(normsol) || return normsol
-    end
+    # let normsol = _normal_matrix_func(m, func)
+    #     isnothing(normsol) || return normsol
+    # end
     (U, T) = schur(m)
     (x, b, y, z) = T
     (a, d, sline) = secant_line_full(func, x, z)
@@ -725,11 +770,18 @@ function _matrix_func(m, func::F) where {F}
     return U * md * U'
 end
 
+# TODO: Base uses small union splitting to return matrices with Real elements if possible, or else Complex.
+# Because we are using matrices backed by Tuple's inference is different. Its a huge PITA
+# Small changes can make or break inference.
 for func in (:sqrt, :exp, :log, :cos, :sin, :tan, :sinpi, :cospi, :cis, :cispi, :cbrt, :inv,
              :cosh, :sinh, :tanh, :acos, :asin, :atan, :acosh, :asinh, :atanh)
     bfunc = :(Base.$func)
     @eval @inline function $bfunc(m::AbstractMatrix2x2)
         _matrix_func(m, $func)
+    end
+    @eval @inline function $bfunc(m::AbstractMatrix2x2{<:Real})
+        res = _matrix_func(complex(m), $func)
+        return isreal(res) ? real(res) : res
     end
 end
 
