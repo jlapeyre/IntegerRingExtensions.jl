@@ -278,8 +278,9 @@ function isunitary(m::MatrixNxN)
 end
 
 isunitary(m::MatrixNxN, ::Equal) = isunitary(m)
-isunitary(m::AbstractUnitary2x2) = true
-Base.iszero(m::AbstractUnitary2x2) = false
+isunitary(m::AbstractUnitaryNxN) = true
+isnormal(m::AbstractUnitaryNxN) = true
+Base.iszero(m::AbstractUnitaryNxN) = false
 
 isinvolution(m::AbstractMatrixNxN) = isinvolution(m, Equal())
 function isinvolution(m::AbstractMatrixNxN, ::Equal)
@@ -588,6 +589,10 @@ end
 @inline function _inner_eigen(a, b, c, d, v1, v2)
     vec1 = _maybe_normalize(Vector2(c, v1 - a))
     vec2 = _maybe_normalize(Vector2(v2 - d, b))
+    if iszero(vec1) && iszero(vec2)
+        vec1 = Vector2(one(c), zero(c))
+        vec2 = Vector2(zero(c), one(c))
+    end
     vecs = Matrix2x2(vec1[1], vec1[2], vec2[1], vec2[2])
     LinearAlgebra.Eigen(Vector2(v1, v2), vecs)
 end
@@ -610,6 +615,11 @@ function schur(m::AbstractMatrix2x2)
     return (U, T)
 end
 
+# The wrapper Hermitian can actually expose a Hermitian matrix
+# if the input is approx Hermitian.
+# But a wrapper Normal... ?
+# OTOH, you can assert that it is normal with Normal.
+# If it's close enough for you, wrap it in Normal
 # If m is normal, compute func(m).
 function _normal_matrix_func(m, func)
     if ishermitian(m)
@@ -618,18 +628,22 @@ function _normal_matrix_func(m, func)
         return vecs * d * vecs'
     end
     isnormal(m) || return nothing
-    ((v1,v2), vecs) = eigen(m)
-    d = diagm(Vector2(func(v1), func(v2)))
-    vecs * d * vecs'
+    ((v1,v2), vecs) = eigen(m) # eigen(Matrix2x2(m))
+    D = diagm(Vector2(func(v1), func(v2)))
+    vecs * D * vecs'
 end
 
-function _matrix_func(m::Matrix2x2, func)
+function _matrix_func(m, func)
     normsol = _normal_matrix_func(m, func)
     isnothing(normsol) || return normsol
     (U, T) = schur(m)
     (x, b, y, z) = T
-    a = func(x)
-    d = func(z)
+    # if x == z
+    # if (x == z)
+    # Need deriv of func: func'(x)
+    # This will happen when eigenvalues of m are equal
+    # else
+    (a, d) = (func(x), func(z))
     c = y * (a - d)/(x - z) # From Mathematica
     md = Matrix2x2(a, zero(b), c, d)
     U * md * U'
@@ -638,7 +652,7 @@ end
 for func in (:sqrt, :exp, :log, :cos, :sin, :tan, :sinpi, :cospi, :cis, :cispi, :cbrt, :inv,
              :cosh, :sinh, :tanh, :acos, :asin, :atan, :acosh, :asinh, :atanh)
     bfunc = :(Base.$func)
-    @eval @inline function $bfunc(m::Matrix2x2)
+    @eval @inline function $bfunc(m::AbstractMatrix2x2)
         _matrix_func(m, $func)
     end
 end
@@ -1146,9 +1160,11 @@ function eigvals(U::Unitary2x2)
 end
 
 function Matrix2x2(U::Unitary2x2)
-    (;su2, phi) = U
+    su2 = U.su2
+    phi = U.phi
     p = cis(phi)
-    map(x -> p * x, Matrix2x2(su2))
+    um = Matrix2x2(su2)
+    p * um
 end
 
 random_unitary2x2() = random_unitary2x2(Float64)
