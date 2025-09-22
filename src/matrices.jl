@@ -5,7 +5,7 @@ module Matrices2x2
 
 import Random
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, eigen, norm, normalize,
-    dot, schur, isdiag
+    dot, schur, Schur, isdiag
 import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermitian, issymmetric
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
     isnormal
@@ -715,7 +715,7 @@ function _schur(vals::Vector2{T}, vecs::Matrix2x2{T}, m) where {T}
     Tm = U' * m * U
     (a, b, c, d) = elements(Tm)
     Tm = Matrix2x2(a, zero(b), c, d)
-    return (U, Tm)
+    return Schur(Tm, U, Vector2((v1, v2)))
 end
 
 function _diag_matrix_func(m, func)
@@ -830,7 +830,7 @@ function _matrix_func(m::AbstractMatrix2x2{T}, func::F) where {F <: Function} wh
     let normsol = _normal_matrix_func(m, func)
         isnothing(normsol) || return normsol
     end
-    (U, Tm) = schur(m)
+    (Tm, U, _) = schur(m)
     __matrix_func(U, Tm, func)
 end
 

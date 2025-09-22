@@ -55,7 +55,7 @@ Reexport.@reexport import .Matrices2x2:
     get_theta, unitary_u, unitary_t,
     random_ZRot, columns, opnormdistance, alt_random_unitary2x2,
     isantidiag, eigvals_hermitian, antihermitianpart, isantihermitian,
-    eigen_hermitian, check_eigen
+    eigen_hermitian, check_eigen, secant_line, secant_line_full
 
 include("qm_matrices.jl")
 Reexport.@reexport import .QMMatrices: random_density_matrix2x2, DensityMatrix2x2,
