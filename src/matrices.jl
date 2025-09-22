@@ -625,7 +625,7 @@ function eigen(m::AbstractMatrix2x2)
     __eigen(m, v1, v2)
 end
 
-@inline function __eigen(mi::Matrix2x2{V}, v1::T, v2::T) where {V, T}
+@inline function __eigen(mi::AbstractMatrix2x2{V}, v1::T, v2::T) where {V, T}
     m = map(typeof(v1), mi)
     (a, b, c, d) = elements(m)
     if (iszero(c) && iszero(v1 - a)) ||
@@ -635,7 +635,7 @@ end
     _inner_eigen(m, v1, v2)
 end
 
-@inline function _inner_eigen(m::Matrix2x2{T}, v1::T, v2::T) where {T}
+@inline function _inner_eigen(m::AbstractMatrix2x2{T}, v1::T, v2::T) where {T}
     (vec1, vec2) = _get_vecs(m, v1, v2)
     (v11, v21)  = vec1
     (v12, v22)  = vec2
@@ -745,9 +745,12 @@ function _normal_matrix_func(m, func)
     result
 end
 
+function _get_wd(x::T, y::T) where {T}
+    ((x+y)/2, (x-y)/2)
+end
+
 function secant_line(::typeof(exp), x::T, y::T) where {T <: Number}
-    w = (x + y) / 2
-    d = (x - y) / 2
+    (w, d) = _get_wd(x, y)
     return exp(w) * sinc(im * d / pi)
 end
 
@@ -756,17 +759,16 @@ function secant_line_full(f::typeof(exp), x::T, y::T) where {T <: Number}
 end
 
 function secant_line(::typeof(cispi), x::T, y::T) where {T <: Number}
-    w = (x + y) / 2
-    d = (x - y) / 2
+    (w, d) = _get_wd(x, y)
     return im * pi * cispi(w) * sinc(d)
 end
+
 function secant_line_full(::typeof(cispi), x::T, y::T) where {T <: Number}
     return (cispi(x), cispi(y), secant_line(cispi, x, y))
 end
 
 function secant_line(::typeof(cis), x::T, y::T) where {T <: Number}
-    w = (x + y) / 2
-    d = (x - y) / 2
+    (w, d) = _get_wd(x, y)
     return im * cis(w) * sinc(d / pi)
 end
 
@@ -775,8 +777,7 @@ function secant_line_full(::typeof(cis), x::T, y::T) where {T <: Number}
 end
 
 function secant_line(::typeof(sin), x::T, y::T) where {T <: Number}
-    w = (x + y) / 2
-    d = (x - y) / 2
+    (w, d) = _get_wd(x, y)
     return cos(w) * sinc(d / pi)
 end
 
@@ -786,14 +787,12 @@ end
 
 # secant line of cos
 function secant_line(::typeof(cos), x::T, y::T) where {T <: Complex}
-    w = (x + y) / 2
-    d = (x - y) / 2
+    (w, d) = _get_wd(x, y)
     return -sin(w) * sinc(d / pi)
 end
 
 function secant_line(::typeof(cos), x::T, y::T) where {T <: Real}
-    w = (x + y) / 2
-    d = (x - y) / 2
+    (w, d) = _get_wd(x, y)
     return -sin(w) * sinc(d / pi)
 end
 
@@ -827,7 +826,7 @@ end
 
 # Need this ::F for inference.
 # Whether we really need it depends on details of what we return in an unpredicatable way.
-function _matrix_func(m::Matrix2x2{T}, func::F) where {F <: Function} where {T <: Number}
+function _matrix_func(m::AbstractMatrix2x2{T}, func::F) where {F <: Function} where {T <: Number}
     let normsol = _normal_matrix_func(m, func)
         isnothing(normsol) || return normsol
     end
