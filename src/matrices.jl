@@ -755,6 +755,15 @@ function secant_line_full(f::typeof(exp), x::T, y::T) where {T <: Number}
     return (f(x), f(y), secant_line(f, x, y))
 end
 
+function secant_line(::typeof(cispi), x::T, y::T) where {T <: Number}
+    w = (x + y) / 2
+    d = (x - y) / 2
+    return im * pi * cispi(w) * sinc(d)
+end
+function secant_line_full(::typeof(cispi), x::T, y::T) where {T <: Number}
+    return (cispi(x), cispi(y), secant_line(cispi, x, y))
+end
+
 function secant_line(::typeof(cis), x::T, y::T) where {T <: Number}
     w = (x + y) / 2
     d = (x - y) / 2
