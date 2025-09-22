@@ -1086,6 +1086,7 @@ end
 
 @inline function SU2B_from_u_t(u, t)
     abs2u = abs2(u)
+    abs2u = abs2u < 1 ? abs2u : one(abs2u)
     alpha_u = iszero(abs2u) ? zero(abs2u) : angle(u / sqrt(abs2u))
     alpha_t = isone(abs2u) ? zero(abs2u) : angle(t / sqrt(1-abs2u))
     SU2B(abs2u, alpha_u, alpha_t)
