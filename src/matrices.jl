@@ -410,7 +410,8 @@ function eigvals(m::AbstractMatrix2x2)
     amd = a - d
     apd = a + d
     d = amd * amd + 4*b*c
-    d >= 0 ? _evals(apd, d) : _evals(complex(apd), complex(d))
+    _evals(apd, d)
+#    d >= 0 ? _evals(apd, d) : _evals(complex(apd), complex(d))
 end
 
 function _eigvals(m::AbstractMatrix2x2)
@@ -426,7 +427,10 @@ function eigvals(m::AbstractMatrix2x2{<:Complex})
 end
 
 function _evals(apd::Real, darg::Real)
-    disc = _csqrt(darg)
+    if darg < 0
+        return _evals(complex(apd), complex(darg))
+    end
+    disc = sqrt(darg)
     ((apd + disc)/2, (apd - disc)/2)
 end
 
@@ -606,7 +610,7 @@ function check_eigen(m, vals, vecs)
         isapprox(m * v2, vals[2] * v2)
 end
 
-function _maybe_normalize(v::Vector2)
+@inline function _maybe_normalize(v::Vector2)
     iszero(v) ? v : normalize(v)
 end
 
@@ -617,13 +621,65 @@ Return eigenvalues and eigenvectors of `m`.
 """
 function eigen(m::AbstractMatrix2x2)
     LinearAlgebra.isdiag(m) && return _eigen_diag(m)
-    (a, b, c, d) = elements(m)
     (v1, v2) = eigvals(m)
+    __eigen(m, v1, v2)
+end
+
+@inline function __eigen(mi::Matrix2x2{V}, v1::T, v2::T) where {V, T}
+    m = map(typeof(v1), mi)
+    (a, b, c, d) = elements(m)
     if (iszero(c) && iszero(v1 - a)) ||
         (iszero(b) && iszero(v2 - d))
         (v1, v2) = (v2, v1)
     end
-    _inner_eigen(a, b, c, d, v1, v2)
+    _inner_eigen(m, v1, v2)
+end
+
+@inline function _inner_eigen(m::Matrix2x2{T}, v1::T, v2::T) where {T}
+    (vec1, vec2) = _get_vecs(m, v1, v2)
+    (v11, v21)  = vec1
+    (v12, v22)  = vec2
+    vtup = _vtup(v11, v21, v12, v22)
+    vecs = _get_vec_mat(vtup)
+    LinearAlgebra.Eigen(Vector2(v1, v2), vecs)
+end
+
+@inline function _vtup(a::T, b::T, c::T, d::T) where {T<:Real}
+    (a, b, c, d)
+end
+
+@inline function _vtup(a::T, b::T, c::T, d::T) where {T<:Complex}
+    (a, b, c, d)
+end
+
+@inline function _get_vec_mat(tup::NTuple{4, T}) where {T <: Complex}
+    vecs = Matrix2x2{T}(tup)
+end
+
+@inline function _get_vec_mat(tup::NTuple{4, T}) where {T <: Real}
+    vecs = Matrix2x2{T}(tup)
+end
+
+function _get_vecs(m::Matrix2x2{T}, v1::T, v2::T) where {T<:Real}
+    (a, b, c, d) = elements(m)
+    vec1 = _maybe_normalize(Vector2(c, v1 - a))
+    vec2 = _maybe_normalize(Vector2(v2 - d, b))
+    if iszero(vec1) && iszero(vec2)
+        vec1 = Vector2(one(c), zero(c))
+        vec2 = Vector2(zero(c), one(c))
+    end
+    (vec1, vec2)
+end
+
+function _get_vecs(m::Matrix2x2{T}, v1::T, v2::T) where {T<:Complex}
+    (a, b, c, d) = elements(m)
+    vec1 = _maybe_normalize(Vector2(c, v1 - a))
+    vec2 = _maybe_normalize(Vector2(v2 - d, b))
+    if iszero(vec1) && iszero(vec2)
+        vec1 = Vector2(one(c), zero(c))
+        vec2 = Vector2(zero(c), one(c))
+    end
+    (vec1, vec2)
 end
 
 function _eigvals_diag(m)
@@ -639,33 +695,27 @@ function _eigen_diag(m)
     return LinearAlgebra.Eigen(evs, Matrix2x2(o, z, z, o))
 end
 
-@inline function _inner_eigen(a, b, c, d, v1, v2)
-    vec1 = _maybe_normalize(Vector2(c, v1 - a))
-    vec2 = _maybe_normalize(Vector2(v2 - d, b))
-    if iszero(vec1) && iszero(vec2)
-        vec1 = Vector2(one(c), zero(c))
-        vec2 = Vector2(zero(c), one(c))
-    end
-    vecs = Matrix2x2(vec1[1], vec1[2], vec2[1], vec2[2])
-    LinearAlgebra.Eigen(Vector2(v1, v2), vecs)
-end
-
 function eigen_hermitian(m::AbstractMatrix2x2)
     (v1, v2) = eigvals_hermitian(m)
     (ai, b, c, di) = elements(m)
     (a, d) = (real(ai), real(di))
-    _inner_eigen(a, b, c, d, v1, v2)
+    m2 = Matrix2x2(a, b, c, d)
+    _inner_eigen(m2, v1, v2)
 end
 
 function schur(m::AbstractMatrix2x2)
     (vals, vecs) = eigen(m)
+    _schur(vals, vecs, m)
+end
+
+function _schur(vals::Vector2{T}, vecs::Matrix2x2{T}, m) where {T}
     v1 = vecs[1]
     v2 = vecs[2]
     U = Matrix2x2(v1, v2, -conj(v2), conj(v1))
-    T = U' * m * U
-    (a, b, c, d) = elements(T)
-    T = Matrix2x2(a, zero(b), c, d)
-    return (U, T)
+    Tm = U' * m * U
+    (a, b, c, d) = elements(Tm)
+    Tm = Matrix2x2(a, zero(b), c, d)
+    return (U, Tm)
 end
 
 function _diag_matrix_func(m, func)
@@ -721,18 +771,28 @@ function secant_line(::typeof(sin), x, y)
     return cos(w) * sinc(d / pi)
 end
 
-function secant_line_full(::typeof(sin), x, y)
+function secant_line_full(::typeof(sin), x::T, y::T) where {T}
     return (sin(x), sin(y), secant_line(sin, x, y))
 end
 
 # secant line of cos
-function secant_line(::typeof(cos), x, y)
+function secant_line(::typeof(cos), x::T, y::T) where {T <: Complex}
     w = (x + y) / 2
     d = (x - y) / 2
     return -sin(w) * sinc(d / pi)
 end
 
-function secant_line_full(::typeof(cos), x, y)
+function secant_line(::typeof(cos), x::T, y::T) where {T <: Real}
+    w = (x + y) / 2
+    d = (x - y) / 2
+    return -sin(w) * sinc(d / pi)
+end
+
+function secant_line_full(::typeof(cos), x::T, y::T) where {T <: Complex}
+    return (cos(x), cos(y), secant_line(cos, x, y))
+end
+
+function secant_line_full(::typeof(cos), x::T, y::T) where {T <: Real}
     return (cos(x), cos(y), secant_line(cos, x, y))
 end
 
@@ -744,7 +804,7 @@ end
 fastabs(x::Number) = abs(x)
 fastabs(z::Complex) = abs(real(z)) + abs(imag(z))
 
-function secant_line_full(f::F, x, y) where {F}
+function secant_line_full(f::F, x::T, y::T) where {F, T <: Number}
     fx = f(x)
     fy = f(y)
     dl = x - y
@@ -758,15 +818,19 @@ end
 
 # Need this ::F for inference.
 # Whether we really need it depends on details of what we return in an unpredicatable way.
-function _matrix_func(m, func::F) where {F}
-    # let normsol = _normal_matrix_func(m, func)
-    #     isnothing(normsol) || return normsol
-    # end
-    (U, T) = schur(m)
-    (x, b, y, z) = T
+function _matrix_func(m::Matrix2x2{T}, func::F) where {F <: Function} where {T <: Number}
+    let normsol = _normal_matrix_func(m, func)
+        isnothing(normsol) || return normsol
+    end
+    (U, Tm) = schur(m)
+    (x, b, y, z) = elements(Tm)
+#    @show typeof((x, b, y, z))
     (a, d, sline) = secant_line_full(func, x, z)
+#    @show typeof((a, d, sline))
     c = y * sline
-    md = Matrix2x2(a, zero(b), c, d)
+#    @show typeof(a), typeof(c), typeof(d)
+    tup = _vtup(a, zero(a), c, d)
+    md = Matrix2x2(tup)
     return U * md * U'
 end
 
@@ -779,9 +843,16 @@ for func in (:sqrt, :exp, :log, :cos, :sin, :tan, :sinpi, :cospi, :cis, :cispi, 
     @eval @inline function $bfunc(m::AbstractMatrix2x2)
         _matrix_func(m, $func)
     end
+    # @eval @inline function $bfunc(m::AbstractMatrix2x2{<:Real})
+    #     res = _matrix_func(complex(m), $func)
+    #     return isreal(res) ? real(res) : res
+    # end
+end
+
+for func in (:cos, :sin, :exp)
+    bfunc = :(Base.$func)
     @eval @inline function $bfunc(m::AbstractMatrix2x2{<:Real})
-        res = _matrix_func(complex(m), $func)
-        return isreal(res) ? real(res) : res
+        real(_matrix_func(m, $func))
     end
 end
 
