@@ -745,33 +745,33 @@ function _normal_matrix_func(m, func)
     result
 end
 
-function secant_line(::typeof(exp), x, y)
+function secant_line(::typeof(exp), x::T, y::T) where {T <: Number}
     w = (x + y) / 2
     d = (x - y) / 2
     return exp(w) * sinc(im * d / pi)
 end
 
-function secant_line_full(f::typeof(exp), x, y)
+function secant_line_full(f::typeof(exp), x::T, y::T) where {T <: Number}
     return (f(x), f(y), secant_line(f, x, y))
 end
 
-function secant_line(::typeof(cis), x, y)
+function secant_line(::typeof(cis), x::T, y::T) where {T <: Number}
     w = (x + y) / 2
     d = (x - y) / 2
     return im * cis(w) * sinc(d / pi)
 end
 
-function secant_line_full(::typeof(cis), x, y)
+function secant_line_full(::typeof(cis), x::T, y::T) where {T <: Number}
     return (cis(x), cis(y), secant_line(cis, x, y))
 end
 
-function secant_line(::typeof(sin), x, y)
+function secant_line(::typeof(sin), x::T, y::T) where {T <: Number}
     w = (x + y) / 2
     d = (x - y) / 2
     return cos(w) * sinc(d / pi)
 end
 
-function secant_line_full(::typeof(sin), x::T, y::T) where {T}
+function secant_line_full(::typeof(sin), x::T, y::T) where {T <: Number}
     return (sin(x), sin(y), secant_line(sin, x, y))
 end
 
@@ -823,12 +823,13 @@ function _matrix_func(m::Matrix2x2{T}, func::F) where {F <: Function} where {T <
         isnothing(normsol) || return normsol
     end
     (U, Tm) = schur(m)
+    __matrix_func(U, Tm, func)
+end
+
+function __matrix_func(U::T, Tm::T, func::F) where {T, F}
     (x, b, y, z) = elements(Tm)
-#    @show typeof((x, b, y, z))
     (a, d, sline) = secant_line_full(func, x, z)
-#    @show typeof((a, d, sline))
     c = y * sline
-#    @show typeof(a), typeof(c), typeof(d)
     tup = _vtup(a, zero(a), c, d)
     md = Matrix2x2(tup)
     return U * md * U'
@@ -843,10 +844,6 @@ for func in (:sqrt, :exp, :log, :cos, :sin, :tan, :sinpi, :cospi, :cis, :cispi, 
     @eval @inline function $bfunc(m::AbstractMatrix2x2)
         _matrix_func(m, $func)
     end
-    # @eval @inline function $bfunc(m::AbstractMatrix2x2{<:Real})
-    #     res = _matrix_func(complex(m), $func)
-    #     return isreal(res) ? real(res) : res
-    # end
 end
 
 for func in (:cos, :sin, :exp)
