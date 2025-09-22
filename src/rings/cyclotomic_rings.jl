@@ -1013,15 +1013,27 @@ true
 ```
 """
 struct DOmegaA{T, KT} <: Number
+    # No, this makes no sense
+    # function DOmegaA(z::ZOmega{T}, k::KT) where {T, KT}
+    #     iszero(least_denominator_exponent(z)) || throw(ArgumentError(lazy"Bad z constructing DOmegaA "))
+    #     new{T, KT}(z, k)
+    # end
+
     z::ZOmega{T}
     k::KT
 end
 
 DOmegaA(z::ZOmega) = DOmegaA(z, 0)
 
+# This should be internal, so that you can't consruct an
+# Illegal one.
 @inline function DOmegaA(z::DOmega)
     lde = least_denominator_exponent(z)
     DOmegaA(ZOmega(mul_root_two(z, lde)), lde)
+end
+
+function least_denominator_exponent(z::DOmegaA)
+    return z.k
 end
 
 function Base.show(io::IO, ::PRETTY, x::DOmegaA)

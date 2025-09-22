@@ -206,11 +206,13 @@ a plain method.
 function prettylist(io::IO, items)
     foreach(x->(show(io, PRETTY(), x); println("\n")), items)
 end
-prettylist(items) = prettylist(stdout, itemss)
+prettylist(items) = prettylist(stdout, items)
 
 # Rather frustrating to have to do this.
-function pretty(obj)
-    show(stdout, PRETTY(), obj)
+pretty(obj) = pretty(stdout, obj)
+
+function pretty(io::IO, obj)
+    show(io, PRETTY(), obj)
 end
 
 end # module Utils

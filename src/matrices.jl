@@ -754,6 +754,12 @@ function secant_line(::typeof(exp), x::T, y::T) where {T <: Number}
     return exp(w) * sinc(im * d / pi)
 end
 
+function secant_line(::typeof(exp), x::T, y::T) where {T <: Real}
+    (w, d) = _get_wd(x, y)
+    return exp(w) * real(sinc(im * d / pi))
+end
+
+
 function secant_line_full(f::typeof(exp), x::T, y::T) where {T <: Number}
     return (f(x), f(y), secant_line(f, x, y))
 end
@@ -838,6 +844,8 @@ function __matrix_func(U::T, Tm::T, func::F) where {T, F}
     (x, b, y, z) = elements(Tm)
     (a, d, sline) = secant_line_full(func, x, z)
     c = y * sline
+    # @show sline
+    # @show a, b, c, d
     tup = _vtup(a, zero(a), c, d)
     md = Matrix2x2(tup)
     return U * md * U'
