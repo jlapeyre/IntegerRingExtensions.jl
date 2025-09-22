@@ -1045,7 +1045,7 @@ struct SU2{T} <: AbstractSU2{T}
     t::T
 end
 
-struct SU2B{T, V} <: AbstractSU2{T}
+struct SU2B{T, V} <: AbstractSU2{Complex{T}}
     uabs2::T
     alpha_u::V
     alpha_t::V
@@ -1378,7 +1378,7 @@ random_unitary2x2() = random_unitary2x2(Float64)
 
 function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     su2 = random_SU2B(T)
-    gamma = T(2) * rand(T)
+    gamma = T(2) * rand(T) # Huh random_angle
     Unitary2x2(su2, Dar(gamma))
 end
 
@@ -1421,8 +1421,13 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2})
     rand(rng, Random.SamplerType{SU2{ComplexF64}}())
 end
 
-function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2{Complex{T}}}) where {T}
-    SU2(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
+# Broken
+function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2{Complex{T}}}) where {T<:Real}
+#    samp = Random.SamplerType{SU2B{Complex{T}}}()
+    samp = Random.SamplerType{SU2B{T}}()
+    inn = rand(rng, samp)
+    SU2(inn)
+#    SU2(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
 end
 
 function random_SU2B(rng::Random.AbstractRNG)
@@ -1464,6 +1469,7 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2C})
     rand(rng, Random.SamplerType{SU2C{ComplexF64}}())
 end
 
+# BROKEN
 function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2C{Complex{T}}}) where {T}
     SU2C(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
 end
