@@ -41,6 +41,9 @@ include("rings/cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOmega, least_denominator_exponent,
     rnorm, div_half
 
+include("secants.jl")
+Reexport.@reexport import .Secants: secant, secant_slope
+
 include("matrices.jl")
 Reexport.@reexport import .Matrices2x2:
     AbstractUnitaryNxN,AbstractNormalNxN,
@@ -55,7 +58,7 @@ Reexport.@reexport import .Matrices2x2:
     get_theta, unitary_u, unitary_t,
     random_ZRot, columns, opnormdistance, alt_random_unitary2x2,
     isantidiag, eigvals_hermitian, antihermitianpart, isantihermitian,
-    eigen_hermitian, check_eigen, secant_line, secant_line_full
+    eigen_hermitian, check_eigen, matrix_func
 
 include("qm_matrices.jl")
 Reexport.@reexport import .QMMatrices: random_density_matrix2x2, DensityMatrix2x2,
@@ -74,7 +77,7 @@ Reexport.@reexport import .Compose: compose, compose_one, compose_scale, get_glo
 
 include("gate_matrix.jl")
 Reexport.@reexport import .GateMatrix: XF64, YF64, ZF64, SF64, TF64,
-    CLIFFORD_STR, CLIFFORD_DOMEGA, CLIFFORD_DOMEGA_MAP
+    CLIFFORD_STR, CLIFFORD_DOMEGA, CLIFFORD_DOMEGA_MAP, find_clifford
 
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose

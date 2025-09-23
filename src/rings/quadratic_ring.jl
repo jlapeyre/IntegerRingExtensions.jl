@@ -6,7 +6,7 @@ import Base: promote_rule, show, convert
 import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_half, conj_root_two, norm_root_two, norm_root_D, conj_root_D, isrational, isunit, invstrict
 import ..Dyadics: Dyadic
-import ..Singletons: RootTwoT, RootTwo, Two, TwoT, InvRootTwo, InvRootTwoT, InvTwo, SingleNum
+import ..Singletons: RootTwoT, RootTwo, Two, TwoT, InvRootTwo, InvRootTwoT, InvTwo, InvTwoT, SingleNum, Pow
 import ..RootOnes: RootOne
 import ..Utils: PRETTY, issquarefree
 
@@ -581,6 +581,10 @@ function one_over_root_two(::Type{DRoot2{T1, T2}}) where {T1, T2}
     o1 = one(T1)
     o2 = one(T2)
     DRoot2(Dyadic(z1,z2), Dyadic(o1,o2))
+end
+
+function Base.:*(pow::Pow{InvTwoT}, q::QuadraticRing{D, <:Dyadic}) where {D}
+    mul_half(q, pow.n)
 end
 
 function mul_half(q::QuadraticRing{D, <:Dyadic}, n::Integer=1) where {D}

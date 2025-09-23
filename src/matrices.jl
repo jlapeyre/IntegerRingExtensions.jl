@@ -13,6 +13,7 @@ import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, isposse
 import ..Common: canonical, isunit, isimag
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import ..Angles: radtodar, Dar, Ang, intdiv, random_angle
+import ..Secants: secant
 
 export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4, antihermitianpart,
     isantihermitian
@@ -718,7 +719,7 @@ function _schur(vals::Vector2{T}, vecs::Matrix2x2{T}, m) where {T}
     return Schur(Tm, U, Vector2((v1, v2)))
 end
 
-function _diag_matrix_func(m, func)
+function _diag_matrix_func(func::F, m) where {F}
     (m1, m4) = (m[1], m[4])
     z = zero(m1)
     Matrix2x2(func(m1), z, z, func(m4))
@@ -730,8 +731,8 @@ end
 # OTOH, you can assert that it is normal with Normal.
 # If it's close enough for you, wrap it in Normal
 # If m is normal, compute func(m).
-function _normal_matrix_func(m, func)
-    isdiag(m) && return _diag_matrix_func(m, func)
+function _normal_matrix_func(func::F, m) where {F}
+    isdiag(m) && return _diag_matrix_func(func, m)
     if ishermitian(m)
         ((v1,v2), vecs) = eigen_hermitian(m)
         d = diagm(Vector2(func(complex(v1)), func(complex(v2))))
@@ -745,125 +746,21 @@ function _normal_matrix_func(m, func)
     result
 end
 
-function _get_wd(x::T, y::T) where {T}
-    ((x+y)/2, (x-y)/2)
-end
-
-function _sinh_div_x(x)
-    abs2(x) < 1e-30 && return one(x)
-    sinh(x)/x
-end
-
-# This is not yet correct
-# function _atanh_div_x(x)
-#     abs2(x) < 1e-30 && return one(x)
-#     atanh(x)/x
-# end
-# function secant_line(::typeof(log), x::T, y::T) where {T <: Number}
-#     (w, d) = _get_wd(x, y)
-#     @show w, d
-#     return log(w) * _atanh_div_x(d / w)
-# end
-# function secant_line_full(f::typeof(log), x::T, y::T) where {T <: Number}
-#     return (f(x), f(y), secant_line(f, x, y))
-# end
-
-function secant_line(::typeof(exp), x::T, y::T) where {T <: Number}
-    (w, d) = _get_wd(x, y)
-    return exp(w) * _sinh_div_x(d)
-end
-
-# function secant_line(::typeof(exp), x::T, y::T) where {T <: Real}
-#     (w, d) = _get_wd(x, y)
-#     return exp(w) * real(sinc(im * d / pi))
-# end
-
-function secant_line_full(f::typeof(exp), x::T, y::T) where {T <: Number}
-    return (f(x), f(y), secant_line(f, x, y))
-end
-
-function secant_line(::typeof(cispi), x::T, y::T) where {T <: Number}
-    (w, d) = _get_wd(x, y)
-    return im * pi * cispi(w) * sinc(d)
-end
-
-function secant_line_full(::typeof(cispi), x::T, y::T) where {T <: Number}
-    return (cispi(x), cispi(y), secant_line(cispi, x, y))
-end
-
-function secant_line(::typeof(cis), x::T, y::T) where {T <: Number}
-    (w, d) = _get_wd(x, y)
-    return im * cis(w) * sinc(d / pi)
-end
-
-function secant_line_full(::typeof(cis), x::T, y::T) where {T <: Number}
-    return (cis(x), cis(y), secant_line(cis, x, y))
-end
-
-function secant_line(::typeof(sin), x::T, y::T) where {T <: Number}
-    (w, d) = _get_wd(x, y)
-    return cos(w) * sinc(d / pi)
-end
-
-function secant_line_full(::typeof(sin), x::T, y::T) where {T <: Number}
-    return (sin(x), sin(y), secant_line(sin, x, y))
-end
-
-# secant line of cos
-function secant_line(::typeof(cos), x::T, y::T) where {T <: Complex}
-    (w, d) = _get_wd(x, y)
-    return -sin(w) * sinc(d / pi)
-end
-
-function secant_line(::typeof(cos), x::T, y::T) where {T <: Real}
-    (w, d) = _get_wd(x, y)
-    return -sin(w) * sinc(d / pi)
-end
-
-function secant_line_full(::typeof(cos), x::T, y::T) where {T <: Complex}
-    return (cos(x), cos(y), secant_line(cos, x, y))
-end
-
-function secant_line_full(::typeof(cos), x::T, y::T) where {T <: Real}
-    return (cos(x), cos(y), secant_line(cos, x, y))
-end
-
-function _approx_diff(f, x, z, h=1e-6)
-    w = (x + z)/2
-    (f(w+h) - f(w-h)) / (2*h)
-end
-
-fastabs(x::Number) = abs(x)
-fastabs(z::Complex) = abs(real(z)) + abs(imag(z))
-
-function secant_line_full(f::F, x::T, y::T) where {F, T <: Number}
-    fx = f(x)
-    fy = f(y)
-    dl = x - y
-    if fastabs(dl) < sqrt(eps(real(typeof(x))))
-        sl = _approx_diff(f, x, y)
-    else
-        sl = (fx - fy) / (x - y)
-    end
-    return (fx, fy, sl)
-end
-
 # Need this ::F for inference.
 # Whether we really need it depends on details of what we return in an unpredicatable way.
-function _matrix_func(m::AbstractMatrix2x2{T}, func::F) where {F <: Function} where {T <: Number}
-    let normsol = _normal_matrix_func(m, func)
+function matrix_func(func::F, m::AbstractMatrix2x2{T}) where {F <: Function} where {T <: Number}
+    let normsol = _normal_matrix_func(func, m)
         isnothing(normsol) || return normsol
     end
     (Tm, U, _) = schur(m)
-    __matrix_func(U, Tm, func)
+    __matrix_func(func, U, Tm)
 end
 
-function __matrix_func(U::T, Tm::T, func::F) where {T, F}
+function __matrix_func(func::F, U::T, Tm::T) where {T, F}
     (x, b, y, z) = elements(Tm)
-    (a, d, sline) = secant_line_full(func, x, z)
+    # a = f(x), d = f(z), sline = slope of secant
+    (a, d, sline) = secant(func, x, z)
     c = y * sline
-    # @show sline
-    # @show a, b, c, d
     tup = _vtup(a, zero(a), c, d)
     md = Matrix2x2(tup)
     return U * md * U'
@@ -876,14 +773,16 @@ for func in (:sqrt, :exp, :log, :cos, :sin, :tan, :sinpi, :cospi, :cis, :cispi, 
              :cosh, :sinh, :tanh, :acos, :asin, :atan, :acosh, :asinh, :atanh)
     bfunc = :(Base.$func)
     @eval @inline function $bfunc(m::AbstractMatrix2x2)
-        _matrix_func(m, $func)
+        matrix_func($func, m)
     end
 end
 
+# The eigenvalues of a real matrix may be complex. So computation is complex
+# But the returned elements have imaginary part zero. So return a real type.
 for func in (:cos, :sin, :exp)
     bfunc = :(Base.$func)
     @eval @inline function $bfunc(m::AbstractMatrix2x2{<:Real})
-        real(_matrix_func(m, $func))
+        real(matrix_func($func, m))
     end
 end
 

@@ -1,4 +1,4 @@
-@stable module GateMatrix
+module GateMatrix
 
 using ..Gates: Gate1
 using ..Compose: compose
