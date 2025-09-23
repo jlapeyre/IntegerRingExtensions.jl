@@ -749,16 +749,34 @@ function _get_wd(x::T, y::T) where {T}
     ((x+y)/2, (x-y)/2)
 end
 
+function _sinh_div_x(x)
+    abs2(x) < 1e-30 && return one(x)
+    sinh(x)/x
+end
+
+# This is not yet correct
+# function _atanh_div_x(x)
+#     abs2(x) < 1e-30 && return one(x)
+#     atanh(x)/x
+# end
+# function secant_line(::typeof(log), x::T, y::T) where {T <: Number}
+#     (w, d) = _get_wd(x, y)
+#     @show w, d
+#     return log(w) * _atanh_div_x(d / w)
+# end
+# function secant_line_full(f::typeof(log), x::T, y::T) where {T <: Number}
+#     return (f(x), f(y), secant_line(f, x, y))
+# end
+
 function secant_line(::typeof(exp), x::T, y::T) where {T <: Number}
     (w, d) = _get_wd(x, y)
-    return exp(w) * sinc(im * d / pi)
+    return exp(w) * _sinh_div_x(d)
 end
 
-function secant_line(::typeof(exp), x::T, y::T) where {T <: Real}
-    (w, d) = _get_wd(x, y)
-    return exp(w) * real(sinc(im * d / pi))
-end
-
+# function secant_line(::typeof(exp), x::T, y::T) where {T <: Real}
+#     (w, d) = _get_wd(x, y)
+#     return exp(w) * real(sinc(im * d / pi))
+# end
 
 function secant_line_full(f::typeof(exp), x::T, y::T) where {T <: Number}
     return (f(x), f(y), secant_line(f, x, y))
