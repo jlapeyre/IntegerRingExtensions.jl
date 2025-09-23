@@ -12,7 +12,7 @@ import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, isposse
 
 import ..Common: canonical, isunit, isimag
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
-import ..Angles: radtodar, Dar, Ang, intdiv, random_angle
+import ..Angles: radtodar, Dar, random_angle
 import ..Secants: secant
 
 export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4, antihermitianpart,
@@ -1121,7 +1121,7 @@ LinearAlgebra.isdiag(::ZRot) = true
 Base.:(==)(zr1::ZRot, zr2::ZRot) = zr1.minushalftheta == zr2.minushalftheta
 
 function zrot(theta)
-    ZRot(-intdiv(theta, 2))
+    ZRot(-theta / 2)
 end
 
 function get_theta(rz::ZRot)
@@ -1388,7 +1388,7 @@ end
 
 function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2B{Complex{T}}}) where {T}
     uabs2 = rand(rng, T) # cos^2(gamma)
-    SU2B(uabs2, rand(rng, Ang), rand(rng, Ang))
+    SU2B(uabs2, rand(rng, Dar), rand(rng, Dar))
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{SU2C})
@@ -1400,18 +1400,16 @@ function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2C{Complex
     SU2C(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
 end
 
-# These all return `Ang`. But that only handles fixed precision
-# what about BigFloat
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T}}) where T
-    Unitary2x2(rand(rng, SU2B{Complex{T}}), rand(rng, Ang))
+    Unitary2x2(rand(rng, SU2B{Complex{T}}), rand(rng, Dar))
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2})
-    Unitary2x2(rand(rng, SU2B), rand(rng, Ang))
+    Unitary2x2(rand(rng, SU2B), rand(rng, Dar))
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T, SUT, V}}) where {V, SUT <: AbstractSU2{T}} where {T}
-    Unitary2x2(rand(rng, SUT), rand(rng, Ang))
+    Unitary2x2(rand(rng, SUT), rand(rng, Dar))
 end
 
 struct ScaleMatrix2x2{V, MatrixT <: AbstractMatrix2x2, ScaleT} <: AbstractMatrix2x2{V}

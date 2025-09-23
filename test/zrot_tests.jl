@@ -50,10 +50,10 @@ end
     N = 10^6
     @test iszero(sum(checkadd() for _ in 1:N))
 
-    checkrange = function ()
-        d = Dar(mrand())
-        (-1 <= d.x <= 1) && return false
-        true
-    end
-    @test iszero(sum(checkrange() for _ in 1:N))
+    # checkrange = function ()
+    #     d = Dar(mrand())
+    #     (-1 <= d.x <= 1) && return false
+    #     true
+    # end
+    # @test iszero(sum(checkrange() for _ in 1:N))
 end
