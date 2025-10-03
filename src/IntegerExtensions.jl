@@ -18,14 +18,10 @@ Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imagi
     mul_root_two, mul_one_over_root_two, mul_half, mul_two, conj_root_two, norm_root_two, norm_root_D, isrational, isunit, invstrict,
     isimag
 
-include("singletons.jl")
+include("rings/singletons.jl")
 Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
     InvTwo, 𝟚⁻¹, 𝟙, One, Zero, 𝟘, canconvert, Pow,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
-
-include("angles.jl")
-Reexport.@reexport import .Angles: Dar, radtodar, scalepi, unscalepi, minus_one_to_one, radians,
-    random_angle, random_phase
 
 include("rings/root_one.jl")
 Reexport.@reexport import .RootOnes: RootOne, Omega, omega
@@ -41,8 +37,8 @@ include("rings/cyclotomic_rings.jl")
 Reexport.@reexport import .CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOmega, least_denominator_exponent,
     rnorm, div_half
 
-include("secants.jl")
-Reexport.@reexport import .Secants: secant, secant_slope
+# include("secants.jl")
+# Reexport.@reexport import .Secants: secant, secant_slope
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices2x2:
@@ -54,7 +50,7 @@ Reexport.@reexport import .Matrices2x2:
     GPID, random_diagonal_unitary,
     tracenorm, tracedistance,
     isSU2, random_unitary2x2,
-    SU2, SU2B, SU2C, Unitary2x2, elements, ZRot, zrot,
+    SU2, SU2B, SU2C, Unitary2x2P, elements, ZRot, zrot,
     get_theta, unitary_u, unitary_t,
     random_ZRot, columns, opnormdistance, alt_random_unitary2x2,
     isantidiag, eigvals_hermitian, antihermitianpart, isantihermitian,

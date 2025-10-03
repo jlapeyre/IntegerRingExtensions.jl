@@ -12,11 +12,13 @@ import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, isposse
 
 import ..Common: canonical, isunit, isimag
 import ..Utils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
-import ..Angles: radtodar, Dar, random_angle
-import ..Secants: secant
+import Angles2: radtodar, Dar, random_angle
+import FunctionSecants: secant
 
 export Matrix2x2, AbstractMatrix2x2, Matrix4x4, AbstractMatrix4x4, antihermitianpart,
     isantihermitian
+
+export get_theta
 
 abstract type AbstractMatrixNxN{T, N} <: AbstractMatrix{T} end
 abstract type AbstractNormalNxN{T, N} <: AbstractMatrixNxN{T, N} end
@@ -1120,10 +1122,20 @@ LinearAlgebra.isdiag(::ZRot) = true
 
 Base.:(==)(zr1::ZRot, zr2::ZRot) = zr1.minushalftheta == zr2.minushalftheta
 
+"""
+    zrot(theta)::ZRot
+
+Return a Z-rotation matrix with angle parameter `theta`.
+"""
 function zrot(theta)
     ZRot(-theta / 2)
 end
 
+"""
+    get_theta(rz::ZRot)
+
+Return the angle parameter `theta` of rotation matrix `rz`.
+"""
 function get_theta(rz::ZRot)
    - 2 * rz.minushalftheta
 end
@@ -1249,14 +1261,14 @@ end
 Base.adjoint(u::SU2) = SU2(conj(u.u), -u.t)
 
 """
-    Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
+    Unitary2x2P{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
 
 Represents a `2 x 2` unitary matrix as a matrix in SU2 times a global phase.
 
 Fields: `su2`, `phi`.
 """
-struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
-    function Unitary2x2(su2::W, phi::V) where {V, W <: AbstractSU2{T}} where {T}
+struct Unitary2x2P{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
+    function Unitary2x2P(su2::W, phi::V) where {V, W <: AbstractSU2{T}} where {T}
         new{T, W, V}(su2, phi)
     end
 
@@ -1264,35 +1276,35 @@ struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
     phi::V
 end
 
-function Base.adjoint(u::Unitary2x2)
-    Unitary2x2(adjoint(u.su2), -u.phi)
+function Base.adjoint(u::Unitary2x2P)
+    Unitary2x2P(adjoint(u.su2), -u.phi)
 end
 
-function Unitary2x2(su::AbstractSU2{T}) where T
-    Unitary2x2(su, zero(T))
+function Unitary2x2P(su::AbstractSU2{T}) where T
+    Unitary2x2P(su, zero(T))
 end
 
-function elements(m::Unitary2x2)
+function elements(m::Unitary2x2P)
     ph = cis(m.phi)
     map(x -> ph * x, elements(m.su2))
 end
 
-det(U::Unitary2x2) = cis(2 * U.phi)
+det(U::Unitary2x2P) = cis(2 * U.phi)
 
-function Unitary2x2(m::Matrix2x2{Complex{T}}, ::Type{SU2T} = SU2) where {T <: AbstractFloat, SU2T <: AbstractSU2}
+function Unitary2x2P(m::Matrix2x2{Complex{T}}, ::Type{SU2T} = SU2) where {T <: AbstractFloat, SU2T <: AbstractSU2}
     phase_fac = sqrt(det(m))
     msu2 = map(x -> x / phase_fac, m)
-    Unitary2x2(SU2T(msu2), radtodar(angle(phase_fac)))
+    Unitary2x2P(SU2T(msu2), radtodar(angle(phase_fac)))
 end
 
-function eigvals(U::Unitary2x2)
+function eigvals(U::Unitary2x2P)
     (; su2, phi) = U
     (v1, v2) = eigvals(su2)
     p = cis(phi)
     (p * v1, p * v2)
 end
 
-function Matrix2x2(U::Unitary2x2)
+function Matrix2x2(U::Unitary2x2P)
     su2 = U.su2
     phi = U.phi
     p = cis(phi)
@@ -1305,7 +1317,7 @@ random_unitary2x2() = random_unitary2x2(Float64)
 function random_unitary2x2(::Type{T}) where {T <: AbstractFloat}
     su2 = random_SU2B(T)
     gamma = T(2) * rand(T) # Huh random_angle
-    Unitary2x2(su2, Dar(gamma))
+    Unitary2x2P(su2, Dar(gamma))
 end
 
 function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Matrix2x2})
@@ -1400,16 +1412,16 @@ function Random.rand(rng::Random.AbstractRNG, s::Random.SamplerType{SU2C{Complex
     SU2C(rand(rng, Random.SamplerType{SU2B{Complex{T}}}()))
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T}}) where T
-    Unitary2x2(rand(rng, SU2B{Complex{T}}), rand(rng, Dar))
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2P{T}}) where T
+    Unitary2x2P(rand(rng, SU2B{Complex{T}}), rand(rng, Dar))
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2})
-    Unitary2x2(rand(rng, SU2B), rand(rng, Dar))
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2P})
+    Unitary2x2P(rand(rng, SU2B), rand(rng, Dar))
 end
 
-function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2{T, SUT, V}}) where {V, SUT <: AbstractSU2{T}} where {T}
-    Unitary2x2(rand(rng, SUT), rand(rng, Dar))
+function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Unitary2x2P{T, SUT, V}}) where {V, SUT <: AbstractSU2{T}} where {T}
+    Unitary2x2P(rand(rng, SUT), rand(rng, Dar))
 end
 
 struct ScaleMatrix2x2{V, MatrixT <: AbstractMatrix2x2, ScaleT} <: AbstractMatrix2x2{V}
