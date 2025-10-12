@@ -21,6 +21,7 @@ import ..Singletons: InvTwo, InvTwoT,
     Pow
 
 export CyclotomicRing, ZOmega, DOmega
+export residue
 
 ########################
 ####
@@ -317,6 +318,14 @@ Base.length(cyc::CyclotomicRing) = length(cyc.coeffs)
 Base.lastindex(::CyclotomicRing{M}) where M = M - 1
 Base.transpose(cyc::CyclotomicRing) = cyc
 
+function residue(z::ZOmega)
+    (a, b, c, d) = z.coeffs
+    (a & 1) | (b & 1) << 1 | (c & 1) << 2 | (d & 1) << 3
+end
+    # def residue(self):
+    #     return (
+    #         (self._a & 1) << 3 | (self._b & 1) << 2 | (self._c & 1) << 1 | (self._d & 1)
+    #     )
 
 function Base.conj(cyc::DOmega{T}) where T
     (a, b, c, d) = cyc.coeffs
@@ -1073,5 +1082,8 @@ Base.Complex(z::DOmegaA) = Complex(real(z), imag(z))
 Base.complex(z::DOmegaA) = Complex(z)
 
 DOmegaA(zz::Complex{<:DRoot2}) = DOmegaA(DOmega(zz))
+
+residue(cyc::DOmegaA) = residue(cyc.z)
+residue(cyc::DOmega) = residue(DOmegaA(cyc))
 
 end # module CyclotomicRings

@@ -124,14 +124,19 @@ function Matrix2x2{T}(m::AbstractMatrix2x2) where {T}
     Matrix2x2(map(x -> T(x), elements(m))...,)
 end
 
+elements(m::MatrixNxN) = m.data
+
+# elements(m::AbstractMatrixNxN{T,N}) where {T, N} = elements(MatrixNxN{T, N, N*N}(m))
+elements(m::AbstractMatrix2x2) = map(i -> getindex(m, i), (1,2,3,4))
+
+#elements(m::AbstractMatrix2x2) = 
+
 Matrix2x2(m::Matrix2x2) = m
 
 function Base.map(f, m::AbstractMatrixNxN)
     MatrixNxN(map(f, elements(m)))
 end
 
-elements(m::MatrixNxN) = m.data
-elements(m::AbstractMatrixNxN{T,N}) where {T, N} = elements(MatrixNxN{T, N, N*N}(m))
 
 ##
 ## Conversion and related construction
@@ -365,6 +370,15 @@ Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{1}) = m # If elements of
 Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{2}) = m * m
 Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{3}) = m * m * m
 Base.literal_pow(::typeof(Base.:^), m::MatrixNxN, ::Val{4}) = (m * m) * (m * m)
+
+
+#Base.iterate(S::Squares, state=1) = state > S.count ? nothing : (state*state, state+1)
+
+# Fallback is perhaps ok
+# function Base.iterate(m::AbstractMatrixNxN{T, N}, state=1) where {T, N}
+#     state > N * N && return nothing
+#     (m[state], state + 1)
+# end
 
 ##
 ## Linear algebra and related operations
@@ -982,6 +996,23 @@ function Base.eltype(::Type{<:SU2B{T}}) where T
     Complex{T}
 end
 
+# function Base.getindex(u::SU2B, i::Integer, j::Integer)
+# end
+
+function Base.getindex(u::SU2B, ind::Integer)
+    if ind == 1
+        return sqrt(u.uabs2) * cis(u.alpha_u)
+    elseif ind == 2
+        return sqrt(1 - u.uabs2) * cis(u.alpha_t)
+    elseif ind == 3
+        return -sqrt(1 - u.uabs2) * cis(-u.alpha_t)
+    elseif ind == 4
+        return sqrt(u.uabs2) * cis(-u.alpha_u)
+    else
+        throw(BoundsError(u, [ind]))
+    end
+end
+
 function Base.adjoint(U::SU2B)
     SU2B(U.uabs2, -U.alpha_u, U.alpha_t + pi)
 end
@@ -1261,6 +1292,40 @@ end
 Base.adjoint(u::SU2) = SU2(conj(u.u), -u.t)
 
 """
+    Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
+
+Represents a `2 x 2` unitary matrix as a matrix in SU2 with an additional factor on the right column
+
+Fields: `su2`, `z`.
+"""
+struct Unitary2x2{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
+    function Unitary2x2(su2::W, z::V) where {V, W <: AbstractSU2{T}} where {T}
+        new{T, W, V}(su2, z)
+    end
+
+    su2::SUT
+    z::V
+end
+
+unitary_u(u::Unitary2x2) = unitary_u(u.su2)
+unitary_t(u::Unitary2x2) = unitary_t(u.su2)
+
+function Base.getindex(u::Unitary2x2, ind::Integer)
+    su = u.su2
+    if ind == 1
+        return unitary_u(su)
+    elseif ind == 2
+        return unitary_t(su)
+    elseif ind == 3
+        return -conj(unitary_t(su)) * u.z
+    elseif ind == 4
+        return conj(unitary_u(su)) * u.z
+    else
+        throw(BoundsError(u, ind))
+    end
+end
+
+"""
     Unitary2x2P{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
 
 Represents a `2 x 2` unitary matrix as a matrix in SU2 times a global phase.
@@ -1274,6 +1339,11 @@ struct Unitary2x2P{T, SUT <: AbstractSU2, V} <: AbstractUnitary2x2{T}
 
     su2::SUT
     phi::V
+end
+
+function Base.getindex(u::Unitary2x2P, inds...)
+    getindex(u.su2, inds...)
+#    cis(u.phi) * getindex(u.su2, inds...)
 end
 
 function Base.adjoint(u::Unitary2x2P)

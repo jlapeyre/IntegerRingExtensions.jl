@@ -1,7 +1,7 @@
 name = "IntegerExtensions"
 uuid = "96ddcad0-4f2e-400e-a19c-75507ad3a23d"
-authors = ["John Lapeyre"]
 version = "1.0.0-DEV"
+authors = ["John Lapeyre"]
 
 [deps]
 Angles2 = "6e6d5e11-4077-4f2b-9d65-d01251d57388"
@@ -28,11 +28,9 @@ SymbolicExt = "Symbolics"
 ZChopExt = "ZChop"
 
 [compat]
-Angles2 = "0,1,2"
 Aqua = "0.8"
 BenchmarkTools = "1.5.0"
 DispatchDoctor = "0.4.26"
-FunctionSecants = "0,1,2"
 ILog2 = "2.0.0"
 IsApprox = "2.0.0"
 LinearAlgebra = "1.11, 1.12.0"
