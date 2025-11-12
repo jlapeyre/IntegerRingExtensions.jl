@@ -1123,7 +1123,7 @@ Base.:*(z::ZRot, x::Number) = x * z
 
 # This always gives "positive" rotation.
 # Tr(z) >= 0
-function random_ZRot(::Type{T}=Float64) where {T<:AbstractFloat}
+function random_ZRot(::Type{T}=Float64) where T
     a = random_angle(T) / 2
     ZRot(a)
 end

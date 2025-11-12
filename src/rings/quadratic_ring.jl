@@ -32,7 +32,7 @@ export QuadraticRing, QuadraticRing2, ZRootD, ZRoot2, DRoot2
 """
     QuadraticRing{D, CoeffT}
 
-Represents a ring formed by adjoining the square root of the integer `D` to the ring represented by `CoeffT`.
+Represents a ring formed by adjoining the square root of the positive integer `D` to the ring represented by `CoeffT`.
 Integer values of `D` that are equal to 0 or 1 (mod 4) will give incorrect results. Examples of good
 values of `D` are `2` and `3`.
 
@@ -110,6 +110,12 @@ function QuadraticRing{D, CT}(x::QuadraticRing) where {D, CT}
     (a, b) = map(CT, coeffs(x))
     return QuadraticRing{D, CT}(a, b)
 end
+
+# From pygridsynth. This is a bit mysterious
+function parity(x::QuadraticRing)
+    Int(isone(x.a))
+end
+
 
 # Avoid temptation to do D = an integer, QuadraticRing2{D, CoeffT}.
 # That kills performance
@@ -338,10 +344,10 @@ Base.one(q::QuadraticRing) = one(typeof(q))
 """
     isunit(q::QuadraticRing{<:Any, <:Integer})
 
-Return `true` if `norm_root_two(q)` is either `1` or `-1`.
+Return `true` if `norm_root_D(q)` is either `1` or `-1`.
 """
 function isunit(q::QuadraticRing{<:Any, <:Integer})
-    nq = norm_root_two(q)
+    nq = norm_root_D(q)
     nq == one(q) || nq == -one(q)
 end
 
@@ -375,6 +381,13 @@ end
 
 function Base.big(q::QuadraticRing{D, T}) where {D, T <: AbstractFloat}
     big(q.a) + sqrt(big(D)) * big(q.b)
+end
+
+# Fallback method is ok
+# But, idk if this is useful
+function LinearAlgebra.norm(qi::QuadraticRing)
+    throw(MethodError(LinearAlgebra.norm, (qi,)))
+#    qi > 0 ? qi : -qi
 end
 
 """
