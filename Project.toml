@@ -32,6 +32,8 @@ SymbolicExt = "Symbolics"
 ZChopExt = "ZChop"
 
 [compat]
+Angles2 = "1"
+FunctionSecants = "1"
 Aqua = "0.8"
 BenchmarkTools = "1.5.0"
 DispatchDoctor = "0.4.26"
