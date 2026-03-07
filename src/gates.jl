@@ -5,10 +5,10 @@ using DispatchDoctor: @unstable
 using Utils: PRETTY
 import ..Matrices2x2: Matrix2x2, SU2, ScaleMatrix2x2
 using RootOnes: omega, Omega
-using ..CyclotomicRings: coeffs, div_half, mul_root_two, ZOmega, DOmega, div_coefficients
+using CyclotomicRings: coeffs, div_half, mul_root_two, ZOmega, DOmega, div_coefficients
 
 #using ..Singletons: Imag, RootImag, InvRootTwo, InvTwo, RootTwo
-using ..Singletons: InvRootTwo, InvTwo, RootTwo
+using Singletons: InvRootTwo, InvTwo, RootTwo
 
 const RootImag = Omega(1)
 const Imag = Omega(2)

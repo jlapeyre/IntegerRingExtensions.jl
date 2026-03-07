@@ -16,22 +16,22 @@ Reexport.@reexport import Common: canonical, one_over_root_two, root_two, imagin
     mul_root_two, mul_one_over_root_two, mul_half, mul_two, conj_root_two, norm_root_two, norm_root_D, isrational, isunit, invstrict,
     isimag
 
-include("rings/singletons.jl")
-Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
+#include("rings/singletons.jl")
+Reexport.@reexport import Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
     InvTwo, 𝟚⁻¹, 𝟙, One, Zero, 𝟘, canconvert, Pow,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
 Reexport.@reexport import RootOnes: RootOne, Omega, omega
 
-include("rings/dyadic.jl")
-Reexport.@reexport import .Dyadics: Dyadic
+#include("rings/dyadic.jl")
+Reexport.@reexport import Dyadics: Dyadic
 
-include("rings/quadratic_ring.jl")
-Reexport.@reexport import .QuadraticRings: QuadraticRing, ZRootD, ZRoot2, DRoot2, QuadraticRing2,
+#include("rings/quadratic_ring.jl")
+Reexport.@reexport import QuadraticRings: QuadraticRing, ZRootD, ZRoot2, DRoot2, QuadraticRing2,
     conj_root_D
 
-include("rings/cyclotomic_rings.jl")
-Reexport.@reexport import .CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOmega, least_denominator_exponent,
+#include("rings/cyclotomic_rings.jl")
+Reexport.@reexport import CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOmega, least_denominator_exponent,
     rnorm, div_half, residue
 
 # include("secants.jl")

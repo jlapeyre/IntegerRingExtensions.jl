@@ -1,0 +1,19 @@
+name = "Singletons"
+uuid = "432dfa58-0f90-4bfc-a98e-bb512c101b26"
+version = "1.0.0-DEV"
+authors = ["John Lapeyre"]
+
+[deps]
+Common = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+Utils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+
+[compat]
+Common = "1.0.0"
+Utils = "1.0.0"
+julia = "1.11"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

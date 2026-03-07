@@ -7,7 +7,7 @@ import ..Matrices2x2: get_theta
 import ..RingMatrices: scalematrix
 import ..Gates: Gate1, RZ
 using Common: canonical
-using ..CyclotomicRings: DOmega, ZOmega
+using CyclotomicRings: DOmega, ZOmega
 using Utils: PRETTY, pretty
 
 """

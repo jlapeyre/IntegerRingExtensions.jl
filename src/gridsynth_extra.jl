@@ -1,6 +1,6 @@
 @stable module GridSynthExtra
 
-using ..CyclotomicRings: DOmega
+using CyclotomicRings: DOmega
 using ..GridSynth: GridSynthMatrix, GridSynthResults, gridsynth_matrix
 using Common: mul_root_two
 using ..Matrices2x2: Matrix2x2
