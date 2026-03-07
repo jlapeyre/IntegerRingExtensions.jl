@@ -129,7 +129,7 @@ elements(m::MatrixNxN) = m.data
 # elements(m::AbstractMatrixNxN{T,N}) where {T, N} = elements(MatrixNxN{T, N, N*N}(m))
 elements(m::AbstractMatrix2x2) = map(i -> getindex(m, i), (1,2,3,4))
 
-#elements(m::AbstractMatrix2x2) = 
+#elements(m::AbstractMatrix2x2) =
 
 Matrix2x2(m::Matrix2x2) = m
 
