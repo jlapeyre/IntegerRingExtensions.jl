@@ -1,6 +1,6 @@
 module DOmegaUnitaries
 
-import ..RootOnes: Omega, omega
+import RootOnes: Omega, omega
 import ..CyclotomicRings: DOmega
 import ..Singletons: InvRootTwo
 

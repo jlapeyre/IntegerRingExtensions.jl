@@ -3,7 +3,7 @@ module GateMatrix
 using ..Gates: Gate1
 using ..Compose: compose
 using ..Matrices2x2: Matrix2x2
-using ..RootOnes: Omega
+using RootOnes: Omega
 
 for g in (:X, :Y, :Z, :S, :T)
     gn = Symbol(g, :F64)

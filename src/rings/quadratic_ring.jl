@@ -3,12 +3,12 @@ module QuadraticRings
 import LinearAlgebra
 import Base: promote_rule, show, convert
 
-import ..Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
+import Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_half, conj_root_two, norm_root_two, norm_root_D, conj_root_D, isrational, isunit, invstrict
 import ..Dyadics: Dyadic
 import ..Singletons: RootTwoT, RootTwo, Two, TwoT, InvRootTwo, InvRootTwoT, InvTwo, InvTwoT, SingleNum, Pow
-import ..RootOnes: RootOne
-import ..Utils: PRETTY, issquarefree
+import RootOnes: RootOne
+import Utils: PRETTY, issquarefree
 
 export QuadraticRing, QuadraticRing2, ZRootD, ZRoot2, DRoot2
 

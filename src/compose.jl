@@ -6,9 +6,9 @@ using ..Matrices2x2: Matrix2x2, GPID, ScaleMatrix2x2
 import ..Matrices2x2: get_theta
 import ..RingMatrices: scalematrix
 import ..Gates: Gate1, RZ
-using ..Common: canonical
+using Common: canonical
 using ..CyclotomicRings: DOmega, ZOmega
-using ..Utils: PRETTY, pretty
+using Utils: PRETTY, pretty
 
 """
     compose(gates::AbstractString; chunklen=300)

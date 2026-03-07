@@ -2,8 +2,8 @@ module GridSynth
 
 using DispatchDoctor: @stable
 
-using ..Utils: PRETTY, superscript
-import ..Utils: countmap
+using Utils: PRETTY, superscript
+import Utils: countmap
 import ..Compose: Compose, compose, compose_scale, rotation_error
 
 # Parameters disables the default constructor :(
