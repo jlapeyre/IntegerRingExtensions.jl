@@ -23,6 +23,7 @@ import Singletons: InvTwo, InvTwoT,
 export CyclotomicRing, ZOmega, DOmega
 export residue
 
+
 ########################
 ####
 #### CyclotomicRing
@@ -1085,5 +1086,10 @@ DOmegaA(zz::Complex{<:DRoot2}) = DOmegaA(DOmega(zz))
 
 residue(cyc::DOmegaA) = residue(cyc.z)
 residue(cyc::DOmega) = residue(DOmegaA(cyc))
+
+include("domega_unitary.jl")
+
+# Reexport.@reexport import .DOmegaUnitaries: DOmegaUnitary, mul_by_T_from_left, mul_by_T_inv_from_left, mul_by_H_and_T_power_from_left,
+#     mul_by_T_power_from_left, mul_by_S_from_left, mul_by_S_power_from_left, mul_by_H_from_left, mul_by_W
 
 end # module CyclotomicRings

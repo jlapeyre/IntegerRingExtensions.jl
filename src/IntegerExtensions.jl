@@ -16,25 +16,20 @@ Reexport.@reexport import Common: canonical, one_over_root_two, root_two, imagin
     mul_root_two, mul_one_over_root_two, mul_half, mul_two, conj_root_two, norm_root_two, norm_root_D, isrational, isunit, invstrict,
     isimag
 
-#include("rings/singletons.jl")
 Reexport.@reexport import Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
     InvTwo, 𝟚⁻¹, 𝟙, One, Zero, 𝟘, canconvert, Pow,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
 Reexport.@reexport import RootOnes: RootOne, Omega, omega
 
-#include("rings/dyadic.jl")
 Reexport.@reexport import Dyadics: Dyadic
 
-#include("rings/quadratic_ring.jl")
 Reexport.@reexport import QuadraticRings: QuadraticRing, ZRootD, ZRoot2, DRoot2, QuadraticRing2,
     conj_root_D
 
-#include("rings/cyclotomic_rings.jl")
 Reexport.@reexport import CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOmega, least_denominator_exponent,
     rnorm, div_half, residue
 
-# include("secants.jl")
 Reexport.@reexport import FunctionSecants: secant, secant_slope
 
 include("matrices.jl")
@@ -72,9 +67,9 @@ include("gate_matrix.jl")
 Reexport.@reexport import .GateMatrix: XF64, YF64, ZF64, SF64, TF64,
     CLIFFORD_STR, CLIFFORD_DOMEGA, CLIFFORD_DOMEGA_MAP, find_clifford
 
-include("domega_unitary.jl")
-Reexport.@reexport import .DOmegaUnitaries: DOmegaUnitary, mul_by_T_from_left, mul_by_T_inv_from_left, mul_by_H_and_T_power_from_left,
-    mul_by_T_power_from_left, mul_by_S_from_left, mul_by_S_power_from_left, mul_by_H_from_left, mul_by_W
+# include("domega_unitary.jl")
+# Reexport.@reexport import .DOmegaUnitaries: DOmegaUnitary, mul_by_T_from_left, mul_by_T_inv_from_left, mul_by_H_and_T_power_from_left,
+#     mul_by_T_power_from_left, mul_by_S_from_left, mul_by_S_power_from_left, mul_by_H_from_left, mul_by_W
 
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose
