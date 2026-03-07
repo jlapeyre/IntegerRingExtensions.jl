@@ -1,6 +1,14 @@
 using IntegerExtensions
 using Test
 
+push!(LOAD_PATH, joinpath(@__DIR__, "..", "lib"))
+
+# Angles2
+include(joinpath(@__DIR__, "..", "lib", "Angles2", "test", "runtests.jl"))
+
+# Functionsecants
+include(joinpath(@__DIR__, "..", "lib", "FunctionSecants", "test", "runtests.jl"))
+
 include("matrices_tests.jl")
 include("test_aqua.jl")
 include("rootone_tests.jl")
