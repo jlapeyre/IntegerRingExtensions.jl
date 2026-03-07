@@ -6,15 +6,17 @@ authors = ["John Lapeyre"]
 [workspace]
 projects = [
     "lib/Utils",
-    "lib/Common",    
+    "lib/Common",
     "lib/Angles2",
     "lib/FunctionSecants",
+    "lib/RootOnes",
 ]
 
 [deps]
 Angles2 = "6e6d5e11-4077-4f2b-9d65-d01251d57388"
 Utils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
 Common = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+RootOnes = "32814b26-06a8-441b-b14b-95ecdba71a3c"
 DispatchDoctor = "8d63f2c5-f18a-4cf2-ba9d-b3f60fc568c8"
 FunctionSecants = "9112c3b5-d6e8-4492-aa25-555be7829d8d"
 ILog2 = "2cd5bd5f-40a1-5050-9e10-fc8cdb6109f5"

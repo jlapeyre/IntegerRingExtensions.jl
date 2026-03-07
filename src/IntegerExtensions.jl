@@ -23,8 +23,8 @@ Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag,
     InvTwo, 𝟚⁻¹, 𝟙, One, Zero, 𝟘, canconvert, Pow,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
-include("rings/root_one.jl")
-Reexport.@reexport import .RootOnes: RootOne, Omega, omega
+# include("rings/root_one.jl")
+# Reexport.@reexport import .RootOnes: RootOne, Omega, omega
 
 include("rings/dyadic.jl")
 Reexport.@reexport import .Dyadics: Dyadic
