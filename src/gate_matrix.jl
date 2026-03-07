@@ -2,7 +2,7 @@ module GateMatrix
 
 using ..Gates: Gate1
 using ..Compose: compose
-using ..SmallStaticMatrices: Matrix2x2
+using SmallStaticMatrices: Matrix2x2
 using RootOnes: Omega
 
 for g in (:X, :Y, :Z, :S, :T)

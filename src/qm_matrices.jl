@@ -4,7 +4,7 @@ import LinearAlgebra
 import LinearAlgebra: eigvals, svdvals, opnorm, tr, det, diag, diagm, eigvecs, norm, normalize
 import IsApprox:  AbstractApprox, Equal, Approx, isposdef, ispossemidef, isidempotent # isunitary, isinvolution
 
-import ..SmallStaticMatrices: AbstractMatrix2x2, Matrix2x2, AbstractNormalNxN, elements
+import SmallStaticMatrices: AbstractMatrix2x2, Matrix2x2, AbstractNormalNxN, elements
 
 const I2x2 = Matrix2x2(1, 0, 0, 1)
 const X = Matrix2x2(0, 1, 1, 0)

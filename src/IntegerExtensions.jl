@@ -32,8 +32,8 @@ Reexport.@reexport import CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOme
 
 Reexport.@reexport import FunctionSecants: secant, secant_slope
 
-include("matrices.jl")
-Reexport.@reexport import .SmallStaticMatrices:
+#include("matrices.jl")
+Reexport.@reexport import SmallStaticMatrices:
     AbstractUnitaryNxN,AbstractNormalNxN,
     AbstractMatrix2x2, AbstractMatrixNxN,  AbstractMatrix4x4,
     AbstractUnitary2x2, AbstractSU2,
