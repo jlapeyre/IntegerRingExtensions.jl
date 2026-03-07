@@ -41,6 +41,7 @@ Base.:-(x::Real, d::Dar) = d - x
 Base.:+(d1::Dar, d2::Dar) = Dar(d1.x + d2.x)
 Base.:-(d1::Dar, d2::Dar) = Dar(d1.x - d2.x)
 Base.:-(a::Dar) = Dar(-a.x)
+
 Base.:(==)(a::Dar, b::Dar) = a.x == b.x
 
 Base.:(==)(a::Dar, x::Real) = unscalepi(a.x) == x
@@ -52,6 +53,8 @@ Base.:*(x::Real, d::Dar) = Dar(x * d.x)
 Base.:*(d::Dar, x::Real) = x * d
 
 Base.:/(d::Dar, x::Real) = Dar(d.x / x)
+Base.://(d::Dar, x::Real) = Dar(d.x // x)
+Base.div(d::Dar, x::Real) = Dar(div(d.x, x))
 
 Dar(d::Dar) = d
 
@@ -121,7 +124,7 @@ Base.isapprox(x::Real, a::Dar ; kws...) = isapprox(a, x; kws...)
 """
     random_angle(::Type{T}=Float64, shape...)::T where {T}
 
-Return a random angle in `[-pi, pi]`
+Sample from the uniform distribution on `[-pi, pi]`
 """
 random_angle(args...) = random_angle(Float64, args...)
 
