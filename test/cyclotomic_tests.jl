@@ -1,4 +1,4 @@
-import IntegerExtensions.CyclotomicRings: mul_root_two
+import CyclotomicRings: mul_root_two
 
 @testset "cyclotomic" begin
     d = DOmega(1,2,3,4)
