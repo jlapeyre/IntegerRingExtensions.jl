@@ -49,6 +49,13 @@ SymbolicExt = "Symbolics"
 ZChopExt = "ZChop"
 
 [compat]
+Common = "1"
+Utils = "1"
+RootOnes = "1"
+QuadraticRings = "1"
+CyclotomicRings = "1"
+Dyadics = "1"
+Singletons = "1"
 Angles2 = "1"
 FunctionSecants = "1"
 BenchmarkTools = "1.5.0"
