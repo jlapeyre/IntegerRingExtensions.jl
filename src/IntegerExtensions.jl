@@ -35,7 +35,7 @@ Reexport.@reexport import .CyclotomicRings: CyclotomicRing, DOmega, DOmegaA, ZOm
     rnorm, div_half, residue
 
 # include("secants.jl")
-Reexport.@reexport import .Secants: secant, secant_slope
+Reexport.@reexport import FunctionSecants: secant, secant_slope
 
 include("matrices.jl")
 Reexport.@reexport import .Matrices2x2:
