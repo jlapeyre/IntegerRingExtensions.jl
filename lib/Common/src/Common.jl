@@ -227,12 +227,11 @@ Return `true` if `real(x)` is `false`.
 """
 function isimag end
 
-# Note that Complex(0, 0) is both isreal and isimag
 isimag(::Real, app::AbstractApprox=Equal()) = false
 
 isimag(z::Complex) = isimag(z, Equal())
 function isimag(z::Complex, app::AbstractApprox)
-    iszero(real(z))
+    iszero(real(z)) && !iszero(imag(z))
 end
 
 function isimag(z::Complex, app::Approx)
