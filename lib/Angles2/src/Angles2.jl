@@ -55,6 +55,7 @@ Base.:*(d::Dar, x::Real) = x * d
 Base.:/(d::Dar, x::Real) = Dar(d.x / x)
 Base.://(d::Dar, x::Real) = Dar(d.x // x)
 Base.div(d::Dar, x::Real) = Dar(div(d.x, x))
+Base.:/(d::Dar, ::Irrational{:π}) = d.x
 
 Dar(d::Dar) = d
 

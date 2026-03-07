@@ -28,4 +28,7 @@ using Test
     end
     N = 10^6
     @test iszero(sum(checkadd() for _ in 1:N))
+
+    @test Dar(3) / pi === 3
+    @test (Dar(1) // 3).x === 1//3
 end
