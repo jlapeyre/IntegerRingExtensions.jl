@@ -1,4 +1,4 @@
-module Matrices2x2
+module SmallStaticMatrices
 #@stable module Matrices2x2
 
 # using DispatchDoctor: @stable

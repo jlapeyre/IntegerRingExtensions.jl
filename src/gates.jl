@@ -3,7 +3,7 @@ module Gates
 using DispatchDoctor: @unstable
 
 using Utils: PRETTY
-import ..Matrices2x2: Matrix2x2, SU2, ScaleMatrix2x2
+import ..SmallStaticMatrices: Matrix2x2, SU2, ScaleMatrix2x2
 using RootOnes: omega, Omega
 using CyclotomicRings: coeffs, div_half, mul_root_two, ZOmega, DOmega, div_coefficients
 

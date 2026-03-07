@@ -2,8 +2,8 @@ module Compose
 
 # using DispatchDoctor: @stable, @unstable
 
-using ..Matrices2x2: Matrix2x2, GPID, ScaleMatrix2x2
-import ..Matrices2x2: get_theta
+using ..SmallStaticMatrices: Matrix2x2, GPID, ScaleMatrix2x2
+import ..SmallStaticMatrices: get_theta
 import ..RingMatrices: scalematrix
 import ..Gates: Gate1, RZ
 using Common: canonical
