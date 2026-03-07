@@ -67,9 +67,9 @@ include("gate_matrix.jl")
 Reexport.@reexport import .GateMatrix: XF64, YF64, ZF64, SF64, TF64,
     CLIFFORD_STR, CLIFFORD_DOMEGA, CLIFFORD_DOMEGA_MAP, find_clifford
 
-# include("domega_unitary.jl")
-# Reexport.@reexport import .DOmegaUnitaries: DOmegaUnitary, mul_by_T_from_left, mul_by_T_inv_from_left, mul_by_H_and_T_power_from_left,
-#     mul_by_T_power_from_left, mul_by_S_from_left, mul_by_S_power_from_left, mul_by_H_from_left, mul_by_W
+#include("domega_unitary.jl")
+Reexport.@reexport import CyclotomicRings.DOmegaUnitaries: DOmegaUnitary, mul_by_T_from_left, mul_by_T_inv_from_left, mul_by_H_and_T_power_from_left,
+    mul_by_T_power_from_left, mul_by_S_from_left, mul_by_S_power_from_left, mul_by_H_from_left, mul_by_W
 
 include("benchmark.jl")
 Reexport.@reexport import .Benchmarking: benchmark_compose

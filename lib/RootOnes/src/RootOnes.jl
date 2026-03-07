@@ -9,9 +9,6 @@ import Random
 
 using DispatchDoctor: @stable, @unstable
 
-# import ..Utils: subscript, superscript
-# import ..Common: sqrt_imaginary, imaginary, isunit, conj_root_two, norm_root_two
-
 import Utils: subscript, superscript
 import Common: sqrt_imaginary, imaginary, isunit, conj_root_two, norm_root_two
 
@@ -89,10 +86,10 @@ struct RootOne{N} <: Number
     k::Int # Could use smaller `k`.
 end
 
-function base(r::RootOne{N}) where {N}
-#     @assert isa(N, Int) # try to calm DispatchDoctor ?
-#     N
-end
+# function base(r::RootOne{N}) where {N}
+# #     @assert isa(N, Int) # try to calm DispatchDoctor ?
+# #     N
+# end
 
 """
     RootOne{N}(n=1)
