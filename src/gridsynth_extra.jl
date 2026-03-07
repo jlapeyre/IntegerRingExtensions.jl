@@ -3,7 +3,7 @@
 using CyclotomicRings: DOmega
 using ..GridSynth: GridSynthMatrix, GridSynthResults, gridsynth_matrix
 using Common: mul_root_two
-using ..Matrices2x2: Matrix2x2
+using ..SmallStaticMatrices: Matrix2x2
 
 function gridsynth_matrix_to_cyclic(matrix::GridSynthMatrix; power=true)
     domegas = map(x -> DOmega(x...), matrix.data)
