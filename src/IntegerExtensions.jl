@@ -10,13 +10,13 @@ export ZRoot2
 export ZRootD
 
 # include("utils.jl")
-# Reexport.@reexport import .Utils: subscript, superscript, lobit, small, countmap, random_unitary,
-#     random_special_unitary, prettylist
+Reexport.@reexport import Utils: subscript, superscript, lobit, small, countmap, random_unitary,
+    random_special_unitary, prettylist
 
 # include("common.jl")
-# Reexport.@reexport import .Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
-#     mul_root_two, mul_one_over_root_two, mul_half, mul_two, conj_root_two, norm_root_two, norm_root_D, isrational, isunit, invstrict,
-#     isimag
+Reexport.@reexport import Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
+    mul_root_two, mul_one_over_root_two, mul_half, mul_two, conj_root_two, norm_root_two, norm_root_D, isrational, isunit, invstrict,
+    isimag
 
 include("rings/singletons.jl")
 Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag, InvRootTwo, Two, 𝟚,
@@ -24,7 +24,7 @@ Reexport.@reexport import .Singletons: SingleNum, RootTwo, Imag, 𝕚, RootImag,
     TwoT, RootTwoT, ImagT, RootImagT, InvRootTwoT, TwoT, InvTwoT, OneT, ZeroT
 
 # include("rings/root_one.jl")
-# Reexport.@reexport import .RootOnes: RootOne, Omega, omega
+Reexport.@reexport import RootOnes: RootOne, Omega, omega
 
 include("rings/dyadic.jl")
 Reexport.@reexport import .Dyadics: Dyadic
