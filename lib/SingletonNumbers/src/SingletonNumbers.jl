@@ -1,4 +1,4 @@
-module Singletons
+module SingletonNumbers
 
 import Base: show, inv, sqrt, isone, iszero, isinteger, iseven, isreal
 import Utils: PRETTY, superscript
@@ -607,4 +607,4 @@ Base.promote_rule(::Type{TwoT}, ::Type{T}) where {T<:Integer} = T
 Base.:*(::InvRootTwoT, x::T) where {T<:Number} = sqrt(float(T)(1//2)) * x
 #Base.:*(x, ::InvRootTwoT) = InvRootTwo * x
 
-end # module Singletons
+end # module SingletonNumbers

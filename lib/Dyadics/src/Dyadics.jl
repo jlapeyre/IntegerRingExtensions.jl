@@ -10,7 +10,7 @@ import ILog2
 import Utils: superscript, iszero_strong, isone_strong, greater_than_strong,
     PRETTY, lobit
 import Common: canonical, mul_half, mul_two, params, conj_root_two, isunit, invstrict
-import Singletons: InvTwo, InvTwoT, TwoT, Pow
+import SingletonNumbers: InvTwo, InvTwoT, TwoT, Pow
 
 
 ########################

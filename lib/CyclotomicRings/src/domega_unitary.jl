@@ -1,7 +1,7 @@
 module DOmegaUnitaries
 
 import RootOnes: Omega, omega
-import Singletons: InvRootTwo
+import SingletonNumbers: InvRootTwo
 import ..CyclotomicRings: DOmega
 
 export  DOmegaUnitary, mul_by_T_from_left, mul_by_T_inv_from_left, mul_by_H_and_T_power_from_left,

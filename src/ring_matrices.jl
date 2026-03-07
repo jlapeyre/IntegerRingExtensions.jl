@@ -8,7 +8,7 @@ import RootOnes: RootOne, Omega
 import Common: canonical, coeffs
 import Utils: lobit
 
-import Singletons: InvTwo, InvTwoT,
+import SingletonNumbers: InvTwo, InvTwoT,
     RootTwo, RootTwoT, Two, TwoT,
     InvRootTwo, InvRootTwoT,
     Imag, ImagT,

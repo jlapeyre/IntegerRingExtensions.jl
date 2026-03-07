@@ -10,7 +10,7 @@ import Utils: superscript, iszero_strong, isone_strong, PRETTY
 import RootOnes: RootOne
 import Dyadics: Dyadic
 import QuadraticRings: DRoot2, ZRoot2
-import Singletons: InvTwo, InvTwoT,
+import SingletonNumbers: InvTwo, InvTwoT,
     RootTwo, RootTwoT, Two, TwoT,
     InvRootTwo, InvRootTwoT,
     Imag, ImagT,
