@@ -3,6 +3,9 @@ uuid = "32814b26-06a8-441b-b14b-95ecdba71a3c"
 version = "1.0.0-DEV"
 authors = ["John Lapeyre"]
 
+[workspace]
+projects = ["test"]
+
 [deps]
 Common = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
 DispatchDoctor = "8d63f2c5-f18a-4cf2-ba9d-b3f60fc568c8"
@@ -16,8 +19,7 @@ Random = "1.11.0"
 Utils = "1.0.0"
 julia = "1.11"
 
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
+# [extras]
+# Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+# [targets]
+# test = ["Test"]
