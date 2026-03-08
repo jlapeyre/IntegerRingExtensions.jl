@@ -4,7 +4,7 @@ import LinearAlgebra
 import Base: convert, zero, one, promote_rule
 import IsApprox: AbstractApprox, Equal
 
-import Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
+import RingExtensionsCommon: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_root_two, mul_one_over_root_two, mul_half, conj_root_two, mul_two
 import RingExtensionsUtils: superscript, iszero_strong, isone_strong, PRETTY
 import RootOnes: RootOne

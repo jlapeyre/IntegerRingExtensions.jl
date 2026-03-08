@@ -12,7 +12,7 @@ export ZRootD
 Reexport.@reexport import RingExtensionsUtils: subscript, superscript, lobit, small, countmap, random_unitary,
     random_special_unitary, prettylist
 
-Reexport.@reexport import Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
+Reexport.@reexport import RingExtensionsCommon: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,
     mul_root_two, mul_one_over_root_two, mul_half, mul_two, conj_root_two, norm_root_two, norm_root_D, isrational, isunit, invstrict,
     isimag
 

@@ -2,7 +2,7 @@
 
 using CyclotomicRings: DOmega
 using ..GridSynth: GridSynthMatrix, GridSynthResults, gridsynth_matrix
-using Common: mul_root_two
+using RingExtensionsCommon: mul_root_two
 using SmallStaticMatrices: Matrix2x2
 
 function gridsynth_matrix_to_cyclic(matrix::GridSynthMatrix; power=true)

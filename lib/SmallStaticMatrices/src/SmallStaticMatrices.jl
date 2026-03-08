@@ -10,7 +10,7 @@ import LinearAlgebra: LinearAlgebra, isposdef, ishermitian, hermitianpart, hermi
 import IsApprox: isunitary, isinvolution, AbstractApprox, Equal, Approx, ispossemidef,
     isnormal
 
-import Common: canonical, isunit, isimag
+import RingExtensionsCommon: canonical, isunit, isimag
 import RingExtensionsUtils: PRETTY, cpad, _show_with_fieldnames, _power_by_squaring
 import Angles2: radtodar, Dar, random_angle
 import FunctionSecants: secant

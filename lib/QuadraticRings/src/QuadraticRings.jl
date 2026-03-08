@@ -3,7 +3,7 @@ module QuadraticRings
 import LinearAlgebra
 import Base: promote_rule, show, convert
 
-import Common: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
+import RingExtensionsCommon: canonical, imaginary, sqrt_imaginary, one_over_root_two, root_two, coeffs,
     mul_half, conj_root_two, norm_root_two, norm_root_D, conj_root_D, isrational, isunit, invstrict
 import RingExtensionsUtils: PRETTY, issquarefree
 import Dyadics: Dyadic

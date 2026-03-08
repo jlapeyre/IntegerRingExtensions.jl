@@ -2,7 +2,7 @@ module SingletonNumbers
 
 import Base: show, inv, sqrt, isone, iszero, isinteger, iseven, isreal
 import RingExtensionsUtils: PRETTY, superscript
-import Common: isrational
+import RingExtensionsCommon: isrational
 
 export RootTwo, InvRootTwo, Imag, 𝕚,  RootImag, Two, 𝟚, InvTwo, 𝟚⁻¹,
     One, Zero, 𝟙, 𝟘

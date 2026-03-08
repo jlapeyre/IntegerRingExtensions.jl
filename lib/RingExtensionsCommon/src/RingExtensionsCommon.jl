@@ -1,4 +1,4 @@
-module Common
+module RingExtensionsCommon
 
 import IsApprox: IsApprox, AbstractApprox, Equal, Approx
 
@@ -246,4 +246,4 @@ function isimag(a::AbstractArray, app::AbstractApprox=Equal())
     return all(x -> isimag(x, app), a)
 end
 
-end # module Common
+end # module RingExtensionsCommon

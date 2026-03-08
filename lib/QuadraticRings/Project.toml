@@ -4,7 +4,7 @@ version = "1.0.0-DEV"
 authors = ["John Lapeyre"]
 
 [deps]
-Common = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+RingExtensionsCommon = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
 Dyadics = "8e3fe6b3-7b7e-49b9-998b-f3cd8325e817"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 RootOnes = "32814b26-06a8-441b-b14b-95ecdba71a3c"
@@ -12,7 +12,7 @@ SingletonNumbers = "432dfa58-0f90-4bfc-a98e-bb512c101b26"
 RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
 
 [compat]
-Common = "1.0.0"
+RingExtensionsCommon = "1.0.0"
 Dyadics = "1.0.0"
 LinearAlgebra = "1.12.0"
 RootOnes = "1.0.0"

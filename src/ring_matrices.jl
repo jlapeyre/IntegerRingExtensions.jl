@@ -5,7 +5,7 @@ import IsApprox: isinvolution, Approx, AbstractApprox, Equal
 import CyclotomicRings: DOmega, ZOmega, least_denominator_exponent, CyclotomicRing, div_coefficients
 import SmallStaticMatrices: MatrixNxN, Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2, scalematrix
 import RootOnes: RootOne, Omega
-import Common: canonical, coeffs
+import RingExtensionsCommon: canonical, coeffs
 import RingExtensionsUtils: lobit
 
 import SingletonNumbers: InvTwo, InvTwoT,

@@ -1,4 +1,4 @@
-name = "Common"
+name = "RingExtensionsCommon"
 uuid = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
 version = "1.0.0-DEV"
 authors = ["John Lapeyre"]

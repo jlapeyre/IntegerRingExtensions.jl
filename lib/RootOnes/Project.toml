@@ -7,13 +7,13 @@ authors = ["John Lapeyre"]
 projects = ["test"]
 
 [deps]
-Common = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
+RingExtensionsCommon = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
 DispatchDoctor = "8d63f2c5-f18a-4cf2-ba9d-b3f60fc568c8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
 
 [compat]
-Common = "1.0.0"
+RingExtensionsCommon = "1.0.0"
 DispatchDoctor = "0.4.28"
 Random = "1.11.0"
 RingExtensionsUtils = "1.0.0"
