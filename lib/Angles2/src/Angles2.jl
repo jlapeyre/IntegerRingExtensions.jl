@@ -133,6 +133,20 @@ function zero_to_two(x)
 end
 
 # Probably want a Base.convert
+"""
+    radtodar(theta)::Dar
+
+Convert angle `theta` (in radians) to `Dar` of same value.
+
+# Examples
+```jldoctest
+julia> d = radtodar(3.0)
+0.954929658551372 π
+
+julia> float(d) == 3.0
+true
+```
+"""
 function radtodar(theta)
     Dar(theta / pi)
 end
