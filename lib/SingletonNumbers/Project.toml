@@ -5,11 +5,11 @@ authors = ["John Lapeyre"]
 
 [deps]
 Common = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
-Utils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
 
 [compat]
 Common = "1.0.0"
-Utils = "1.0.0"
+RingExtensionsUtils = "1.0.0"
 julia = "1.11"
 
 [extras]

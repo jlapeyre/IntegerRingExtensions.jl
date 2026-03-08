@@ -11,7 +11,7 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 QuadraticRings = "c34bf170-b082-433c-beb6-b642a61601ea"
 RootOnes = "32814b26-06a8-441b-b14b-95ecdba71a3c"
 SingletonNumbers = "432dfa58-0f90-4bfc-a98e-bb512c101b26"
-Utils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
 
 [compat]
 Common = "1.0.0"
@@ -21,7 +21,7 @@ LinearAlgebra = "1.12.0"
 QuadraticRings = "1.0.0"
 RootOnes = "1.0.0"
 SingletonNumbers = "1.0.0"
-Utils = "1.0.0"
+RingExtensionsUtils = "1.0.0"
 julia = "1.11"
 
 [extras]

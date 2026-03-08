@@ -6,7 +6,7 @@ import CyclotomicRings: DOmega, ZOmega, least_denominator_exponent, CyclotomicRi
 import SmallStaticMatrices: MatrixNxN, Matrix2x2, AbstractMatrix2x2, AbstractMatrixNxN, elements, ScaleMatrix2x2, scalematrix
 import RootOnes: RootOne, Omega
 import Common: canonical, coeffs
-import Utils: lobit
+import RingExtensionsUtils: lobit
 
 import SingletonNumbers: InvTwo, InvTwoT,
     RootTwo, RootTwoT, Two, TwoT,

@@ -9,7 +9,7 @@ export DOmega
 export ZRoot2
 export ZRootD
 
-Reexport.@reexport import Utils: subscript, superscript, lobit, small, countmap, random_unitary,
+Reexport.@reexport import RingExtensionsUtils: subscript, superscript, lobit, small, countmap, random_unitary,
     random_special_unitary, prettylist
 
 Reexport.@reexport import Common: canonical, one_over_root_two, root_two, imaginary, sqrt_imaginary, coeffs, params,

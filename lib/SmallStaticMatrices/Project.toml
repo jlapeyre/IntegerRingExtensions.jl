@@ -10,7 +10,7 @@ FunctionSecants = "9112c3b5-d6e8-4492-aa25-555be7829d8d"
 IsApprox = "28f27b66-4bd8-47e7-9110-e2746eb8bed7"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Utils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
 
 [compat]
 Angles2 = "1.0.0"
@@ -19,7 +19,7 @@ FunctionSecants = "1.0.0"
 IsApprox = "2.0.0"
 LinearAlgebra = "1.12.0"
 Random = "1.11.0"
-Utils = "1.0.0"
+RingExtensionsUtils = "1.0.0"
 julia = "1.11"
 
 [extras]

@@ -5,7 +5,7 @@ authors = ["John Lapeyre"]
 
 [workspace]
 projects = [
-    "lib/Utils",
+    "lib/RingExtensionsUtils",
     "lib/Common",
     "lib/Angles2",
     "lib/FunctionSecants",
@@ -20,7 +20,7 @@ projects = [
 
 [deps]
 Angles2 = "6e6d5e11-4077-4f2b-9d65-d01251d57388"
-Utils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
 Common = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
 RootOnes = "32814b26-06a8-441b-b14b-95ecdba71a3c"
 DispatchDoctor = "8d63f2c5-f18a-4cf2-ba9d-b3f60fc568c8"
@@ -50,7 +50,7 @@ ZChopExt = "ZChop"
 
 [compat]
 Common = "1"
-Utils = "1"
+RingExtensionsUtils = "1"
 RootOnes = "1"
 QuadraticRings = "1"
 CyclotomicRings = "1"

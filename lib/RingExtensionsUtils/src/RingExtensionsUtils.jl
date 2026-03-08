@@ -1,4 +1,4 @@
-module Utils
+module RingExtensionsUtils
 
 import LinearAlgebra
 import ILog2: ilog2
@@ -215,4 +215,4 @@ function pretty(io::IO, obj)
     show(io, PRETTY(), obj)
 end
 
-end # module Utils
+end # module RingExtensionsUtils

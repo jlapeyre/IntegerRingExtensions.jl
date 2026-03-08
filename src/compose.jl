@@ -8,7 +8,7 @@ import ..RingMatrices: scalematrix
 import ..Gates: Gate1, RZ
 using Common: canonical
 using CyclotomicRings: DOmega, ZOmega
-using Utils: PRETTY, pretty
+using RingExtensionsUtils: PRETTY, pretty
 
 """
     compose(gates::AbstractString; chunklen=300)

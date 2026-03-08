@@ -9,7 +9,7 @@ import Random
 
 using DispatchDoctor: @stable, @unstable
 
-import Utils: subscript, superscript
+import RingExtensionsUtils: subscript, superscript
 import Common: sqrt_imaginary, imaginary, isunit, conj_root_two, norm_root_two
 
 

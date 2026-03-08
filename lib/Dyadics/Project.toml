@@ -8,14 +8,14 @@ Common = "3a7dbeb7-5dd5-425a-9c9e-ea20cd1c0f9d"
 ILog2 = "2cd5bd5f-40a1-5050-9e10-fc8cdb6109f5"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SingletonNumbers = "432dfa58-0f90-4bfc-a98e-bb512c101b26"
-Utils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
+RingExtensionsUtils = "cace0a1a-9ffc-43ac-8a29-f8705c2ca912"
 
 [compat]
 Common = "1.0.0"
 ILog2 = "2.0.0"
 Random = "1.11.0"
 SingletonNumbers = "1.0.0"
-Utils = "1.0.0"
+RingExtensionsUtils = "1.0.0"
 julia = "1.11"
 
 [extras]
