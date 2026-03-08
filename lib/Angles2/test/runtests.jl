@@ -30,5 +30,11 @@ using Test
     @test iszero(sum(checkadd() for _ in 1:N))
 
     @test Dar(3) / pi === 3
-    @test (Dar(1) // 3).x === 1//3
+    @test (Dar(1) // 3).c === 1//3
+    @test Dar(1) == pi
+    @test Dar(1) + pi === Dar(2.0)
+
+    @test zero(Dar{Float64}) === Dar(0.0)
+    @test zero(Dar{Int}) === Dar(0)
+    @test zero(Dar(3)) === Dar(0)
 end

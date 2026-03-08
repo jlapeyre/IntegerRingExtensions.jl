@@ -9,7 +9,7 @@ module Angles2
 using DocStringExtensions: EXPORTS, TYPEDFIELDS, SIGNATURES, TYPEDSIGNATURES, TYPEDEF
 import Random
 
-export Dar, radtodar, scalepi, unscalepi, minus_one_to_one, radians, random_angle, random_phase
+export Dar, radtodar, scalepi, unscalepi, minus_one_to_one, random_angle, random_phase
 
 const PRETTY = MIME"text/plain"
 
@@ -27,6 +27,23 @@ julia> Dar(3)
 3 π
 
 julia> Dar(3) == 3pi
+true
+```
+`Dar(1)` is exactly equal to `π`
+```jldoctest
+julia> 3 * Dar(1//3)
+1//1 π
+
+julia> float(pi) == pi
+false
+
+julia> Dar(1) == pi
+true
+
+julia> 3 * Dar(1//3)
+1//1 π
+
+julia> 3 * Dar(1//3) == pi
 true
 ```
 """
@@ -49,12 +66,14 @@ Base.AbstractFloat(::Type{Dar{T}}) where {T} = float(T)
 Base.AbstractFloat(a::Dar{T}) where {T} = unscalepi(float(coeff(a)))
 Base.Float64(a::Dar) = unscalepi(float(coeff(a)))
 
-Base.convert(::Type{Float64}, a::Dar) = Float64(a)
+# Base.convert(::Type{Float64}, a::Dar) = Float64(a)
 
-# Are these useful? They are odd. Remove if not useful.
-Base.one(::Type{Dar{T}}) where {T} = one(T)
-Base.one(::Dar{T}) where {T} = one(T)
+# These are odd. Don't seem to make sense.
+#  Remove if not useful.
+# Base.one(::Type{Dar{T}}) where {T} = one(T)
+# Base.one(::Dar{T}) where {T} = one(T)
 
+# This is sensible
 Base.zero(::Type{Dar{T}}) where {T} = Dar(zero(T))
 Base.zero(::Dar{T}) where {T} = Dar(zero(T))
 
@@ -112,15 +131,8 @@ function zero_to_two(x)
 end
 
 # Probably want a Base.convert
-"""
-
-"""
 function radtodar(theta)
     Dar(theta / pi)
-end
-
-function radians(dar::Dar)
-    dar.c * pi
 end
 
 scalepi(x::Real) = x / pi
