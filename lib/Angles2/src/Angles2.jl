@@ -1,5 +1,12 @@
+"""
 module Angles2
 
+Exports:
+$(EXPORTS)
+"""
+module Angles2
+
+using DocStringExtensions: EXPORTS, TYPEDFIELDS, SIGNATURES, TYPEDSIGNATURES, TYPEDEF
 import Random
 
 export Dar, radtodar, scalepi, unscalepi, minus_one_to_one, radians, random_angle, random_phase
@@ -7,55 +14,76 @@ export Dar, radtodar, scalepi, unscalepi, minus_one_to_one, radians, random_angl
 const PRETTY = MIME"text/plain"
 
 """
-    Dar{T}
+    $(TYPEDEF)
 
 An angular unit equal to radians scaled by `π`.
+
+# Fields
+$(TYPEDFIELDS)
+
+# Examples
+```jldoctest
+julia> Dar(3)
+3 π
+
+julia> Dar(3) == 3pi
+true
+```
 """
 struct Dar{T} #  <: Real I think I don't want this
+    """coefficient of π"""
+    c::T
+
     function Dar(x)
         new{typeof(x)}(x)
     end
-    x::T
 end
 
+coeff(d::Dar) = d.c
+
 function Base.show(io::IO, ::PRETTY, d::Dar)
-    print(io, d.x, " π")
+    print(io, coeff(d), " π")
 end
 
 Base.AbstractFloat(::Type{Dar{T}}) where {T} = float(T)
-Base.AbstractFloat(a::Dar{T}) where {T} = unscalepi(float(a.x))
-Base.Float64(a::Dar) = unscalepi(float(a.x))
+Base.AbstractFloat(a::Dar{T}) where {T} = unscalepi(float(coeff(a)))
+Base.Float64(a::Dar) = unscalepi(float(coeff(a)))
 
 Base.convert(::Type{Float64}, a::Dar) = Float64(a)
 
+# Are these useful? They are odd. Remove if not useful.
 Base.one(::Type{Dar{T}}) where {T} = one(T)
 Base.one(::Dar{T}) where {T} = one(T)
 
 Base.zero(::Type{Dar{T}}) where {T} = Dar(zero(T))
 Base.zero(::Dar{T}) where {T} = Dar(zero(T))
 
-Base.:+(d::Dar, x::Real) = Dar(d.x + scalepi(x))
-Base.:-(d::Dar, x::Real) = Dar(d.x - scalepi(x))
+Base.:+(d::Dar, x::Real) = Dar(d.c + scalepi(x))
+Base.:-(d::Dar, x::Real) = Dar(d.c - scalepi(x))
 Base.:+(x::Real, d::Dar) = d + x
 Base.:-(x::Real, d::Dar) = d - x
-Base.:+(d1::Dar, d2::Dar) = Dar(d1.x + d2.x)
-Base.:-(d1::Dar, d2::Dar) = Dar(d1.x - d2.x)
-Base.:-(a::Dar) = Dar(-a.x)
+Base.:+(d1::Dar, d2::Dar) = Dar(d1.c + d2.c)
+Base.:-(d1::Dar, d2::Dar) = Dar(d1.c - d2.c)
+Base.:-(a::Dar) = Dar(-a.c)
 
-Base.:(==)(a::Dar, b::Dar) = a.x == b.x
+Base.:(==)(a::Dar, b::Dar) = a.c == b.c
 
-Base.:(==)(a::Dar, x::Real) = unscalepi(a.x) == x
+Base.:(==)(a::Dar, x::Real) = unscalepi(a.c) == x
 Base.:(==)(x::Real, a::Dar) = x == a
+
+# float(pi) != pi
+# But we test if a is exactly pi.
+Base.:(==)(a::Dar{T}, ::Irrational{:π}) where {T<:Union{Integer, Rational}} = isone(a.c)
 
 # Note that we don't want ::Dar * ::Dar.
 # That would make no sense
-Base.:*(x::Real, d::Dar) = Dar(x * d.x)
+Base.:*(x::Real, d::Dar) = Dar(x * d.c)
 Base.:*(d::Dar, x::Real) = x * d
 
-Base.:/(d::Dar, x::Real) = Dar(d.x / x)
-Base.://(d::Dar, x::Real) = Dar(d.x // x)
-Base.div(d::Dar, x::Real) = Dar(div(d.x, x))
-Base.:/(d::Dar, ::Irrational{:π}) = d.x
+Base.:/(d::Dar, x::Real) = Dar(d.c / x)
+Base.://(d::Dar, x::Real) = Dar(d.c // x)
+Base.div(d::Dar, x::Real) = Dar(div(d.c, x))
+Base.:/(d::Dar, ::Irrational{:π}) = d.c
 
 Dar(d::Dar) = d
 
@@ -63,9 +91,9 @@ Dar(d::Dar) = d
 ## For example, some math proofs depend on this.
 
 """
-    minus_one_to_one(x)
+    $(SIGNATURES)
 
-Add an even integer to `x` such that the result is in `[-1, 1]` and return the result
+Add an even integer to `x` such that the result is in `[-1, 1]` and return the result.
 """
 function minus_one_to_one(x)
     (f, w) = modf(x) # fractional, whole
@@ -74,17 +102,25 @@ function minus_one_to_one(x)
     return x - w
 end
 
+"""
+    $(SIGNATURES)
+
+Add an even integer to `x` such that the result is in `[0, 2]` and return the result.
+"""
 function zero_to_two(x)
     mod(x, 2)
 end
 
 # Probably want a Base.convert
+"""
+
+"""
 function radtodar(theta)
     Dar(theta / pi)
 end
 
 function radians(dar::Dar)
-    dar.x * pi
+    dar.c * pi
 end
 
 scalepi(x::Real) = x / pi
@@ -95,7 +131,7 @@ unscalepi(x::Dar) = x
 # intdiv(x::Integer, n::Integer) = div(x, n)
 # intdiv(x::Real, n::Integer) = x / n
 # #intdiv(x::Rational, n::Integer) = x * 1//n
-# intdiv(x::Dar, n::Integer) = Dar(intdiv(x.x, n))
+# intdiv(x::Dar, n::Integer) = Dar(intdiv(x.c, n))
 
 cscpi(x) = inv(sinpi(x))
 secpi(x) = inv(cospi(x))
@@ -104,7 +140,7 @@ import Base: cos, sin, cis, tan, sincos, csc, sec
 
 for func in (:cos, :sin, :cis, :tan, :sincos, :csc, :sec)
     funcpi = Symbol(func, :pi)
-    @eval $func(dar::Dar) = $funcpi(dar.x)
+    @eval $func(dar::Dar) = $funcpi(dar.c)
 end
 
 # A random angle between -pi and pi
@@ -117,8 +153,8 @@ function Random.rand(rng::Random.AbstractRNG, ::Random.SamplerType{Dar})
     Dar(2*rand(T) - 1)
 end
 
-Base.isapprox(a::Dar, b::Dar; kws...) = isapprox(a.x, b.x; kws...)
-Base.isapprox(a::Dar, x::Real; kws...) = isapprox(unscalepi(a.x), x; kws...)
+Base.isapprox(a::Dar, b::Dar; kws...) = isapprox(a.c, b.c; kws...)
+Base.isapprox(a::Dar, x::Real; kws...) = isapprox(unscalepi(a.c), x; kws...)
 Base.isapprox(x::Real, a::Dar ; kws...) = isapprox(a, x; kws...)
 
 
@@ -142,6 +178,11 @@ function random_angle(::Type{T}, args...) where {T<:Dar}
     rand(T, args...)
 end
 
+"""
+    random_phase(::Type{T}=Float64) where {T}
+
+Return a random phase, that is `exp(i π α)` where α is a random angle.
+"""
 function random_phase(::Type{T}=Float64) where {T}
     cis(random_angle(T))
 end
