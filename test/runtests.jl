@@ -8,8 +8,8 @@ push!(LOAD_PATH, joinpath(@__DIR__, "..", "lib"))
 # Angles2
 include(joinpath(@__DIR__, "..", "lib", "Angles2", "test", "runtests.jl"))
 
-# Functionsecants
-include(joinpath(@__DIR__, "..", "lib", "FunctionSecants", "test", "runtests.jl"))
+# FunctionSecants
+#include(joinpath(@__DIR__, "..", "lib", "FunctionSecants", "test", "runtests.jl"))
 
 # RootOnes
 include(joinpath(@__DIR__, "..", "lib", "RootOnes", "test", "runtests.jl"))

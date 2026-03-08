@@ -80,8 +80,8 @@ function _central_diff(f, x, z, h=1e-6)
     (f(w+h) - f(w-h)) / (2*h)
 end
 
-fastabs(x::Number) = abs(x)
-fastabs(z::Complex) = abs(real(z)) + abs(imag(z))
+fakeabs(x::Number) = abs(x)
+fakeabs(z::Complex) = abs(real(z)) + abs(imag(z))
 
 """
     secant(f::F, x::T, y::T) where {F, T <: Number}
@@ -94,7 +94,7 @@ function secant(f::F, x::T, y::T) where {F, T <: Number}
     fx = f(x)
     fy = f(y)
     dl = x - y
-    if fastabs(dl) < sqrt(eps(real(typeof(x))))
+    if fakeabs(dl) < sqrt(eps(real(typeof(x))))
         sl = _central_diff(f, x, y)
     else
         sl = (fx - fy) / (x - y)
