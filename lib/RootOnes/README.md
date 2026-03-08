@@ -21,7 +21,7 @@ The following alias is defined:
 const Omega = RootOne{8}
 ```
 
-# Examples
+### Examples
 
 See also `Omega`.
 
