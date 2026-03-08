@@ -25,13 +25,13 @@ const Omega = RootOne{8}
 
 See also `Omega`.
 
-```jldoctest
+```julia
 
 julia> RootOne{8}(1)
 RootOne{8}(1)
 ```
 
-```jldoctest
+```julia
 julia> RootOne{8}(-1)
 RootOne{8}(7)
 
