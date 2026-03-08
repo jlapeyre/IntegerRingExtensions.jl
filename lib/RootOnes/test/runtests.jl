@@ -1,7 +1,7 @@
 using RootOnes: RootOne, Omega, imaginary
 using Test
 
-using Common: isunit, sqrt_imaginary
+using RingExtensionsCommon: isunit, sqrt_imaginary
 
 @testset "RootOne" begin
     # Test that `angle` gives the same result obtained by converting to

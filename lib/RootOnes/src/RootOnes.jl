@@ -3,7 +3,6 @@ module RootOnes
 # IDK how to use Revise with this. Always errors on every edit
 # @stable module RootOnes
 
-
 import Base: convert, show
 import Random
 
@@ -99,7 +98,7 @@ Return `RootOne{N}(1)`, the principal `n`th root of unity.
 RootOne{N}() where {N} = RootOne{N}(1)
 
 """
-    Omega = RootOne{8}
+    const Omega = RootOne{8}
 
 The eighth roots of unity.
 
@@ -130,7 +129,7 @@ const Omega = RootOne{8}
 """
     const omega = Omega(1)
 
-Represents the principal eighth root of unity.
+The principal eighth root of unity.
 """
 const omega = Omega(1)
 

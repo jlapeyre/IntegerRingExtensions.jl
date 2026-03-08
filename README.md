@@ -3,7 +3,12 @@
 This package provides some extensions of the ring of integers and tools for working with 2 x 2 matrices over these rings.
 Implementations and tools for one-qubit Clifford + T gates are included.
 
-The main goal of this package is to support research in unitary synthesis.
+The main goal of this package is to support research and learning in unitary synthesis.
+
+Routines for doing synthesis are *not* included here. I have not yet had a need that justifies the time required
+to implement them.
+
+A lot of stuff here works. But some refactoring and reorganizing is only partially finished.
 
 ### Related packages
 
