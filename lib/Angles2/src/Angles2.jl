@@ -69,9 +69,11 @@ Base.Float64(a::Dar) = unscalepi(float(coeff(a)))
 # Base.convert(::Type{Float64}, a::Dar) = Float64(a)
 
 # These are odd. Don't seem to make sense.
-#  Remove if not useful.
-# Base.one(::Type{Dar{T}}) where {T} = one(T)
-# Base.one(::Dar{T}) where {T} = one(T)
+# Return type is different from input type.
+# But, sometimes, we have `angle::T` and want `one(T)`.
+# This allows using both `angle::Float64` and `Dar{T}` in one code path.
+Base.one(::Type{Dar{T}}) where {T} = one(T)
+Base.one(::Dar{T}) where {T} = one(T)
 
 # This is sensible
 Base.zero(::Type{Dar{T}}) where {T} = Dar(zero(T))

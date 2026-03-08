@@ -37,4 +37,7 @@ using Test
     @test zero(Dar{Float64}) === Dar(0.0)
     @test zero(Dar{Int}) === Dar(0)
     @test zero(Dar(3)) === Dar(0)
+
+    @test one(Dar(2)) === 1
+    @test one(Dar(3.1)) === 1.0
 end
